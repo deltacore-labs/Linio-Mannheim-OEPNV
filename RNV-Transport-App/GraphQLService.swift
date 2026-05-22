@@ -1349,4 +1349,50 @@ class GraphQLService: ObservableObject {
         guard let da = fmt.parseISO8601(a), let db = fmt.parseISO8601(b) else { return Double.infinity }
         return da.timeIntervalSince(db)
     }
+
+    // MARK: - Station Quays (Koordinaten pro Steig)
+
+    func getStationQuays(hafasID: String, accessToken: String) async -> [StationQuay] {
+        let safeID = sanitize(hafasID)
+        let query = """
+        {
+          station(id: "\(safeID)") {
+            stops {
+              hafasID
+              name
+              lat
+              lon
+            }
+          }
+        }
+        """
+
+        guard let data = try? await executeQuery(query: query, accessToken: accessToken),
+              let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+              let responseData = json["data"] as? [String: Any],
+              let stationObj = responseData["station"] as? [String: Any],
+              let stopsArr = stationObj["stops"] as? [[String: Any]]
+        else {
+            plog("getStationQuays: Keine Stop-Daten für hafasID=\(hafasID)")
+            return []
+        }
+
+        let quays: [StationQuay] = stopsArr.compactMap { stop in
+            guard let hid = stop["hafasID"] as? String,
+                  let name = stop["name"] as? String,
+                  let lat = stop["lat"] as? Double,
+                  let lon = stop["lon"] as? Double,
+                  lat != 0, lon != 0 else { return nil }
+            let letter = StationQuay.letter(fromName: name)
+            return StationQuay(
+                id: hid,
+                name: name,
+                letter: letter,
+                coordinate: CLLocationCoordinate2D(latitude: lat, longitude: lon)
+            )
+        }
+
+        plog("getStationQuays: \(quays.count) Steige für hafasID=\(hafasID)")
+        return quays
+    }
 }

@@ -954,6 +954,7 @@ class GraphQLService: ObservableObject {
                   point {
                     ... on StopPoint {
                       stopPointName
+                      ref
                     }
                   }
                   timetabledTime { isoString }
@@ -1034,7 +1035,10 @@ class GraphQLService: ObservableObject {
                 return DepartureStop(name: name, scheduledTime: nil, estimatedTime: nil)
             }
 
-            return Departure(
+            let boardRef = (board["point"] as? [String: Any])?["ref"] as? String
+            let quayText = boardRef.flatMap { StationQuay.quayText(fromRef: $0) }
+
+            var departure = Departure(
                 scheduledDeparture: timetabled,
                 estimatedDeparture: (estimated == "null") ? nil : estimated,
                 lineName: lineName,
@@ -1045,6 +1049,8 @@ class GraphQLService: ObservableObject {
                 finalStop: finalStop,
                 originGlobalID: originID
             )
+            departure.quayText = quayText
+            return departure
         }
     }
 

@@ -139,6 +139,7 @@ struct StationQuay: Identifiable {
         guard parts.count >= 5 else { return nil }
         let segment = String(parts[4])
         guard !segment.isEmpty, segment != "0", segment != "null" else { return nil }
+        guard segment.range(of: #"^[A-Z]{1,2}[0-9]?$|^[0-9]{1,3}$"#, options: .regularExpression) != nil else { return nil }
         return "Steig \(segment)"
     }
 

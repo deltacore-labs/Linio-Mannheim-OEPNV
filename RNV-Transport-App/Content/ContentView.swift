@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import WidgetKit
 import CoreLocation
 
 struct ContentView: View {
@@ -13,9 +14,11 @@ struct ContentView: View {
     @ObservedObject private var graphQLService = GraphQLService.shared
     @StateObject private var locationManager = LocationManager()
 
-    @State private var activeTripCount = 0
     @State private var selectedTab = 0
+    @State private var navigateToTrips = false
     @Environment(\.colorScheme) private var colorScheme
+    @AppStorage("hasSeenWalletIntro") private var hasSeenWalletIntro = false
+    @State private var showWalletIntro = false
 
     init() {
         let tabBarAppearance = UITabBarAppearance()
@@ -57,48 +60,42 @@ struct ContentView: View {
             }
             .tag(1)
 
-            // MARK: - Planned Trips Tab
-            PlannedTripsView()
-                .tabItem {
-                    Label("Fahrten", systemImage: activeTripCount > 0 ? "bell.badge.fill" : "bell")
-                }
-                .tag(2)
-                .badge(activeTripCount > 0 ? activeTripCount : 0)
-
             // MARK: - Ticket Tab
             TicketView()
                 .tabItem {
-                    Label("Ticket", systemImage: "ticket.fill")
+                    Label("Ticket", systemImage: "tram.card.fill")
                 }
-                .tag(3)
+                .tag(2)
 
             // MARK: - Settings Tab
-            SettingsView(locationManager: locationManager)
+            SettingsView(locationManager: locationManager, navigateToTrips: $navigateToTrips)
                 .tabItem {
                     Label("Einstellungen", systemImage: "gearshape.fill")
                 }
-                .tag(4)
+                .tag(3)
         }
         .tint(colorScheme == .dark ? .white : AppTheme.primaryColor)
         .dynamicTypeSize(.xSmall ... .accessibility2)
+        .sheet(isPresented: $showWalletIntro, onDismiss: { hasSeenWalletIntro = true }) {
+            WalletIntroSheet { hasSeenWalletIntro = true }
+        }
         .onOpenURL { url in
-            // Dynamic Island / Live Activity deep link → "Fahrten"-Tab
+            // Dynamic Island / Live Activity deep link → Einstellungen (Fahrten-Abschnitt)
             if url.scheme == "rnv", url.host == "trips" {
-                selectedTab = 2
+                selectedTab = 3
+                navigateToTrips = true
             }
         }
         .onAppear {
+            if !hasSeenWalletIntro { showWalletIntro = true }
             #if DEBUG
             print("🔍 [xcconfig] CLIENT_ID: \(Bundle.main.object(forInfoDictionaryKey: "RNV_CLIENT_ID") ?? "❌ NIL")")
             print("🔍 [xcconfig] GRAPHQL_URL: \(Bundle.main.object(forInfoDictionaryKey: "RNV_GRAPHQL_URL") ?? "❌ NIL")")
             #endif
-            activeTripCount = LiveActivityState.shared.getAllActiveTrips().count
-        }
-        .onReceive(NotificationCenter.default.publisher(for: LiveActivityState.activeTripsDidChangeNotification)) { _ in
-            activeTripCount = LiveActivityState.shared.getAllActiveTrips().count
         }
         .task {
             await authService.autoAuthenticate()
+            WidgetCenter.shared.reloadTimelines(ofKind: "StationDepartureWidget")
             await locationManager.autoRequestLocation()
         }
         .task(id: "dailyCleanup") {
@@ -193,4 +190,116 @@ extension Color {
 #Preview {
     ContentView()
         .environmentObject(LiveActivityManager())
+}
+
+// MARK: - Wallet Intro Sheet
+
+struct WalletIntroSheet: View {
+    let onDismiss: () -> Void
+    @Environment(\.dismiss) private var dismiss
+
+    var body: some View {
+        ZStack {
+            Color(hex: "#1a1a1a").ignoresSafeArea()
+
+            VStack(spacing: 0) {
+                // Header
+                VStack(spacing: 16) {
+                    Image(systemName: "wallet.bifold.fill")
+                        .font(.system(size: 52))
+                        .foregroundStyle(.white)
+                        .padding(.top, 48)
+
+                    Text("Ticket im Apple Wallet")
+                        .font(.system(size: 26, weight: .bold))
+                        .foregroundStyle(.white)
+                        .multilineTextAlignment(.center)
+
+                    Text("Dein Deutschlandticket ist jetzt als\nWallet-Pass verfügbar.")
+                        .font(.subheadline)
+                        .foregroundStyle(Color(hex: "#a8a29e"))
+                        .multilineTextAlignment(.center)
+                }
+                .padding(.horizontal, 32)
+
+                // Steps
+                VStack(spacing: 0) {
+                    introStep(
+                        number: "1",
+                        icon: "photo.badge.plus",
+                        title: "Ticket importieren",
+                        description: "Screenshots deines Tickets scannen oder Daten manuell eingeben."
+                    )
+                    stepDivider
+                    introStep(
+                        number: "2",
+                        icon: "wallet.bifold",
+                        title: "\"Zu Apple Wallet\" tippen",
+                        description: "Den Button auf der Ticket-Seite antippen."
+                    )
+                    stepDivider
+                    introStep(
+                        number: "3",
+                        icon: "checkmark.seal.fill",
+                        title: "Pass hinzufügen",
+                        description: "Pass bestätigen — fertig. Er erscheint in der Wallet-App."
+                    )
+                }
+                .padding(.horizontal, 24)
+                .padding(.top, 36)
+
+                Spacer()
+
+                // Dismiss
+                Button {
+                    onDismiss()
+                    dismiss()
+                } label: {
+                    Text("Verstanden")
+                        .font(.system(size: 17, weight: .semibold))
+                        .foregroundStyle(Color(hex: "#1a1a1a"))
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 16)
+                        .background(.white)
+                        .clipShape(RoundedRectangle(cornerRadius: 14))
+                }
+                .padding(.horizontal, 24)
+                .padding(.bottom, 40)
+            }
+        }
+    }
+
+    private func introStep(number: String, icon: String, title: String, description: String) -> some View {
+        HStack(alignment: .top, spacing: 16) {
+            ZStack {
+                Circle()
+                    .fill(Color(hex: "#2c2c2c"))
+                    .frame(width: 44, height: 44)
+                Image(systemName: icon)
+                    .font(.system(size: 18))
+                    .foregroundStyle(Color(hex: "#f8cc00"))
+            }
+            VStack(alignment: .leading, spacing: 3) {
+                Text(title)
+                    .font(.system(size: 15, weight: .semibold))
+                    .foregroundStyle(.white)
+                Text(description)
+                    .font(.system(size: 13))
+                    .foregroundStyle(Color(hex: "#a8a29e"))
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+            Spacer()
+        }
+        .padding(.vertical, 12)
+    }
+
+    private var stepDivider: some View {
+        HStack {
+            Rectangle()
+                .fill(Color(hex: "#2c2c2c"))
+                .frame(width: 1, height: 20)
+                .padding(.leading, 21)
+            Spacer()
+        }
+    }
 }

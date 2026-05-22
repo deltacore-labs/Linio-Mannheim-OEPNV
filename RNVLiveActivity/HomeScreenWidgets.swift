@@ -58,7 +58,7 @@ struct WidgetDataProvider {
         return f
     }()
 
-    private static let timeFormatter: DateFormatter = {
+    static let timeFormatter: DateFormatter = {
         let f = DateFormatter()
         f.dateFormat = "HH:mm"
         f.locale = Locale(identifier: "de_DE")

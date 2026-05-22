@@ -162,10 +162,15 @@ class AuthService: ObservableObject {
                     self.authError = nil
 
                     // Token + URL für Widget in App Group speichern
-                    let appGroupDefaults = UserDefaults(suiteName: "group.com.stefanfriedrich.rnvapp")
+                    let appGroupDefaults = UserDefaults(suiteName: AppConfiguration.appGroupID)
                     appGroupDefaults?.set(token, forKey: "widgetAccessToken")
-                    let graphqlURL = Bundle.main.object(forInfoDictionaryKey: "RNV_GRAPHQL_URL") as? String
-                        ?? "https://graphql-sandbox-dds.rnv-online.de/"
+                    let rawGraphQLURL = Bundle.main.object(forInfoDictionaryKey: "RNV_GRAPHQL_URL") as? String
+                    let graphqlURL: String
+                    if let raw = rawGraphQLURL, !raw.isEmpty, !raw.contains("$(") {
+                        graphqlURL = raw
+                    } else {
+                        graphqlURL = "https://graphql-sandbox-dds.rnv-online.de/"
+                    }
                     appGroupDefaults?.set(graphqlURL, forKey: "widgetGraphQLURL")
 
                     PhoneConnectivityManager.shared.pushCredentialsToWatch(token: token, tokenExpiry: expiry)
@@ -204,8 +209,9 @@ class AuthService: ObservableObject {
         authError = nil
 
         // Token aus App Group löschen
-        let appGroupDefaults = UserDefaults(suiteName: "group.com.stefanfriedrich.rnvapp")
+        let appGroupDefaults = UserDefaults(suiteName: AppConfiguration.appGroupID)
         appGroupDefaults?.removeObject(forKey: "widgetAccessToken")
+        appGroupDefaults?.removeObject(forKey: "widgetGraphQLURL")
 
         #if DEBUG
         print("🔓 [AUTH] Abgemeldet")

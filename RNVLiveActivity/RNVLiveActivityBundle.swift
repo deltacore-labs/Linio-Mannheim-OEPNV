@@ -15,5 +15,6 @@ struct RNVLiveActivityBundle: WidgetBundle {
         NextDepartureWidget()
         ActiveTripsWidget()
         QuickSearchWidget()
+        StationDepartureWidget()
     }
 }

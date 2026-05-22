@@ -160,6 +160,14 @@ class AuthService: ObservableObject {
                     self.isAuthenticated = true
                     self.isAuthenticating = false
                     self.authError = nil
+
+                    // Token + URL für Widget in App Group speichern
+                    let appGroupDefaults = UserDefaults(suiteName: "group.com.stefanfriedrich.rnvapp")
+                    appGroupDefaults?.set(token, forKey: "widgetAccessToken")
+                    let graphqlURL = Bundle.main.object(forInfoDictionaryKey: "RNV_GRAPHQL_URL") as? String
+                        ?? "https://graphql-sandbox-dds.rnv-online.de/"
+                    appGroupDefaults?.set(graphqlURL, forKey: "widgetGraphQLURL")
+
                     PhoneConnectivityManager.shared.pushCredentialsToWatch(token: token, tokenExpiry: expiry)
                     #if DEBUG
                     print("✅ [AUTH] Anmeldung erfolgreich. Token läuft ab um: \(expiry)")
@@ -194,6 +202,11 @@ class AuthService: ObservableObject {
         tokenExpiryDate = nil
         isAuthenticated = false
         authError = nil
+
+        // Token aus App Group löschen
+        let appGroupDefaults = UserDefaults(suiteName: "group.com.stefanfriedrich.rnvapp")
+        appGroupDefaults?.removeObject(forKey: "widgetAccessToken")
+
         #if DEBUG
         print("🔓 [AUTH] Abgemeldet")
         #endif

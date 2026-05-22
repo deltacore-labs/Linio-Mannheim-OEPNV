@@ -1111,6 +1111,9 @@ class GraphQLService: ObservableObject {
                     realtimeDeparture {
                       isoString
                     }
+                    stop {
+                      globalID
+                    }
                   }
                   allStops: stops {
                     stop {
@@ -1191,7 +1194,11 @@ class GraphQLService: ObservableObject {
                 occupancy = OccupancyLevel(from: loadType)
             }
 
-            return Departure(
+            let stopGlobalID = (firstStop["stop"] as? [String: Any])?["globalID"] as? String
+            let quayText = stopGlobalID.flatMap { StationQuay.quayText(fromRef: $0) }
+            plog("getDeparturesViaJourneys: Linie \(lineName) globalID=\(stopGlobalID ?? "–") quayText=\(quayText ?? "–")")
+
+            var departure = Departure(
                 scheduledDeparture: planned,
                 estimatedDeparture: effectiveRealtime,
                 lineName: lineName,
@@ -1199,6 +1206,8 @@ class GraphQLService: ObservableObject {
                 serviceType: serviceType,
                 occupancy: occupancy
             )
+            departure.quayText = quayText
+            return departure
         }
 
         return DeparturesResult(

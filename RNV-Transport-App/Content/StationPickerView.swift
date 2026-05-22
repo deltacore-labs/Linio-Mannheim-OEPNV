@@ -52,6 +52,8 @@ struct StationPickerView: View {
                         loadingView
                     } else if searchText.isEmpty {
                         quickActionsView
+                    } else if searchText.trimmingCharacters(in: .whitespaces).count < 2 {
+                        shortQueryHintView
                     } else if graphQLService.isLoading {
                         VStack(spacing: 0) {
                             inlineLoadingIndicator
@@ -120,8 +122,10 @@ struct StationPickerView: View {
                     .focused($isSearchFocused)
                     .submitLabel(.search)
                     .onSubmit {
+                        let trimmed = searchText.trimmingCharacters(in: .whitespaces)
+                        guard trimmed.count >= 2 else { return }
                         searchDebounceTask?.cancel()
-                        Task { await searchStations(query: searchText) }
+                        Task { await searchStations(query: trimmed) }
                     }
 
                 if !searchText.isEmpty {
@@ -333,8 +337,11 @@ struct StationPickerView: View {
         ScrollView {
             LazyVStack(spacing: 0) {
                 // Ergebnis-Header
-                HStack {
-                    Text("\(graphQLService.stations.count) Ergebnis\(graphQLService.stations.count == 1 ? "" : "se")")
+                HStack(spacing: 6) {
+                    Text("\(graphQLService.stations.count)")
+                        .font(.system(size: 12, weight: .bold))
+                        .foregroundColor(AppTheme.inkAdaptive(colorScheme))
+                    Text("Ergebnis\(graphQLService.stations.count == 1 ? "" : "se")")
                         .font(.system(size: 12, weight: .semibold))
                         .foregroundColor(.secondary)
                         .textCase(.uppercase)
@@ -342,8 +349,8 @@ struct StationPickerView: View {
                     Spacer()
                 }
                 .padding(.horizontal, 20)
-                .padding(.top, 8)
-                .padding(.bottom, 4)
+                .padding(.top, 10)
+                .padding(.bottom, 6)
 
                 ForEach(Array(graphQLService.stations.enumerated()), id: \.element.id) { index, station in
                     Button {
@@ -355,8 +362,8 @@ struct StationPickerView: View {
 
                     if index < graphQLService.stations.count - 1 {
                         Divider()
-                            .padding(.leading, 68)
-                            .padding(.horizontal, 16)
+                            .padding(.leading, 70)
+                            .padding(.trailing, 16)
                     }
                 }
             }
@@ -374,34 +381,72 @@ struct StationPickerView: View {
 
     @ViewBuilder
     private func stationRowContent(station: Station) -> some View {
-        HStack(spacing: 12) {
+        let (city, stopName) = extractCityAndStop(station.longName)
+
+        HStack(spacing: 14) {
             ZStack {
-                RoundedRectangle(cornerRadius: 10, style: .continuous)
-                    .fill(AppTheme.surfaceStrongAdaptive(colorScheme))
-                    .frame(width: 36, height: 36)
+                Circle()
+                    .fill(AppTheme.primary.opacity(0.07))
+                    .frame(width: 38, height: 38)
                 Image(systemName: "tram.fill")
-                    .font(.system(size: 16))
-                    .foregroundStyle(AppTheme.primaryColor)
+                    .font(.system(size: 14, weight: .medium))
+                    .foregroundStyle(AppTheme.primary)
             }
 
             VStack(alignment: .leading, spacing: 2) {
-                Text(station.longName)
-                    .font(.system(size: 15, weight: .semibold))
+                Text(city != nil ? stopName : station.longName)
+                    .font(.system(size: 15, weight: .medium))
                     .foregroundColor(.primary)
-                    .lineLimit(2)
-                    .multilineTextAlignment(.leading)
+                    .lineLimit(1)
 
+                if let city {
+                    Text(city)
+                        .font(.system(size: 12))
+                        .foregroundColor(.secondary)
+                }
             }
 
             Spacer()
 
             Image(systemName: "chevron.right")
-                .font(.system(size: 12, weight: .semibold))
-                .foregroundColor(.secondary.opacity(0.4))
+                .font(.system(size: 11, weight: .medium))
+                .foregroundColor(.secondary.opacity(0.25))
         }
         .padding(.horizontal, 16)
-        .padding(.vertical, 10)
+        .padding(.vertical, 11)
         .contentShape(Rectangle())
+    }
+
+    private let rnvCities = [
+        "Mannheim", "Heidelberg", "Ludwigshafen", "Weinheim",
+        "Schwetzingen", "Viernheim", "Lampertheim", "Speyer",
+        "Leimen", "Sandhausen", "Walldorf", "Wiesloch",
+        "Hockenheim", "Schriesheim", "Heddesheim", "Eppelheim",
+        "Ladenburg", "Ilvesheim", "Dossenheim", "Neckarhausen"
+    ]
+
+    private func extractCityAndStop(_ longName: String) -> (city: String?, stopName: String) {
+        for city in rnvCities {
+            if longName.hasPrefix(city + " ") {
+                return (city, String(longName.dropFirst(city.count + 1)))
+            }
+        }
+        return (nil, longName)
+    }
+
+    // MARK: - Short Query Hint
+
+    private var shortQueryHintView: some View {
+        VStack(spacing: 12) {
+            Spacer()
+            Image(systemName: "magnifyingglass")
+                .font(.system(size: 32, weight: .thin))
+                .foregroundColor(.secondary.opacity(0.3))
+            Text("Noch \(2 - searchText.trimmingCharacters(in: .whitespaces).count) Zeichen eingeben")
+                .font(.subheadline)
+                .foregroundColor(.secondary.opacity(0.7))
+            Spacer()
+        }
     }
 
     // MARK: - Empty State
@@ -419,7 +464,7 @@ struct StationPickerView: View {
                     .foregroundColor(.secondary.opacity(0.4))
             }
 
-            Text("Keine Ergebnisse")
+            Text("Keine Ergebnisse für \"\(searchText.trimmingCharacters(in: .whitespaces))\"")
                 .font(.headline)
                 .foregroundColor(.secondary)
 
@@ -437,18 +482,20 @@ struct StationPickerView: View {
     private func handleSearchTextChange(_ newValue: String) {
         searchDebounceTask?.cancel()
 
-        guard !newValue.isEmpty else {
+        let trimmed = newValue.trimmingCharacters(in: .whitespaces)
+
+        guard trimmed.count >= 2 else {
             graphQLService.stations = []
             hasLoadedStations = false
             return
         }
 
-        let delay: UInt64 = newValue.count >= 3 ? debounceMilliseconds : 500
+        let delay: UInt64 = trimmed.count >= 3 ? debounceMilliseconds : 400
 
         searchDebounceTask = Task {
             try? await Task.sleep(nanoseconds: delay * 1_000_000)
             guard !Task.isCancelled else { return }
-            await searchStations(query: newValue)
+            await searchStations(query: trimmed)
         }
     }
 
@@ -467,12 +514,28 @@ struct StationPickerView: View {
             accessToken: accessToken
         )
 
+        graphQLService.stations = rankAndDeduplicate(graphQLService.stations, query: query)
+
         #if DEBUG
         print("🔍 [StationPicker] Suche '\(query)' → \(graphQLService.stations.count) Ergebnisse")
         for station in graphQLService.stations.prefix(3) {
             print("   • \(station.longName) (hafasID: \(station.hafasID), globalID: \(station.globalID))")
         }
         #endif
+    }
+
+    private func rankAndDeduplicate(_ stations: [Station], query: String) -> [Station] {
+        let q = query.lowercased().folding(options: .diacriticInsensitive, locale: .current)
+        var seen = Set<String>()
+        let unique = stations.filter { seen.insert($0.globalID).inserted }
+        return unique.sorted { a, b in
+            let aN = a.longName.lowercased().folding(options: .diacriticInsensitive, locale: .current)
+            let bN = b.longName.lowercased().folding(options: .diacriticInsensitive, locale: .current)
+            let aStarts = aN.hasPrefix(q)
+            let bStarts = bN.hasPrefix(q)
+            if aStarts != bStarts { return aStarts }
+            return aN.localizedCompare(bN) == .orderedAscending
+        }
     }
 
     private func loadNearbyStations() {
@@ -525,6 +588,12 @@ struct StationPickerView: View {
         }
         if let data = try? JSONEncoder().encode(recents) {
             UserDefaults.standard.set(data, forKey: recentStationsKey)
+
+            // Stationen zusätzlich in App Group spiegeln (für Widget-Intent-Vorschläge)
+            if let groupDefaults = UserDefaults(suiteName: AppConfiguration.appGroupID),
+               let data = try? JSONEncoder().encode(recents) {
+                groupDefaults.set(data, forKey: "widgetRecentStations")
+            }
         }
     }
 

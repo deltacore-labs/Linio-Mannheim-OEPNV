@@ -312,6 +312,13 @@ private struct DepartureRow: View {
                 .lineLimit(1)
                 .frame(maxWidth: .infinity, alignment: .leading)
 
+            if let quay = dep.quayText {
+                Text(quay)
+                    .font(.system(size: 9, weight: .semibold))
+                    .foregroundStyle(.secondary)
+                    .lineLimit(1)
+            }
+
             departureTime
         }
     }
@@ -478,7 +485,9 @@ struct StationDepartureMediumView: View {
     let entry: StationDepartureEntry
 
     var body: some View {
-        if let error = entry.errorState {
+        if entry.isPlaceholder {
+            placeholderMediumView
+        } else if let error = entry.errorState {
             errorMediumView(error)
         } else {
             contentView
@@ -510,6 +519,21 @@ struct StationDepartureMediumView: View {
         .padding(14)
     }
 
+    private var placeholderMediumView: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            RoundedRectangle(cornerRadius: 4).fill(Color.secondary.opacity(0.15)).frame(width: 100, height: 10)
+            Divider()
+            ForEach(0..<3, id: \.self) { _ in
+                HStack(spacing: 8) {
+                    RoundedRectangle(cornerRadius: 6).fill(Color.secondary.opacity(0.2)).frame(width: 40, height: 22)
+                    RoundedRectangle(cornerRadius: 4).fill(Color.secondary.opacity(0.12)).frame(maxWidth: .infinity, minHeight: 10, maxHeight: 10)
+                    RoundedRectangle(cornerRadius: 4).fill(Color.secondary.opacity(0.1)).frame(width: 24, height: 10)
+                }
+            }
+        }
+        .padding(14)
+    }
+
     private func errorMediumView(_ error: StationWidgetError) -> some View {
         HStack(spacing: 12) {
             Image(systemName: errorIcon(error))
@@ -532,7 +556,9 @@ struct StationDepartureLargeView: View {
     let entry: StationDepartureEntry
 
     var body: some View {
-        if let error = entry.errorState {
+        if entry.isPlaceholder {
+            placeholderLargeView
+        } else if let error = entry.errorState {
             errorLargeView(error)
         } else {
             contentView
@@ -593,6 +619,32 @@ struct StationDepartureLargeView: View {
                 }
             }
 
+            Spacer(minLength: 0)
+        }
+        .padding(14)
+    }
+
+    private var placeholderLargeView: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            HStack(spacing: 8) {
+                RoundedRectangle(cornerRadius: 10).fill(Color.secondary.opacity(0.15)).frame(width: 32, height: 32)
+                VStack(alignment: .leading, spacing: 4) {
+                    RoundedRectangle(cornerRadius: 4).fill(Color.secondary.opacity(0.15)).frame(width: 120, height: 11)
+                    RoundedRectangle(cornerRadius: 4).fill(Color.secondary.opacity(0.1)).frame(width: 60, height: 9)
+                }
+                Spacer()
+            }
+            .padding(.bottom, 8)
+            Divider()
+            ForEach(0..<6, id: \.self) { _ in
+                HStack(spacing: 8) {
+                    RoundedRectangle(cornerRadius: 6).fill(Color.secondary.opacity(0.2)).frame(width: 40, height: 22)
+                    RoundedRectangle(cornerRadius: 4).fill(Color.secondary.opacity(0.12)).frame(maxWidth: .infinity, minHeight: 10, maxHeight: 10)
+                    RoundedRectangle(cornerRadius: 4).fill(Color.secondary.opacity(0.1)).frame(width: 24, height: 10)
+                }
+                .padding(.vertical, 6)
+                Divider()
+            }
             Spacer(minLength: 0)
         }
         .padding(14)

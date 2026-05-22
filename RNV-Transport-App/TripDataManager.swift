@@ -44,6 +44,7 @@ class TripDataManager {
             WidgetCenter.shared.reloadTimelines(ofKind: "NextDepartureWidget")
             WidgetCenter.shared.reloadTimelines(ofKind: "ActiveTripsWidget")
             WidgetCenter.shared.reloadTimelines(ofKind: "QuickSearchWidget")
+            WidgetCenter.shared.reloadTimelines(ofKind: "StationDepartureWidget")
             #if DEBUG
             print("🔄 [WIDGET] Alle Widget-Timelines neu geladen")
             #endif

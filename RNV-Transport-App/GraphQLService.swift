@@ -7,6 +7,7 @@
 
 import Foundation
 import Combine
+import CoreLocation
 
 // MARK: - Data Models
 
@@ -122,6 +123,27 @@ enum OccupancyLevel: String, Codable, CaseIterable {
         case .veryHigh: return 3
         case .full: return 3
         }
+    }
+}
+
+// MARK: - StationQuay
+
+struct StationQuay: Identifiable {
+    let id: String
+    let name: String
+    let letter: String
+    let coordinate: CLLocationCoordinate2D
+
+    static func quayText(fromRef ref: String) -> String? {
+        let parts = ref.split(separator: ":")
+        guard parts.count >= 5 else { return nil }
+        let segment = String(parts[4])
+        guard !segment.isEmpty, segment != "0", segment != "null" else { return nil }
+        return "Steig \(segment)"
+    }
+
+    static func letter(fromName name: String) -> String {
+        String(name.split(separator: " ").last ?? Substring(name.prefix(1)))
     }
 }
 
@@ -1082,12 +1104,17 @@ class GraphQLService: ObservableObject {
                     loadType
                     ratio
                   }
-                  stops(onlyHafasID: "\(safeID)") {
+                  boardStops: stops(onlyHafasID: "\(safeID)") {
                     plannedDeparture {
                       isoString
                     }
                     realtimeDeparture {
                       isoString
+                    }
+                  }
+                  allStops: stops {
+                    stop {
+                      name
                     }
                   }
                 }
@@ -1126,7 +1153,7 @@ class GraphQLService: ObservableObject {
         let departures: [Departure] = elements.compactMap { element -> Departure? in
             guard let lineObj = element["line"] as? [String: Any],
                   let lineID = lineObj["id"] as? String,
-                  let stopsArr = element["stops"] as? [[String: Any]],
+                  let stopsArr = element["boardStops"] as? [[String: Any]],
                   let firstStop = stopsArr.first,
                   let plannedObj = firstStop["plannedDeparture"] as? [String: Any],
                   let planned = plannedObj["isoString"] as? String,
@@ -1144,12 +1171,17 @@ class GraphQLService: ObservableObject {
             let serviceType: String? = {
                 let n = lineName.uppercased()
                 if n.hasPrefix("S") && n.dropFirst().first?.isNumber == true { return "S_BAHN" }
-                if let num = Int(n), num >= 1, num <= 20 { return "STRASSENBAHN" }
+                // Numerischen Präfix extrahieren, um Formate wie "3-3" oder "4A" zu behandeln
+                let numericPrefix = n.prefix(while: { $0.isNumber })
+                if !numericPrefix.isEmpty, let num = Int(numericPrefix), num >= 1, num <= 61 { return "STRASSENBAHN" }
                 return "BUS"
             }()
 
-            // destination-Feld existiert nicht im Schema – Richtung bleibt leer
-            let destinationName = ""
+            // Letzter Halt aus allStops als Richtung
+            let allStops = element["allStops"] as? [[String: Any]] ?? []
+            let destinationName = allStops.last.flatMap {
+                ($0["stop"] as? [String: Any])?["name"] as? String
+            } ?? ""
 
             // Auslastung
             var occupancy: OccupancyLevel? = nil

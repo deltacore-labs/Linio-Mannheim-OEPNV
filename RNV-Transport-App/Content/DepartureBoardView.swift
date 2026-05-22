@@ -458,10 +458,6 @@ struct DepartureRowView: View {
                     .font(.subheadline.weight(.medium))
                     .foregroundColor(AppTheme.inkAdaptive(colorScheme))
                     .lineLimit(1)
-                Text(departure.serviceTypeDisplay)
-                    .font(.caption2.weight(.medium))
-                    .foregroundColor(AppTheme.mutedAdaptive(colorScheme, contrast: colorSchemeContrast))
-                    .tracking(0.2)
             }
 
             Spacer()
@@ -506,12 +502,16 @@ struct DepartureRowView: View {
     }
 
     private var lineBadge: some View {
-        Text(TransportIconHelper.getShortLineName(from: departure.lineName))
-            .font(Font.system(.caption, design: .monospaced).weight(.bold))
-            .foregroundColor(.white)
-            .frame(minWidth: 38, minHeight: 28)
-            .padding(.horizontal, 6)
-            .background(Capsule().fill(departure.lineColor))
+        VStack(spacing: 2) {
+            Image(systemName: TransportIconHelper.getTransportIcon(for: departure.serviceType, serviceName: departure.lineName))
+                .font(.system(size: 9, weight: .medium))
+            Text(TransportIconHelper.getShortLineName(from: departure.lineName))
+                .font(Font.system(.caption, design: .monospaced).weight(.bold))
+        }
+        .foregroundColor(.white)
+        .frame(minWidth: 38, minHeight: 36)
+        .padding(.horizontal, 6)
+        .background(Capsule().fill(departure.lineColor))
     }
 }
 
@@ -550,6 +550,7 @@ struct Departure: Identifiable {
     var finalStop: DepartureStop? = nil
     var originGlobalID: String = ""
     var occupancy: OccupancyLevel? = nil
+    var quayText: String? = nil
 
     var delayMinutes: Int? {
         let fmt = DateFormattingHelper.shared
@@ -560,9 +561,9 @@ struct Departure: Identifiable {
 
     var serviceTypeDisplay: String {
         switch serviceType?.uppercased() {
-        case "TRAM": return "Straßenbahn"
+        case "TRAM", "STRASSENBAHN": return "Straßenbahn"
         case "BUS": return "Bus"
-        case "SUBURBAN": return "S-Bahn"
+        case "SUBURBAN", "S_BAHN": return "S-Bahn"
         case "RAIL": return "Zug"
         default: return serviceType?.capitalized ?? "ÖPNV"
         }

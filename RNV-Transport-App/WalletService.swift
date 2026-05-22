@@ -20,12 +20,16 @@ import ZXingCpp
 // MARK: - Configuration
 
 enum WalletConfig {
-    // Pass Type ID registered at developer.apple.com (e.g. "pass.de.rnv.deutschlandticket")
-    static let passTypeIdentifier = "pass.com.stefanfriedrich.dticket"
-    // 10-character Apple Team ID (visible in Xcode → Signing & Capabilities or developer.apple.com)
-    static let teamIdentifier     = "A4HCRKN53K"
-    // Filename of the .p12 certificate in the main bundle (without extension)
-    static let certFileName       = "Zertifikat D-Ticket"
+    // Pass Type ID and Team ID are loaded from Info.plist (set via Secrets.xcconfig — never commit real values)
+    static var passTypeIdentifier: String {
+        Bundle.main.object(forInfoDictionaryKey: "WalletPassTypeID") as? String ?? ""
+    }
+    static var teamIdentifier: String {
+        Bundle.main.object(forInfoDictionaryKey: "WalletTeamID") as? String ?? ""
+    }
+    static var certFileName: String {
+        Bundle.main.object(forInfoDictionaryKey: "WalletCertName") as? String ?? "Zertifikat D-Ticket"
+    }
     // Password used when exporting the .p12 (empty string if none)
     static let certPassword       = ""
     // Apple WWDR intermediate certificate (required in the CMS signature chain)
@@ -67,11 +71,11 @@ final class WalletPassGenerator {
 
     /// Builds a signed `.pkpass` Data ready for `PKPass(data:)`.
     func generatePass(for ticket: DeutschlandTicket, barcodeImage: UIImage?) throws -> Data {
-        let barcodeText = barcodeImage.flatMap { decodeBarcode(from: $0) }
+        let barcodeInfo = barcodeImage.flatMap { decodeBarcode(from: $0) }
         var files: [String: Data] = [:]
 
         // pass.json
-        let passDict = makePassJSON(ticket: ticket, barcodeText: barcodeText)
+        let passDict = makePassJSON(ticket: ticket, barcodeInfo: barcodeInfo)
         guard let passData = try? JSONSerialization.data(withJSONObject: passDict, options: [.prettyPrinted, .sortedKeys]) else {
             throw WalletPassError.packagingFailed
         }
@@ -81,23 +85,23 @@ final class WalletPassGenerator {
         #endif
 
         // icon.png (required by PassKit — must be present)
-        if let icon = makeIconData() {
-            files["icon.png"]    = icon
-            files["icon@2x.png"] = icon
-            files["icon@3x.png"] = icon
-        }
+        if let icon1x = makeIconData(size: 29) { files["icon.png"]    = icon1x }
+        if let icon2x = makeIconData(size: 58) { files["icon@2x.png"] = icon2x }
+        if let icon3x = makeIconData(size: 87) { files["icon@3x.png"] = icon3x }
 
         // logo.png (some PassKit implementations require it alongside logoText)
-        if let logo = makeIconData() {
+        if let logo = makeLogoImageData() {
             files["logo.png"]    = logo
             files["logo@2x.png"] = logo
         }
 
-        // thumbnail = extracted barcode image
-        if let barcodeImage, let png = barcodeImage.pngData() {
-            files["thumbnail.png"]    = png
-            files["thumbnail@2x.png"] = png
+        // background.png (optional — shown behind the pass content)
+        if let bg = makeBackgroundImageData() {
+            files["background.png"]    = bg
+            files["background@2x.png"] = bg
+            files["background@3x.png"] = bg
         }
+
 
         // manifest.json — SHA1 hashes of every other file (PassKit spec)
         let manifest = files.mapValues { sha1Hex($0) }
@@ -122,7 +126,7 @@ final class WalletPassGenerator {
 
     // MARK: - pass.json
 
-    private func makePassJSON(ticket: DeutschlandTicket, barcodeText: String?) -> [String: Any] {
+    private func makePassJSON(ticket: DeutschlandTicket, barcodeInfo: (message: String, pkFormat: String, encoding: String)?) -> [String: Any] {
         let serial = "DT-\(ticket.customerNumber.isEmpty ? UUID().uuidString : ticket.customerNumber)-\(df.string(from: ticket.validFrom))"
 
         var dict: [String: Any] = [
@@ -132,10 +136,10 @@ final class WalletPassGenerator {
             "teamIdentifier":     WalletConfig.teamIdentifier,
             "organizationName":   "Deutschlandticket",
             "description":        ticket.ticketLabel,
-            "logoText":           "D-TICKET",
-            "foregroundColor":    "rgb(26, 26, 26)",
-            "backgroundColor":    "rgb(255, 255, 255)",
-            "labelColor":         "rgb(130, 130, 130)",
+            "logoText":           "Deutschland Ticket",
+            "foregroundColor":    "rgb(255, 255, 255)",
+            "backgroundColor":    "rgb(44, 44, 44)",
+            "labelColor":         "rgb(170, 170, 170)",
         ]
 
         var primaryFields: [[String: Any]] = []
@@ -151,21 +155,51 @@ final class WalletPassGenerator {
             secondaryFields.append(["key": "issuer", "label": "ANBIETER", "value": ticket.issuer])
         }
 
-        let auxiliaryFields: [[String: Any]] = [
+        var auxiliaryFields: [[String: Any]] = [
             ["key": "scope", "label": "GELTUNGSBEREICH", "value": "Bundesweit im Nahverkehr"],
         ]
+        if !ticket.customerNumber.isEmpty {
+            auxiliaryFields.append(["key": "customerNumber", "label": "KUNDENNUMMER", "value": ticket.customerNumber])
+        }
+        if ticket.ticketLabel != "Deutschlandticket" {
+            auxiliaryFields.append(["key": "ticketType", "label": "TICKETART", "value": ticket.ticketLabel])
+        }
+
+        var backFields: [[String: Any]] = [
+            ["key": "backScope",    "label": "Geltungsbereich", "value": "Bundesweit im Nahverkehr (2. Klasse)"],
+            ["key": "backValidity", "label": "Gültigkeit",      "value": "\(df.string(from: ticket.validFrom)) – \(df.string(from: ticket.validUntil))"],
+        ]
+        if !ticket.holderName.isEmpty {
+            backFields.append(["key": "backHolder", "label": "Inhaber", "value": ticket.holderName])
+        }
+        if !ticket.customerNumber.isEmpty {
+            backFields.append(["key": "backCustomer", "label": "Kundennummer", "value": ticket.customerNumber])
+        }
+        if !ticket.issuer.isEmpty {
+            backFields.append(["key": "backIssuer", "label": "Verkehrsunternehmen", "value": ticket.issuer])
+        }
+        backFields.append(contentsOf: [
+            ["key": "backTransport",   "label": "Verkehrsmittel",    "value": "S-Bahn, U-Bahn, Bus, Straßenbahn, Regionalbahn (2. Klasse)"],
+            ["key": "backExclusions",  "label": "Nicht gültig für",  "value": "IC, ICE, Fernverkehr"],
+            ["key": "backMitnahme",    "label": "Mitnahmeregelung",  "value": "Keine kostenlose Mitnahme von Personen"],
+            ["key": "backNote",        "label": "Hinweis",           "value": "Nur gültig mit amtlichem Lichtbildausweis. Nicht übertragbar."],
+            ["key": "backLink",        "label": "Weitere Informationen",
+             "value": "deutschlandticket.de",
+             "attributedValue": "<a href='https://www.deutschlandticket.de'>deutschlandticket.de</a>"],
+        ])
 
         dict["generic"] = [
             "primaryFields":   primaryFields,
             "secondaryFields": secondaryFields,
             "auxiliaryFields": auxiliaryFields,
+            "backFields":      backFields,
         ] as [String: Any]
 
-        if let text = barcodeText {
+        if let info = barcodeInfo {
             let barcode: [String: Any] = [
-                "message":         text,
-                "format":          "PKBarcodeFormatAztec",
-                "messageEncoding": "iso-8859-1",
+                "message":         info.message,
+                "format":          info.pkFormat,
+                "messageEncoding": info.encoding,
             ]
             dict["barcode"]  = barcode
             dict["barcodes"] = [barcode]
@@ -356,7 +390,7 @@ final class WalletPassGenerator {
 
     // MARK: - Barcode Decoding
 
-    private func decodeBarcode(from image: UIImage) -> String? {
+    private func decodeBarcode(from image: UIImage) -> (message: String, pkFormat: String, encoding: String)? {
         guard let cgImage = normalizedOrientation(image).cgImage else { return nil }
         let options = ZXIReaderOptions()
         options.formats = [
@@ -368,7 +402,26 @@ final class WalletPassGenerator {
         options.tryDownscale = true
         let reader = ZXIBarcodeReader(options: options)
         guard let results = try? reader.read(cgImage), let result = results.first else { return nil }
-        return result.text
+
+        switch result.format {
+        case .QR_CODE:
+            // QR codes are text-based — UTF-8 is correct
+            return (message: result.text, pkFormat: "PKBarcodeFormatQR", encoding: "utf-8")
+        default:
+            // VDV Aztec: ZXingCpp returns bytes that are UTF-8 encoded binary data.
+            // fix_zxing equivalent (see github.com/rumpeltux/onlineticket):
+            //   decode the UTF-8 bytes back to a Unicode string,
+            //   then re-encode as latin1 to recover the original raw bytes.
+            let originalBytes: Data
+            if let utf8String = String(data: result.bytes, encoding: .utf8),
+               let latin1Data = utf8String.data(using: .isoLatin1) {
+                originalBytes = latin1Data
+            } else {
+                originalBytes = result.bytes
+            }
+            let message = String(data: originalBytes, encoding: .isoLatin1) ?? result.text
+            return (message: message, pkFormat: "PKBarcodeFormatAztec", encoding: "iso-8859-1")
+        }
     }
 
     private func normalizedOrientation(_ image: UIImage) -> UIImage {
@@ -377,26 +430,129 @@ final class WalletPassGenerator {
         return renderer.image { _ in image.draw(in: CGRect(origin: .zero, size: image.size)) }
     }
 
-    // MARK: - Icon (programmatic "D" on red background)
-
-    private func makeIconData() -> Data? {
-        let size = CGSize(width: 58, height: 58)
-        let renderer = UIGraphicsImageRenderer(size: size)
-        let image = renderer.image { _ in
-            UIColor(red: 0.82, green: 0.0, blue: 0.0, alpha: 1).setFill()
-            UIBezierPath(roundedRect: CGRect(origin: .zero, size: size), cornerRadius: 13).fill()
-            let attrs: [NSAttributedString.Key: Any] = [
-                .font: UIFont.systemFont(ofSize: 30, weight: .black),
-                .foregroundColor: UIColor.white,
-            ]
-            let text = "D" as NSString
-            let ts = text.size(withAttributes: attrs)
-            text.draw(
-                at: CGPoint(x: (size.width - ts.width) / 2, y: (size.height - ts.height) / 2),
-                withAttributes: attrs
-            )
+    private func makeBackgroundImageData() -> Data? {
+        guard let url = Bundle.main.url(forResource: "dticket_wallet_background", withExtension: "png"),
+              let data = try? Data(contentsOf: url) else {
+            #if DEBUG
+            print("⚠️ [WALLET] dticket_wallet_background.png nicht im Bundle gefunden")
+            #endif
+            return nil
         }
-        return image.pngData()
+        return data
+    }
+
+    // MARK: - Icon & Logo (DTicket bars — mirrors DTicketLogoView in TicketView.swift)
+
+    private func makeIconData(size: CGFloat) -> Data? {
+        let scale = size / 58
+        return renderDTicketBars(
+            canvasSize: CGSize(width: size, height: size),
+            vPadding: 7 * scale,
+            cornerRadius: 13 * scale,
+            xOrigin: nil,
+            background: UIColor(red: 17/255, green: 17/255, blue: 17/255, alpha: 1)
+        )?.pngData()
+    }
+
+    private func makeLogoImageData() -> Data? {
+        renderDTicketBars(
+            canvasSize: CGSize(width: 320, height: 100),
+            vPadding: 12,
+            cornerRadius: 0,
+            xOrigin: 20,
+            background: .clear
+        )?.pngData()
+    }
+
+    /// Renders the nine DTicket gradient bars. Bar specs match DTicketLogoView exactly.
+    private func renderDTicketBars(
+        canvasSize: CGSize,
+        vPadding: CGFloat,
+        cornerRadius: CGFloat,
+        xOrigin: CGFloat?,
+        background: UIColor = .white
+    ) -> UIImage? {
+        struct Bar { let relW, xOff, gL, gR, gLX, gRX: CGFloat; let lHex, rHex: String }
+        let bars: [Bar] = [
+            Bar(relW:0.33, xOff:20, gL:0.50, gR:0.68, gLX:-16, gRX: 50, lHex:"111111", rHex:"111111"),
+            Bar(relW:0.91, xOff: 9, gL:0.15, gR:0.68, gLX: -3, gRX: 66, lHex:"111111", rHex:"111111"),
+            Bar(relW:1.00, xOff: 7, gL:0.60, gR:1.00, gLX:-38, gRX: 85, lHex:"111111", rHex:"111111"),
+            Bar(relW:1.20, xOff: 3, gL:0.28, gR:1.00, gLX:-26, gRX: 77, lHex:"5E0000", rHex:"CC1A00"),
+            Bar(relW:1.30, xOff: 0, gL:0.80, gR:0.15, gLX:-50, gRX: 95, lHex:"5E0000", rHex:"CC1A00"),
+            Bar(relW:0.90, xOff: 3, gL:0.15, gR:0.85, gLX:-14, gRX: 70, lHex:"5E0000", rHex:"C01800"),
+            Bar(relW:1.00, xOff: 7, gL:0.50, gR:0.15, gLX:-24, gRX: 81, lHex:"DE4400", rHex:"F8CC00"),
+            Bar(relW:0.95, xOff:20, gL:0.28, gR:0.00, gLX: -4, gRX: 91, lHex:"DE4400", rHex:"F8CC00"),
+            Bar(relW:0.80, xOff:16, gL:0.38, gR:0.50, gLX:-19, gRX: 76, lHex:"E04800", rHex:"F8CC00"),
+        ]
+
+        let availH = canvasSize.height - 2 * vPadding
+        let s      = availH / (CGFloat(bars.count) * 9.0 + CGFloat(bars.count - 1) * 3.5)
+        let barH   = 9.0 * s
+        let gap    = 3.5 * s
+        let W      = 70.0 * s
+
+        let ox: CGFloat
+        if let fixed = xOrigin {
+            ox = fixed
+        } else {
+            let rightEdge = bars.map { $0.xOff * s + W * $0.relW }.max() ?? 0
+            let leftEdge  = bars.map { $0.xOff * s }.min() ?? 0
+            ox = (canvasSize.width - (rightEdge - leftEdge)) / 2 - leftEdge
+        }
+
+        let format = UIGraphicsImageRendererFormat()
+        format.scale = 1.0
+        let renderer = UIGraphicsImageRenderer(size: canvasSize, format: format)
+        return renderer.image { ctx in
+            let cgCtx = ctx.cgContext
+            cgCtx.clip(to: CGRect(origin: .zero, size: canvasSize))
+            background.setFill()
+            if cornerRadius > 0 {
+                UIBezierPath(roundedRect: CGRect(origin: .zero, size: canvasSize), cornerRadius: cornerRadius).fill()
+            } else {
+                UIBezierPath(rect: CGRect(origin: .zero, size: canvasSize)).fill()
+            }
+
+            func cgColor(_ hex: String, alpha: CGFloat = 1) -> CGColor {
+                var v: UInt64 = 0
+                Scanner(string: hex).scanHexInt64(&v)
+                return UIColor(
+                    red:   CGFloat((v >> 16) & 0xff) / 255,
+                    green: CGFloat((v >>  8) & 0xff) / 255,
+                    blue:  CGFloat( v        & 0xff) / 255,
+                    alpha: alpha
+                ).cgColor
+            }
+
+            func drawPill(x: CGFloat, y: CGFloat, w: CGFloat, lHex: String, rHex: String, alpha: CGFloat = 1) {
+                guard w > 0 else { return }
+                let rect = CGRect(x: x, y: y, width: w, height: barH)
+                cgCtx.saveGState()
+                cgCtx.addPath(CGPath(roundedRect: rect, cornerWidth: barH / 2, cornerHeight: barH / 2, transform: nil))
+                cgCtx.clip()
+                if let grad = CGGradient(
+                    colorsSpace: CGColorSpaceCreateDeviceRGB(),
+                    colors: [cgColor(lHex, alpha: alpha), cgColor(rHex, alpha: alpha)] as CFArray,
+                    locations: [0.0, 1.0] as [CGFloat]
+                ) {
+                    cgCtx.drawLinearGradient(
+                        grad,
+                        start: CGPoint(x: rect.minX, y: rect.midY),
+                        end:   CGPoint(x: rect.maxX, y: rect.midY),
+                        options: []
+                    )
+                }
+                cgCtx.restoreGState()
+            }
+
+            var y = vPadding
+            for bar in bars {
+                if bar.gL > 0 { drawPill(x: ox + bar.gLX * s, y: y, w: W * bar.gL, lHex: bar.lHex, rHex: bar.rHex, alpha: 0.22) }
+                drawPill(x: ox + bar.xOff * s, y: y, w: W * bar.relW, lHex: bar.lHex, rHex: bar.rHex)
+                if bar.gR > 0 { drawPill(x: ox + bar.gRX * s, y: y, w: W * bar.gR, lHex: bar.lHex, rHex: bar.rHex, alpha: 0.22) }
+                y += barH + gap
+            }
+        }
     }
 
     // MARK: - SHA1 (PassKit manifest spec requires SHA1)

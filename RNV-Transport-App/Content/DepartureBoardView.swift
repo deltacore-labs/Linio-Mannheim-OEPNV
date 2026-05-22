@@ -23,6 +23,7 @@ struct DepartureBoardView: View {
     @State private var lastRefresh: Date?
     @State private var loadEpoch: Int = 0
     @State private var selectedDeparture: Departure?
+    @State private var selectedSteigDeparture: Departure?
     @State private var departureDate: Date = Date()
     @State private var departureDisplayLimit: Int = 10
 
@@ -111,6 +112,19 @@ struct DepartureBoardView: View {
                 )
                 .presentationDetents([.large])
                 .presentationDragIndicator(.visible)
+            }
+            .sheet(item: $selectedSteigDeparture) { dep in
+                if let station = selectedStation {
+                    SteigSheet(
+                        departure: dep,
+                        allDepartures: departures,
+                        station: station,
+                        graphQLService: service,
+                        authService: authService
+                    )
+                    .presentationDetents([.medium, .large])
+                    .presentationDragIndicator(.visible)
+                }
             }
             .onChange(of: selectedStation) {
                 departureDisplayLimit = 10
@@ -224,7 +238,7 @@ struct DepartureBoardView: View {
                     HapticHelper.selection()
                     selectedDeparture = dep
                 } label: {
-                    DepartureRowView(departure: dep)
+                    DepartureRowView(departure: dep, onSteigTap: { selectedSteigDeparture = dep })
                 }
                 .buttonStyle(.plain)
                 if index < visible.count - 1 {
@@ -445,6 +459,7 @@ struct DepartureBoardView: View {
 
 struct DepartureRowView: View {
     let departure: Departure
+    var onSteigTap: (() -> Void)? = nil
     private let formatter = DateFormattingHelper.shared
     @Environment(\.colorScheme) private var colorScheme
     @Environment(\.colorSchemeContrast) private var colorSchemeContrast
@@ -478,6 +493,21 @@ struct DepartureRowView: View {
                         .font(.caption2.weight(.medium))
                         .foregroundColor(AppTheme.semanticSuccess)
                 }
+            }
+
+            if let quayText = departure.quayText, let tap = onSteigTap {
+                Button(action: tap) {
+                    Text(quayText)
+                        .font(.caption2.weight(.bold))
+                        .padding(.horizontal, 7)
+                        .padding(.vertical, 4)
+                        .foregroundColor(AppTheme.muted)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 6)
+                                .stroke(AppTheme.muted.opacity(0.4), lineWidth: 1)
+                        )
+                }
+                .buttonStyle(.plain)
             }
         }
         .padding(.horizontal, 20)

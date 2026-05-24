@@ -297,9 +297,9 @@ private struct TicketScanService {
         let joined = lines.joined(separator: "\n")
 
         let ticketTypes: [(String, String)] = [
-            ("D-Ticket Job", "D-Ticket Job"), ("Job-Ticket", "D-Ticket Job"),
-            ("Schüler", "D-Ticket Schüler"), ("65+", "D-Ticket 65+"),
-            ("Semesterticket", "D-Ticket Semesterticket"),
+            ("D-Ticket Job", "Deutschland Ticket Job"), ("Job-Ticket", "Deutschland Ticket Job"),
+            ("Schüler", "Deutschland Ticket Schüler"), ("65+", "Deutschland Ticket 65+"),
+            ("Semesterticket", "Deutschland Ticket Semesterticket"),
         ]
         for (keyword, label) in ticketTypes where joined.localizedCaseInsensitiveContains(keyword) {
             ticket.ticketLabel = label
@@ -407,7 +407,6 @@ private enum BarcodeStorage {
 // MARK: - TicketView
 
 struct TicketView: View {
-    @Environment(\.colorScheme) private var colorScheme
     @AppStorage("deutschlandTicketData") private var storedJSON = ""
 
     @State private var ticket: DeutschlandTicket? = nil
@@ -430,12 +429,11 @@ struct TicketView: View {
     @State private var showWalletError = false
 
     private let scanner = TicketScanService()
-    private var canvas: Color { AppTheme.canvasAdaptive(colorScheme) }
 
     var body: some View {
         NavigationView {
             ZStack {
-                canvas.ignoresSafeArea()
+                AppTheme.canvas.ignoresSafeArea()
                 if isScanning {
                     scanningOverlay
                 } else if let ticket {
@@ -444,7 +442,7 @@ struct TicketView: View {
                     emptyState
                 }
             }
-            .navigationTitle("Mein Ticket")
+            .navigationTitle("Tickets")
             .navigationBarTitleDisplayMode(.large)
             .toolbar { toolbarContent }
         }
@@ -455,10 +453,10 @@ struct TicketView: View {
         }
         .fileImporter(isPresented: $showFileImporter, allowedContentTypes: [.image]) { result in
             guard case .success(let url) = result,
-                  url.startAccessingSecurityScopedResource(),
-                  let data = try? Data(contentsOf: url),
+                  url.startAccessingSecurityScopedResource() else { return }
+            defer { url.stopAccessingSecurityScopedResource() }
+            guard let data = try? Data(contentsOf: url),
                   let img = UIImage(data: data) else { return }
-            url.stopAccessingSecurityScopedResource()
             Task { await runScan([img]) }
         }
         .confirmationDialog("Ticket-Screenshot importieren", isPresented: $showImportOptions, titleVisibility: .visible) {
@@ -498,8 +496,16 @@ struct TicketView: View {
             Text(walletError ?? "Unbekannter Fehler")
         }
         .onAppear {
-            guard ticket == nil else { return }
-            loadTicket()
+            if ticket == nil { loadTicket() }
+            if UserDefaults.standard.bool(forKey: "pendingShowTicketFullscreen") {
+                UserDefaults.standard.set(false, forKey: "pendingShowTicketFullscreen")
+                if ticket != nil { showFullscreen = true }
+            }
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .showTicketFullscreen)) { _ in
+            UserDefaults.standard.set(false, forKey: "pendingShowTicketFullscreen")
+            guard ticket != nil else { return }
+            showFullscreen = true
         }
     }
 
@@ -511,7 +517,7 @@ struct TicketView: View {
             ProgressView().scaleEffect(1.4)
             Text("Ticket wird erkannt…")
                 .font(.subheadline)
-                .foregroundStyle(AppTheme.mutedAdaptive(colorScheme))
+                .foregroundStyle(AppTheme.muted)
             Spacer()
         }
     }
@@ -525,17 +531,17 @@ struct TicketView: View {
             VStack(spacing: 8) {
                 Text("Kein Ticket hinterlegt")
                     .font(.title3).fontWeight(.semibold)
-                    .foregroundStyle(AppTheme.inkAdaptive(colorScheme))
+                    .foregroundStyle(AppTheme.ink)
                 Text("Importiere einen oder zwei Screenshots\ndeines Tickets — die Daten werden\nautomatisch erkannt.")
                     .font(.subheadline)
-                    .foregroundStyle(AppTheme.mutedAdaptive(colorScheme))
+                    .foregroundStyle(AppTheme.muted)
                     .multilineTextAlignment(.center)
             }
             VStack(spacing: 12) {
                 Button { showImportOptions = true } label: {
                     Label("Aus Screenshot importieren", systemImage: "photo.badge.plus")
                         .font(AppTheme.buttonFont)
-                        .foregroundStyle(.white)
+                        .foregroundStyle(AppTheme.onPrimary)
                         .frame(maxWidth: 280)
                         .padding(.vertical, 15)
                         .background(AppTheme.primary)
@@ -544,7 +550,7 @@ struct TicketView: View {
                 Button { showManualSheet = true } label: {
                     Text("Manuell eingeben")
                         .font(.subheadline)
-                        .foregroundStyle(AppTheme.mutedAdaptive(colorScheme))
+                        .foregroundStyle(AppTheme.muted)
                 }
             }
             Spacer()
@@ -558,14 +564,12 @@ struct TicketView: View {
                 .fill(Color(.secondarySystemBackground))
                 .frame(width: 240, height: 148)
                 .shadow(color: AppTheme.shadowColor(), radius: 14, y: 7)
-            HStack(alignment: .center) {
+            VStack(spacing: 8) {
                 DTicketLogoView(width: 66)
-                Spacer()
                 Text("D-TICKET")
                     .font(.system(size: 20, weight: .black))
                     .foregroundStyle(Color(hex: "#1a1a1a"))
             }
-            .padding(.horizontal, 20)
         }
     }
 
@@ -595,12 +599,12 @@ struct TicketView: View {
                             Image(systemName: "pencil").font(.system(size: 13))
                             Text("Bearbeiten").font(AppTheme.buttonFont)
                         }
-                        .foregroundStyle(AppTheme.inkAdaptive(colorScheme))
+                        .foregroundStyle(AppTheme.ink)
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 14)
-                        .background(AppTheme.surfaceCardAdaptive(colorScheme))
+                        .background(AppTheme.surfaceCard)
                         .clipShape(RoundedRectangle(cornerRadius: 12))
-                        .overlay(RoundedRectangle(cornerRadius: 12).stroke(AppTheme.hairlineAdaptive(colorScheme), lineWidth: 1))
+                        .overlay(RoundedRectangle(cornerRadius: 12).stroke(AppTheme.hairline, lineWidth: 1))
                     }
                 }
                 .padding(.horizontal, 20)
@@ -730,8 +734,6 @@ struct TicketCardView: View {
     let ticket: DeutschlandTicket
     let barcodeImage: UIImage?
 
-    @Environment(\.colorScheme) private var colorScheme
-
     // Static: one instance shared across all TicketCardView instances
     private static let df: DateFormatter = {
         let f = DateFormatter()
@@ -749,33 +751,33 @@ struct TicketCardView: View {
             infoSection
         }
         .clipShape(RoundedRectangle(cornerRadius: 20))
-        .overlay(RoundedRectangle(cornerRadius: 20).stroke(AppTheme.hairlineAdaptive(colorScheme), lineWidth: 1))
+        .overlay(RoundedRectangle(cornerRadius: 20).stroke(AppTheme.hairline, lineWidth: 1))
         .shadow(color: AppTheme.shadowColor(), radius: 12, y: 6)
     }
 
     private var cardHeader: some View {
-        HStack(alignment: .center) {
+        VStack(spacing: 10) {
             DTicketLogoView(width: 70)
-            Spacer()
-            VStack(alignment: .trailing, spacing: 4) {
+            VStack(spacing: 3) {
                 Text("D-TICKET")
                     .font(.system(size: 28, weight: .black))
                     .foregroundStyle(Color(hex: "#1a1a1a"))
                 if ticket.ticketLabel != "Deutschlandticket" {
-                    Text(ticket.ticketLabel.replacingOccurrences(of: "D-Ticket ", with: "").uppercased())
+                    Text(ticket.ticketLabel.replacingOccurrences(of: "Deutschland Ticket ", with: "").replacingOccurrences(of: "D-Ticket ", with: "").uppercased())
                         .font(.system(size: 11, weight: .semibold))
                         .foregroundStyle(.secondary)
                 }
             }
         }
+        .frame(maxWidth: .infinity)
         .padding(.horizontal, 20)
-        .padding(.vertical, 20)
+        .padding(.vertical, 24)
         .background(Color(.secondarySystemBackground))
     }
 
     private var perforatedLine: some View {
         ZStack {
-            AppTheme.surfaceCardAdaptive(colorScheme)
+            AppTheme.surfaceCard
             // Dashed line
             Rectangle()
                 .fill(.clear)
@@ -786,18 +788,18 @@ struct TicketCardView: View {
                             p.addLine(to: CGPoint(x: geo.size.width - 20, y: 0))
                         }
                         .stroke(style: StrokeStyle(lineWidth: 1, dash: [5, 4]))
-                        .foregroundStyle(AppTheme.hairlineAdaptive(colorScheme))
+                        .foregroundStyle(AppTheme.hairline)
                     }
                 )
             // Notches at edges — overlay on the parent so they're not clipped to the 1pt line
             HStack {
                 Circle()
-                    .fill(AppTheme.canvasAdaptive(colorScheme))
+                    .fill(AppTheme.canvas)
                     .frame(width: 20, height: 20)
                     .offset(x: -10)
                 Spacer()
                 Circle()
-                    .fill(AppTheme.canvasAdaptive(colorScheme))
+                    .fill(AppTheme.canvas)
                     .frame(width: 20, height: 20)
                     .offset(x: 10)
             }
@@ -865,24 +867,24 @@ struct TicketCardView: View {
             }
             Text("Nur mit gültigem Lichtbildausweis · Nicht übertragbar")
                 .font(.caption2)
-                .foregroundStyle(AppTheme.mutedAdaptive(colorScheme))
+                .foregroundStyle(AppTheme.muted)
                 .multilineTextAlignment(.center)
                 .padding(.horizontal, 20)
                 .padding(.top, 12)
                 .padding(.bottom, 16)
         }
-        .background(AppTheme.surfaceCardAdaptive(colorScheme))
+        .background(AppTheme.surfaceCard)
     }
 
     private func infoRow(_ label: String, _ value: String) -> some View {
         HStack(alignment: .top) {
             Text(label)
                 .font(.system(size: 10, weight: .semibold))
-                .foregroundStyle(AppTheme.mutedAdaptive(colorScheme))
+                .foregroundStyle(AppTheme.muted)
                 .frame(width: 120, alignment: .leading)
             Text(value)
                 .font(.system(size: 14, weight: .medium))
-                .foregroundStyle(AppTheme.inkAdaptive(colorScheme))
+                .foregroundStyle(AppTheme.ink)
                 .frame(maxWidth: .infinity, alignment: .leading)
         }
         .padding(.horizontal, 20)
@@ -904,7 +906,7 @@ struct TicketConfirmSheet: View {
 
     let onSave: (DeutschlandTicket, UIImage?) -> Void
 
-    private let ticketTypes = ["Deutschlandticket", "D-Ticket Job", "D-Ticket Schüler", "D-Ticket 65+", "D-Ticket Semesterticket"]
+    private let ticketTypes = ["Deutschlandticket", "Deutschland Ticket Job", "Deutschland Ticket Schüler", "Deutschland Ticket 65+", "Deutschland Ticket Semesterticket"]
     private let issuers = ["RNV", "VRN", "DB", "BVG", "HVV", "MVV", "KVB", "VGN", "VRR"]
 
     init(draft: DeutschlandTicket, barcodeImage: UIImage?, onSave: @escaping (DeutschlandTicket, UIImage?) -> Void) {
@@ -988,11 +990,11 @@ struct TicketConfirmSheet: View {
         }
         .fileImporter(isPresented: $showFileImporter, allowedContentTypes: [.image]) { result in
             guard case .success(let url) = result,
-                  url.startAccessingSecurityScopedResource(),
-                  let data = try? Data(contentsOf: url),
+                  url.startAccessingSecurityScopedResource() else { return }
+            defer { url.stopAccessingSecurityScopedResource() }
+            guard let data = try? Data(contentsOf: url),
                   let img = UIImage(data: data) else { return }
             barcodePreview = img
-            url.stopAccessingSecurityScopedResource()
         }
         .confirmationDialog("Barcode importieren", isPresented: $showBarcodeOptions, titleVisibility: .visible) {
             Button("Aus Fotos") { showPhotosPicker = true }
@@ -1086,7 +1088,6 @@ private struct DTicketLogoView: View {
 
     var body: some View {
         let barH: CGFloat = 9
-        let gap: CGFloat = 4
         VStack(alignment: .leading, spacing: 3.5) {
             ForEach(bars) { bar in
                 ZStack(alignment: .topLeading) {
@@ -1124,12 +1125,14 @@ private struct PKAddPassView: UIViewControllerRepresentable {
     let pass: PKPass
     @Binding var isPresented: Bool
 
-    func makeUIViewController(context: Context) -> PKAddPassesViewController {
-        // PKAddPassesViewController(passes:) is the modern init (iOS 6+)
-        PKAddPassesViewController(passes: [pass]) ?? UIViewController() as! PKAddPassesViewController
+    func makeUIViewController(context: Context) -> UIViewController {
+        guard let vc = PKAddPassesViewController(passes: [pass]) else {
+            return UIViewController()
+        }
+        return vc
     }
 
-    func updateUIViewController(_ uiViewController: PKAddPassesViewController, context: Context) {}
+    func updateUIViewController(_ uiViewController: UIViewController, context: Context) {}
 
     func makeCoordinator() -> Coordinator { Coordinator(isPresented: $isPresented) }
 

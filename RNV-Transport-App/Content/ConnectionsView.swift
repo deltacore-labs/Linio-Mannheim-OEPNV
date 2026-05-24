@@ -36,9 +36,7 @@ struct ConnectionsView: View {
     @State private var sameStationValidationError = false
 
     @ObservedObject private var network = NetworkMonitor.shared
-    @Environment(\.colorScheme) private var colorScheme
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
-    @Environment(\.colorSchemeContrast) private var colorSchemeContrast
 
     private let formatter = DateFormattingHelper.shared
 
@@ -113,7 +111,7 @@ struct ConnectionsView: View {
                 }
             }
             .background(
-                AppTheme.canvasAdaptive(colorScheme)
+                AppTheme.canvas
                     .ignoresSafeArea()
             )
             .navigationBarHidden(true)
@@ -186,7 +184,7 @@ struct ConnectionsView: View {
 
     private var headerBackground: some View {
         ZStack {
-            AppTheme.canvasAdaptive(colorScheme)
+            AppTheme.canvas
             RadialGradient(
                 colors: [AppTheme.gradientMint.opacity(0.55), .clear],
                 center: .topLeading, startRadius: 0, endRadius: 200
@@ -211,12 +209,12 @@ struct ConnectionsView: View {
                 VStack(alignment: .leading, spacing: 3) {
                     Text(Self.greetingText)
                         .font(.system(size: 10, weight: .semibold))
-                        .foregroundColor(AppTheme.mutedAdaptive(colorScheme, contrast: colorSchemeContrast))
+                        .foregroundColor(AppTheme.muted)
                         .tracking(1.4)
                         .textCase(.uppercase)
                     Text("Verbindungen")
                         .font(AppTheme.displayFont(size: 24))
-                        .foregroundColor(AppTheme.inkAdaptive(colorScheme))
+                        .foregroundColor(AppTheme.ink)
                 }
 
                 Spacer()
@@ -224,7 +222,7 @@ struct ConnectionsView: View {
                 TimelineView(.periodic(from: Date(), by: 1.0)) { timeline in
                     Text(Self.headerTimeFormatter.string(from: timeline.date))
                         .font(AppTheme.monoFont(size: 18))
-                        .foregroundColor(AppTheme.inkAdaptive(colorScheme))
+                        .foregroundColor(AppTheme.ink)
                         .contentTransition(.numericText())
                         .accessibilityLabel("Aktuelle Uhrzeit: \(Self.headerTimeFormatter.string(from: timeline.date))")
                 }
@@ -232,8 +230,8 @@ struct ConnectionsView: View {
                 .padding(.vertical, 6)
                 .background(
                     Capsule()
-                        .fill(AppTheme.surfaceStrongAdaptive(colorScheme))
-                        .overlay(Capsule().stroke(AppTheme.hairlineAdaptive(colorScheme), lineWidth: 1))
+                        .fill(AppTheme.surfaceStrong)
+                        .overlay(Capsule().stroke(AppTheme.hairline, lineWidth: 1))
                 )
             }
 
@@ -250,7 +248,7 @@ struct ConnectionsView: View {
                 }
 
                 HStack(spacing: 0) {
-                    AppTheme.hairlineAdaptive(colorScheme).frame(height: 1)
+                    AppTheme.hairline.frame(height: 1)
                     Button {
                         HapticHelper.impact(.light)
                         withAnimation(.spring(response: 0.35, dampingFraction: 0.7)) {
@@ -261,11 +259,11 @@ struct ConnectionsView: View {
                             .font(.system(size: 11, weight: .bold))
                             .foregroundColor(AppTheme.muted)
                             .frame(width: 28, height: 28)
-                            .background(Circle().fill(AppTheme.surfaceStrongAdaptive(colorScheme)))
+                            .background(Circle().fill(AppTheme.surfaceStrong))
                     }
                     .disabled(selectedStartStation == nil && selectedEndStation == nil)
                     .accessibilityLabel("Start und Ziel tauschen")
-                    AppTheme.hairlineAdaptive(colorScheme).frame(height: 1)
+                    AppTheme.hairline.frame(height: 1)
                 }
                 .padding(.horizontal, 14)
 
@@ -281,11 +279,11 @@ struct ConnectionsView: View {
             }
             .background(
                 RoundedRectangle(cornerRadius: 14)
-                    .fill(AppTheme.surfaceCardAdaptive(colorScheme))
+                    .fill(AppTheme.surfaceCard)
                     .shadow(color: .black.opacity(0.04), radius: 8, y: 3)
                     .overlay(
                         RoundedRectangle(cornerRadius: 14)
-                            .stroke(AppTheme.hairlineAdaptive(colorScheme), lineWidth: 1)
+                            .stroke(AppTheme.hairline, lineWidth: 1)
                     )
             )
         }
@@ -300,11 +298,11 @@ struct ConnectionsView: View {
                     .foregroundColor(iconColor)
                     .font(.system(size: 10))
                     .frame(width: 28, height: 28)
-                    .background(Circle().fill(AppTheme.surfaceStrongAdaptive(colorScheme)))
+                    .background(Circle().fill(AppTheme.surfaceStrong))
 
                 Text(station?.longName ?? placeholder)
                     .font(.subheadline.weight(station != nil ? .semibold : .regular))
-                    .foregroundColor(station != nil ? AppTheme.inkAdaptive(colorScheme) : AppTheme.mutedAdaptive(colorScheme, contrast: colorSchemeContrast))
+                    .foregroundColor(station != nil ? AppTheme.ink : AppTheme.muted)
                     .lineLimit(1)
 
                 Spacer()
@@ -332,7 +330,7 @@ struct ConnectionsView: View {
                         .foregroundColor(Color(red: 0.2, green: 0.85, blue: 0.45))
                     Text(start.longName)
                         .font(.system(size: 13, weight: .semibold))
-                        .foregroundColor(AppTheme.inkAdaptive(colorScheme))
+                        .foregroundColor(AppTheme.ink)
                         .lineLimit(1)
                         .frame(maxWidth: 110, alignment: .leading)
                     Image(systemName: "arrow.right")
@@ -343,14 +341,14 @@ struct ConnectionsView: View {
                         .foregroundColor(Color(red: 1.0, green: 0.35, blue: 0.35))
                     Text(end.longName)
                         .font(.system(size: 13, weight: .semibold))
-                        .foregroundColor(AppTheme.inkAdaptive(colorScheme))
+                        .foregroundColor(AppTheme.ink)
                         .lineLimit(1)
                         .frame(maxWidth: 110, alignment: .leading)
                 }
             } else {
                 Text("Verbindungen")
                     .font(AppTheme.displayFont(size: 16))
-                    .foregroundColor(AppTheme.inkAdaptive(colorScheme))
+                    .foregroundColor(AppTheme.ink)
             }
 
             Spacer()
@@ -369,7 +367,7 @@ struct ConnectionsView: View {
             TimelineView(.periodic(from: Date(), by: 1.0)) { timeline in
                 Text(Self.headerTimeFormatter.string(from: timeline.date))
                     .font(AppTheme.monoFont(size: 13))
-                    .foregroundColor(AppTheme.inkAdaptive(colorScheme))
+                    .foregroundColor(AppTheme.ink)
                     .contentTransition(.numericText())
             }
             .accessibilityHidden(true)
@@ -377,8 +375,8 @@ struct ConnectionsView: View {
             .padding(.vertical, 5)
             .background(
                 Capsule()
-                    .fill(AppTheme.surfaceStrongAdaptive(colorScheme))
-                    .overlay(Capsule().stroke(AppTheme.hairlineAdaptive(colorScheme), lineWidth: 1))
+                    .fill(AppTheme.surfaceStrong)
+                    .overlay(Capsule().stroke(AppTheme.hairline, lineWidth: 1))
             )
         }
         .padding(.horizontal, 18)
@@ -482,7 +480,7 @@ struct ConnectionsView: View {
                     Text("Erneut verbinden")
                 }
                 .font(AppTheme.buttonFont)
-                .foregroundColor(.white)
+                .foregroundColor(AppTheme.onPrimary)
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, 14)
                 .background(Capsule().fill(AppTheme.primary))
@@ -604,7 +602,7 @@ struct ConnectionsView: View {
                         Text("Verbindungen suchen")
                             .font(AppTheme.buttonFont)
                     }
-                    .foregroundColor(.white)
+                    .foregroundColor(AppTheme.onPrimary)
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 14)
                     .background(
@@ -620,9 +618,9 @@ struct ConnectionsView: View {
         }
         .background(
             RoundedRectangle(cornerRadius: 18)
-                .fill(AppTheme.surfaceCardAdaptive(colorScheme))
+                .fill(AppTheme.surfaceCard)
                 .shadow(color: AppTheme.shadowColor(), radius: 10, y: 4)
-                .overlay(RoundedRectangle(cornerRadius: 18).stroke(AppTheme.hairlineAdaptive(colorScheme), lineWidth: 1))
+                .overlay(RoundedRectangle(cornerRadius: 18).stroke(AppTheme.hairline, lineWidth: 1))
         )
         .animation(.spring(response: 0.3, dampingFraction: 0.8), value: tripTimeMode != .now)
         .animation(.spring(response: 0.3, dampingFraction: 0.8), value: selectedStartStation != nil && selectedEndStation != nil)
@@ -693,8 +691,8 @@ struct ConnectionsView: View {
             .padding(.vertical, 11)
             .background(
                 Capsule()
-                    .fill(AppTheme.surfaceStrongAdaptive(colorScheme))
-                    .overlay(Capsule().stroke(AppTheme.hairlineAdaptive(colorScheme), lineWidth: 1))
+                    .fill(AppTheme.surfaceStrong)
+                    .overlay(Capsule().stroke(AppTheme.hairline, lineWidth: 1))
             )
             .foregroundColor(AppTheme.muted)
         }

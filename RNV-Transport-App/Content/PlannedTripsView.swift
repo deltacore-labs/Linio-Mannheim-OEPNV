@@ -13,71 +13,67 @@ struct PlannedTripsView: View {
     @State private var archivedTrips: [ArchivedTripData] = []
     @State private var showArchive = false
 
-    @Environment(\.colorScheme) private var colorScheme
-
     private let formatter = DateFormattingHelper.shared
 
     var body: some View {
-        NavigationView {
-            ZStack {
-                AppTheme.canvasAdaptive(colorScheme)
-                    .ignoresSafeArea()
+        ZStack {
+            AppTheme.canvas
+                .ignoresSafeArea()
 
-                VStack(spacing: 0) {
-                    // Segmented Picker (immer anzeigen sobald Archiv Daten hat oder aktiv ist)
-                    if !archivedTrips.isEmpty || showArchive {
-                        Picker("Ansicht", selection: $showArchive) {
-                            Text("Aktiv").tag(false)
-                            Text("Archiv").tag(true)
-                        }
-                        .pickerStyle(.segmented)
-                        .padding(.horizontal)
-                        .padding(.vertical, 8)
+            VStack(spacing: 0) {
+                // Segmented Picker (immer anzeigen sobald Archiv Daten hat oder aktiv ist)
+                if !archivedTrips.isEmpty || showArchive {
+                    Picker("Ansicht", selection: $showArchive) {
+                        Text("Aktiv").tag(false)
+                        Text("Archiv").tag(true)
                     }
+                    .pickerStyle(.segmented)
+                    .padding(.horizontal)
+                    .padding(.vertical, 8)
+                }
 
-                    if showArchive {
-                        if archivedTrips.isEmpty {
-                            archiveEmptyStateView
-                        } else {
-                            archivedTripsList
-                        }
+                if showArchive {
+                    if archivedTrips.isEmpty {
+                        archiveEmptyStateView
                     } else {
-                        if activeTrips.isEmpty {
-                            emptyStateView
-                        } else {
-                            activeTripsList
-                        }
+                        archivedTripsList
+                    }
+                } else {
+                    if activeTrips.isEmpty {
+                        emptyStateView
+                    } else {
+                        activeTripsList
                     }
                 }
             }
-            .navigationTitle("Geplante Fahrten")
-            .navigationBarTitleDisplayMode(.large)
-            .toolbar {
-                if showArchive {
-                    if !archivedTrips.isEmpty {
-                        ToolbarItem(placement: .navigationBarLeading) {
-                            Button(action: clearArchive) {
-                                Text("Archiv leeren")
-                                    .font(.subheadline)
-                                    .foregroundColor(.red)
-                            }
+        }
+        .navigationTitle("Geplante Fahrten")
+        .navigationBarTitleDisplayMode(.large)
+        .toolbar {
+            if showArchive {
+                if !archivedTrips.isEmpty {
+                    ToolbarItem(placement: .navigationBarLeading) {
+                        Button(action: clearArchive) {
+                            Text("Archiv leeren")
+                                .font(.subheadline)
+                                .foregroundColor(.red)
                         }
                     }
-                } else {
-                    ToolbarItem(placement: .navigationBarTrailing) {
-                        Button(action: refreshActiveTrips) {
-                            Image(systemName: "arrow.clockwise")
-                                .foregroundStyle(AppTheme.primaryColor)
-                        }
+                }
+            } else {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button(action: refreshActiveTrips) {
+                        Image(systemName: "arrow.clockwise")
+                            .foregroundStyle(AppTheme.primaryColor)
                     }
+                }
 
-                    if !activeTrips.isEmpty {
-                        ToolbarItem(placement: .navigationBarLeading) {
-                            Button(action: endAllTrips) {
-                                Text("Alle beenden")
-                                    .font(.subheadline)
-                                    .foregroundColor(.red)
-                            }
+                if !activeTrips.isEmpty {
+                    ToolbarItem(placement: .navigationBarLeading) {
+                        Button(action: endAllTrips) {
+                            Text("Alle beenden")
+                                .font(.subheadline)
+                                .foregroundColor(.red)
                         }
                     }
                 }
@@ -215,7 +211,6 @@ struct PlannedTripsView: View {
 private struct ArchivedTripRow: View {
     let trip: ArchivedTripData
 
-    @Environment(\.colorScheme) private var colorScheme
     private let formatter = DateFormattingHelper.shared
 
     var body: some View {
@@ -237,7 +232,7 @@ private struct ArchivedTripRow: View {
             HStack(spacing: 8) {
                 Text(formatter.formatTime(trip.startTime))
                     .font(.system(size: 20, weight: .bold, design: .monospaced))
-                    .foregroundStyle(AppTheme.inkAdaptive(colorScheme))
+                    .foregroundStyle(AppTheme.ink)
 
                 Image(systemName: "arrow.right")
                     .font(.system(size: 10, weight: .bold))
@@ -245,7 +240,7 @@ private struct ArchivedTripRow: View {
 
                 Text(formatter.formatTime(trip.endTime))
                     .font(.system(size: 20, weight: .bold, design: .monospaced))
-                    .foregroundStyle(AppTheme.inkAdaptive(colorScheme))
+                    .foregroundStyle(AppTheme.ink)
 
                 Spacer()
 
@@ -255,21 +250,21 @@ private struct ArchivedTripRow: View {
                     .foregroundStyle(AppTheme.muted)
                     .padding(.horizontal, 8)
                     .padding(.vertical, 3)
-                    .background(Capsule().fill(AppTheme.surfaceStrongAdaptive(colorScheme)))
+                    .background(Capsule().fill(AppTheme.surfaceStrong))
             }
 
             // Stations
             HStack(spacing: 5) {
                 Text(trip.startStation)
                     .font(.system(size: 12, weight: .medium))
-                    .foregroundStyle(AppTheme.bodyTextAdaptive(colorScheme))
+                    .foregroundStyle(AppTheme.bodyText)
                     .lineLimit(1)
                 Image(systemName: "arrow.right")
                     .font(.system(size: 9, weight: .bold))
                     .foregroundStyle(AppTheme.mutedSoft)
                 Text(trip.endStation)
                     .font(.system(size: 12, weight: .medium))
-                    .foregroundStyle(AppTheme.bodyTextAdaptive(colorScheme))
+                    .foregroundStyle(AppTheme.bodyText)
                     .lineLimit(1)
             }
 
@@ -289,9 +284,9 @@ private struct ArchivedTripRow: View {
         .padding(14)
         .background(
             RoundedRectangle(cornerRadius: 14)
-                .fill(AppTheme.surfaceCardAdaptive(colorScheme))
+                .fill(AppTheme.surfaceCard)
                 .shadow(color: AppTheme.shadowColor(isPast: true), radius: 4, y: 2)
-                .overlay(RoundedRectangle(cornerRadius: 14).stroke(AppTheme.hairlineAdaptive(colorScheme), lineWidth: 1))
+                .overlay(RoundedRectangle(cornerRadius: 14).stroke(AppTheme.hairline, lineWidth: 1))
         )
     }
 

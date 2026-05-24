@@ -5,6 +5,7 @@
 
 import SwiftUI
 import CoreLocation
+import MapKit
 
 struct DepartureBoardView: View {
     @ObservedObject var authService: AuthService
@@ -27,14 +28,15 @@ struct DepartureBoardView: View {
     @State private var departureDate: Date = Date()
     @State private var departureDisplayLimit: Int = 10
 
-    @Environment(\.colorScheme) private var colorScheme
-    @Environment(\.colorSchemeContrast) private var colorSchemeContrast
     private let formatter = DateFormattingHelper.shared
+
+    private let defaultDepartureDisplayLimit = 10
+    private let autoRefreshIntervalNanoseconds: UInt64 = 60_000_000_000
 
     var body: some View {
         NavigationView {
             ZStack {
-                AppTheme.canvasAdaptive(colorScheme).ignoresSafeArea()
+                AppTheme.canvas.ignoresSafeArea()
 
                 // Gradient pinned to top — bleeds behind navigation bar up to Dynamic Island
                 VStack {
@@ -52,7 +54,7 @@ struct DepartureBoardView: View {
 
                 VStack(spacing: 0) {
                     heroHeader
-                        .background(AppTheme.canvasAdaptive(colorScheme))
+                        .background(AppTheme.canvas)
 
                     if !network.isConnected {
                         offlineBanner
@@ -107,6 +109,8 @@ struct DepartureBoardView: View {
             .sheet(item: $selectedDeparture) { dep in
                 DepartureTripDetailView(
                     departure: dep,
+                    station: selectedStation,
+                    allDepartures: departures,
                     graphQLService: service,
                     authService: authService
                 )
@@ -122,12 +126,13 @@ struct DepartureBoardView: View {
                         graphQLService: service,
                         authService: authService
                     )
-                    .presentationDetents([.medium, .large])
-                    .presentationDragIndicator(.visible)
+                    .presentationDetents([.large])
+                    .presentationDragIndicator(.hidden)
+                    .interactiveDismissDisabled(true)
                 }
             }
             .onChange(of: selectedStation) {
-                departureDisplayLimit = 10
+                departureDisplayLimit = defaultDepartureDisplayLimit
                 Task { await loadDepartures() }
             }
             .onChange(of: departureDate) {
@@ -158,10 +163,7 @@ struct DepartureBoardView: View {
                 if let station = selectedStation {
                     Text(station.longName)
                         .font(AppTheme.displayFont(size: 28))
-                        .foregroundColor(AppTheme.inkAdaptive(colorScheme))
-                        .multilineTextAlignment(.center)
-                        .lineLimit(2)
-                        .padding(.horizontal, 32)
+                        .foregroundColor(AppTheme.ink)
                 } else {
                     Text("Keine Haltestelle")
                         .font(AppTheme.displayFont(size: 28))
@@ -173,7 +175,7 @@ struct DepartureBoardView: View {
                     if let last = lastRefresh {
                         Text("Aktuell um \(formatter.formatTimeFromDate(last)) Uhr")
                             .font(.caption)
-                            .foregroundColor(AppTheme.mutedAdaptive(colorScheme, contrast: colorSchemeContrast))
+                            .foregroundColor(AppTheme.muted)
                     }
                     if !Calendar.current.isDateInToday(departureDate) {
                         Text(formatter.formatDateShort(departureDate))
@@ -196,7 +198,7 @@ struct DepartureBoardView: View {
             .padding(.bottom, 20)
 
             // Hairline separator
-            AppTheme.hairlineAdaptive(colorScheme)
+            AppTheme.hairline
                 .frame(height: 1)
         }
         .accessibilityElement(children: .combine)
@@ -217,9 +219,9 @@ struct DepartureBoardView: View {
         }
         .padding(.horizontal, 20)
         .padding(.vertical, 9)
-        .background(AppTheme.surfaceStrongAdaptive(colorScheme))
+        .background(AppTheme.surfaceStrong)
         .overlay(
-            AppTheme.hairlineAdaptive(colorScheme).frame(height: 1),
+            AppTheme.hairline.frame(height: 1),
             alignment: .bottom
         )
         .accessibilityElement(children: .combine)
@@ -242,20 +244,20 @@ struct DepartureBoardView: View {
                 }
                 .buttonStyle(.plain)
                 if index < visible.count - 1 {
-                    AppTheme.hairlineAdaptive(colorScheme)
+                    AppTheme.hairline
                         .frame(height: 1)
                         .padding(.leading, 20)
                 }
             }
 
             if hasMore {
-                AppTheme.hairlineAdaptive(colorScheme)
+                AppTheme.hairline
                     .frame(height: 1)
 
                 Button {
                     HapticHelper.impact(.light)
                     withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
-                        departureDisplayLimit += 10
+                        departureDisplayLimit += defaultDepartureDisplayLimit
                     }
                 } label: {
                     HStack(spacing: 6) {
@@ -264,7 +266,7 @@ struct DepartureBoardView: View {
                         Image(systemName: "chevron.down")
                             .font(.system(size: 11, weight: .semibold))
                     }
-                    .foregroundColor(AppTheme.mutedAdaptive(colorScheme, contrast: colorSchemeContrast))
+                    .foregroundColor(AppTheme.muted)
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 14)
                 }
@@ -307,7 +309,7 @@ struct DepartureBoardView: View {
                 VStack(spacing: 12) {
                     Text("Wähle eine\nHaltestelle")
                         .font(AppTheme.displayFont(size: 30))
-                        .foregroundColor(AppTheme.inkAdaptive(colorScheme))
+                        .foregroundColor(AppTheme.ink)
                         .multilineTextAlignment(.center)
 
                     Text("Um aktuelle Abfahrten\nin deiner Nähe zu sehen.")
@@ -320,7 +322,7 @@ struct DepartureBoardView: View {
             Button(action: { showStationPicker = true }) {
                 Text("Haltestelle auswählen")
                     .font(AppTheme.buttonFont)
-                    .foregroundColor(.white)
+                    .foregroundColor(AppTheme.onPrimary)
                     .padding(.horizontal, 24)
                     .padding(.vertical, 12)
                     .background(AppTheme.primary)
@@ -424,10 +426,12 @@ struct DepartureBoardView: View {
 
         isLoadingDepartures = true
         departureError = nil
-        let time = ISO8601DateFormatter().string(from: departureDate)
+        let queryDate = Calendar.current.isDateInToday(departureDate) ? Date() : departureDate
+        let time = ISO8601DateFormatter().string(from: queryDate)
         let result = await service.getDepartures(station: station, accessToken: token, time: time)
 
         guard loadEpoch == myEpoch else { return }
+        guard !Task.isCancelled else { isLoadingDepartures = false; return }
         departures = result.departures.map { dep in
             guard dep.boardStopName == nil else { return dep }
             var d = dep
@@ -444,9 +448,10 @@ struct DepartureBoardView: View {
     }
 
     private func startAutoRefresh() {
+        refreshTask?.cancel()
         refreshTask = Task {
             while !Task.isCancelled {
-                try? await Task.sleep(nanoseconds: 60_000_000_000)
+                try? await Task.sleep(nanoseconds: autoRefreshIntervalNanoseconds)
                 guard !Task.isCancelled else { break }
                 guard !isLoadingDepartures else { continue }
                 await loadDepartures()
@@ -461,8 +466,6 @@ struct DepartureRowView: View {
     let departure: Departure
     var onSteigTap: (() -> Void)? = nil
     private let formatter = DateFormattingHelper.shared
-    @Environment(\.colorScheme) private var colorScheme
-    @Environment(\.colorSchemeContrast) private var colorSchemeContrast
 
     var body: some View {
         HStack(spacing: 16) {
@@ -471,18 +474,20 @@ struct DepartureRowView: View {
             VStack(alignment: .leading, spacing: 2) {
                 Text(departure.direction)
                     .font(.subheadline.weight(.medium))
-                    .foregroundColor(AppTheme.inkAdaptive(colorScheme))
+                    .foregroundColor(AppTheme.ink)
                     .lineLimit(1)
             }
 
             Spacer()
 
-            occupancyBadge(departure.occupancy ?? .low)
+            if let occ = departure.occupancy, occ != .unknown {
+                occupancyBadge(occ)
+            }
 
             VStack(alignment: .trailing, spacing: 2) {
                 Text(formatter.formatTime(departure.scheduledDeparture))
                     .font(.callout.weight(.semibold).monospacedDigit())
-                    .foregroundColor(AppTheme.inkAdaptive(colorScheme))
+                    .foregroundColor(AppTheme.ink)
 
                 if let delay = departure.delayMinutes, delay > 0 {
                     Text("+\(delay) min")
@@ -554,10 +559,8 @@ struct DepartureStop: Identifiable {
     let estimatedTime: String?
 
     var delayMinutes: Int? {
-        let fmt = DateFormattingHelper.shared
-        guard let scheduled = scheduledTime.flatMap({ fmt.parseISO8601($0) }),
-              let estimated = estimatedTime.flatMap({ fmt.parseISO8601($0) }) else { return nil }
-        return max(0, Int(estimated.timeIntervalSince(scheduled) / 60))
+        guard let t = scheduledTime, let e = estimatedTime else { return nil }
+        return DateFormattingHelper.shared.delayValue(timetabled: t, estimated: e)
     }
 
     var formattedTime: String? {
@@ -583,10 +586,7 @@ struct Departure: Identifiable {
     var quayText: String? = nil
 
     var delayMinutes: Int? {
-        let fmt = DateFormattingHelper.shared
-        guard let scheduled = fmt.parseISO8601(scheduledDeparture),
-              let estimated = estimatedDeparture.flatMap({ fmt.parseISO8601($0) }) else { return nil }
-        return max(0, Int(estimated.timeIntervalSince(scheduled) / 60))
+        DateFormattingHelper.shared.delayValue(timetabled: scheduledDeparture, estimated: estimatedDeparture)
     }
 
     var serviceTypeDisplay: String {
@@ -610,22 +610,32 @@ struct Departure: Identifiable {
         let diff = effective.timeIntervalSinceNow / 60
         return diff > -1 ? Int(diff) : nil
     }
+
+    var quayLetter: String? {
+        quayText.flatMap {
+            $0.split(separator: " ").last.map(String.init)
+        }
+    }
 }
 
 // MARK: - Trip Detail Sheet
 
 struct DepartureTripDetailView: View {
     let departure: Departure
+    let station: Station?
+    let allDepartures: [Departure]
     let graphQLService: GraphQLService
     let authService: AuthService
     @Environment(\.dismiss) private var dismiss
-    @Environment(\.colorScheme) private var colorScheme
-    @Environment(\.colorSchemeContrast) private var colorSchemeContrast
     private let formatter = DateFormattingHelper.shared
 
     @State private var fullIntermediates: [DepartureStop]?
     @State private var fullFinalStop: DepartureStop?
     @State private var isLoadingFullRoute = false
+
+    @State private var quays: [StationQuay] = []
+    @State private var showSteigSheet = false
+    @State private var mapPosition: MapCameraPosition = .automatic
 
     @ScaledMetric(relativeTo: .title) private var departureTimeSize: CGFloat = 28
     @ScaledMetric(relativeTo: .title2) private var countdownSize: CGFloat = 28
@@ -634,7 +644,7 @@ struct DepartureTripDetailView: View {
     var body: some View {
         NavigationView {
             ZStack {
-                AppTheme.canvasAdaptive(colorScheme).ignoresSafeArea()
+                AppTheme.canvas.ignoresSafeArea()
 
                 ScrollView {
                     VStack(spacing: 0) {
@@ -645,6 +655,7 @@ struct DepartureTripDetailView: View {
                         if hasStopData {
                             stopTimelineSection
                         }
+                        quayMapSection
                         Spacer(minLength: 48)
                     }
                 }
@@ -654,11 +665,26 @@ struct DepartureTripDetailView: View {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button("Fertig") { dismiss() }
                         .font(.system(size: 15, weight: .medium))
-                        .foregroundStyle(AppTheme.inkAdaptive(colorScheme))
+                        .foregroundStyle(AppTheme.ink)
                 }
             }
             .task {
                 await loadFullRoute()
+                await loadQuays()
+            }
+            .sheet(isPresented: $showSteigSheet) {
+                if let station = station {
+                    SteigSheet(
+                        departure: departure,
+                        allDepartures: allDepartures,
+                        station: station,
+                        graphQLService: graphQLService,
+                        authService: authService
+                    )
+                    .presentationDetents([.large])
+                    .presentationDragIndicator(.hidden)
+                    .interactiveDismissDisabled(true)
+                }
             }
         }
     }
@@ -681,6 +707,18 @@ struct DepartureTripDetailView: View {
         isLoadingFullRoute = false
     }
 
+    private func loadQuays() async {
+        guard let station = station,
+              !station.hafasID.isEmpty,
+              departure.quayText != nil,
+              let token = authService.accessToken else { return }
+        quays = await graphQLService.getStationQuays(
+            hafasID: station.hafasID,
+            accessToken: token
+        )
+        mapPosition = .region(StationQuay.boundingRegion(for: quays))
+    }
+
     private var hasStopData: Bool {
         departure.boardStopName != nil || !departure.intermediateStops.isEmpty || departure.finalStop != nil
     }
@@ -693,6 +731,59 @@ struct DepartureTripDetailView: View {
         fullFinalStop ?? departure.finalStop
     }
 
+    // MARK: Quay Map
+
+    @ViewBuilder
+    private var quayMapSection: some View {
+        if !quays.isEmpty, let quayText = departure.quayText {
+            Button {
+                HapticHelper.selection()
+                showSteigSheet = true
+            } label: {
+                VStack(alignment: .leading, spacing: 10) {
+                    HStack {
+                        Text("MEIN STEIG")
+                            .font(.system(size: 11, weight: .semibold))
+                            .foregroundStyle(AppTheme.muted)
+                            .tracking(0.5)
+                        Spacer()
+                        if let letter = departure.quayLetter {
+                            HStack(spacing: 6) {
+                                PlatformPin(letter: letter, isHighlighted: true)
+                                    .scaleEffect(0.7)
+                                    .frame(width: 24, height: 24)
+                                Text(quayText)
+                                    .font(.system(size: 13, weight: .semibold))
+                                    .foregroundStyle(AppTheme.ink)
+                            }
+                        }
+                    }
+                    .padding(.horizontal, 20)
+                    .padding(.top, 20)
+
+                    Map(position: $mapPosition) {
+                        ForEach(quays) { quay in
+                            Annotation(quay.letter, coordinate: quay.coordinate, anchor: .center) {
+                                PlatformPin(
+                                    letter: quay.letter,
+                                    isHighlighted: quay.letter == departure.quayLetter
+                                )
+                            }
+                        }
+                    }
+                    .mapStyle(.standard)
+                    .frame(height: 180)
+                    .clipShape(RoundedRectangle(cornerRadius: 14))
+                    .allowsHitTesting(false)
+                    .padding(.horizontal, 20)
+                }
+            }
+            .buttonStyle(.plain)
+            .accessibilityElement(children: .combine)
+            .accessibilityLabel("\(quayText) auf der Karte. Tippen für Details und alle Abfahrten am Steig.")
+        }
+    }
+
     // MARK: Header
 
     private var headerSection: some View {
@@ -702,7 +793,7 @@ struct DepartureTripDetailView: View {
                 VStack(alignment: .leading, spacing: 3) {
                     Text("nach \(departure.direction)")
                         .font(.system(size: 20, weight: .semibold))
-                        .foregroundStyle(AppTheme.inkAdaptive(colorScheme))
+                        .foregroundStyle(AppTheme.ink)
                         .lineLimit(2)
                     Text(departure.serviceTypeDisplay.uppercased())
                         .font(.system(size: 11, weight: .semibold))
@@ -755,12 +846,12 @@ struct DepartureTripDetailView: View {
         VStack(alignment: .leading, spacing: 4) {
             Text("Abfahrt")
                 .font(.caption.weight(.medium))
-                .foregroundStyle(AppTheme.mutedAdaptive(colorScheme, contrast: colorSchemeContrast))
+                .foregroundStyle(AppTheme.muted)
                 .tracking(0.3)
             HStack(alignment: .firstTextBaseline, spacing: 6) {
                 Text(formatter.formatTime(departure.scheduledDeparture))
                     .font(.system(size: departureTimeSize, weight: .semibold).monospacedDigit())
-                    .foregroundStyle(AppTheme.inkAdaptive(colorScheme))
+                    .foregroundStyle(AppTheme.ink)
                 delayBadge
             }
         }
@@ -789,7 +880,7 @@ struct DepartureTripDetailView: View {
         VStack(alignment: .trailing, spacing: 4) {
             Text("Abfahrt in")
                 .font(.caption.weight(.medium))
-                .foregroundStyle(AppTheme.mutedAdaptive(colorScheme, contrast: colorSchemeContrast))
+                .foregroundStyle(AppTheme.muted)
                 .tracking(0.3)
             if let mins = departure.minutesUntilDeparture {
                 if mins == 0 {
@@ -800,16 +891,16 @@ struct DepartureTripDetailView: View {
                     HStack(alignment: .firstTextBaseline, spacing: 2) {
                         Text("\(mins)")
                             .font(.system(size: countdownSize, weight: .semibold).monospacedDigit())
-                            .foregroundStyle(AppTheme.inkAdaptive(colorScheme))
+                            .foregroundStyle(AppTheme.ink)
                         Text("min")
                             .font(.system(size: countdownUnitSize, weight: .medium))
-                            .foregroundStyle(AppTheme.mutedAdaptive(colorScheme, contrast: colorSchemeContrast))
+                            .foregroundStyle(AppTheme.muted)
                     }
                 }
             } else {
                 Text("–")
                     .font(.system(size: countdownSize * 0.78, weight: .semibold))
-                    .foregroundStyle(AppTheme.mutedAdaptive(colorScheme, contrast: colorSchemeContrast))
+                    .foregroundStyle(AppTheme.muted)
             }
         }
         .frame(maxWidth: .infinity, alignment: .trailing)

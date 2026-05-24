@@ -142,7 +142,12 @@ class TripDataManager {
             do {
                 defaults.set(try JSONEncoder().encode(trips), forKey: self.tripDataKey)
                 self.cachedTrips = trips
-            } catch { return }
+            } catch {
+                #if DEBUG
+                print("❌ [NOTIF] Fehler beim Persistieren des Toggle-Zustands: \(error)")
+                #endif
+                return
+            }
             if enabled {
                 let minutes = UserDefaults.standard.integer(forKey: "reminderMinutes")
                 NotificationService.shared.schedule(trip: trips[idx], minutesBefore: minutes == 0 ? 10 : minutes)
@@ -311,10 +316,12 @@ class TripDataManager {
             var savedTrips = self.loadCachedTrips(defaults: defaults)
             let initialCount = savedTrips.count
             
-            savedTrips.removeAll { trip in
-                guard let arrivalDate = formatter.parseISO8601(trip.endTime) else { return false }
-                return now.timeIntervalSince(arrivalDate) > 86400 // 24 Stunden
+            let expiredIds = savedTrips.compactMap { trip -> String? in
+                guard let arrivalDate = formatter.parseISO8601(trip.endTime) else { return nil }
+                return now.timeIntervalSince(arrivalDate) > 86400 ? trip.id : nil
             }
+            expiredIds.forEach { NotificationService.shared.cancel(tripId: $0) }
+            savedTrips.removeAll { expiredIds.contains($0.id) }
             
             if savedTrips.count < initialCount {
                 do {

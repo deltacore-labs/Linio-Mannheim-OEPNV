@@ -22,7 +22,6 @@ struct TripDetailView: View {
     @StateObject private var mapVM = TransitMapViewModel()
 
     @Environment(\.dismiss) private var dismiss
-    @Environment(\.colorScheme) private var colorScheme
 
     private let formatter = DateFormattingHelper.shared
 
@@ -44,7 +43,7 @@ struct TripDetailView: View {
                         .padding(.bottom, 30)
                 }
             }
-            .background(AppTheme.canvasAdaptive(colorScheme).ignoresSafeArea())
+            .background(AppTheme.canvas.ignoresSafeArea())
             .navigationTitle("Verbindungsdetails")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -149,9 +148,9 @@ struct TripDetailView: View {
         .padding(20)
         .background(
             RoundedRectangle(cornerRadius: 20)
-                .fill(AppTheme.surfaceCardAdaptive(colorScheme))
+                .fill(AppTheme.surfaceCard)
                 .shadow(color: AppTheme.shadowColor(), radius: 8, y: 4)
-                .overlay(RoundedRectangle(cornerRadius: 20).stroke(AppTheme.hairlineAdaptive(colorScheme), lineWidth: 1))
+                .overlay(RoundedRectangle(cornerRadius: 20).stroke(AppTheme.hairline, lineWidth: 1))
         )
         .padding(.horizontal)
         .padding(.top, 20)
@@ -183,7 +182,7 @@ struct TripDetailView: View {
         } else {
             Text(formatter.formatTime(scheduled))
                 .font(AppTheme.displayFont(size: 36))
-                .foregroundColor(AppTheme.inkAdaptive(colorScheme))
+                .foregroundColor(AppTheme.ink)
         }
     }
 
@@ -202,7 +201,7 @@ struct TripDetailView: View {
             Capsule()
                 .fill(accent != nil
                       ? (accent ?? .orange).opacity(0.08)
-                      : AppTheme.surfaceStrongAdaptive(colorScheme))
+                      : AppTheme.surfaceStrong)
                 .overlay(
                     accent != nil
                     ? Capsule().stroke((accent ?? .orange).opacity(0.2), lineWidth: 1)
@@ -219,7 +218,7 @@ struct TripDetailView: View {
         HStack(spacing: 14) {
             ZStack {
                 Circle()
-                    .fill(isLiveActivityActive ? Color.green.opacity(0.12) : AppTheme.surfaceStrongAdaptive(colorScheme))
+                    .fill(isLiveActivityActive ? Color.green.opacity(0.12) : AppTheme.surfaceStrong)
                     .frame(width: 36, height: 36)
                 Image(systemName: isLiveActivityActive ? "bell.badge.fill" : "bell")
                     .font(.system(size: 15))
@@ -229,7 +228,7 @@ struct TripDetailView: View {
             VStack(alignment: .leading, spacing: 2) {
                 Text("Live-Verfolgung")
                     .font(.system(size: 15, weight: .medium))
-                    .foregroundColor(AppTheme.inkAdaptive(colorScheme))
+                    .foregroundColor(AppTheme.ink)
                 Text(isLiveActivityActive
                      ? "Aktiv · Dynamic Island & Sperrbildschirm"
                      : "Echtzeit-Updates auf dem Sperrbildschirm")
@@ -248,9 +247,9 @@ struct TripDetailView: View {
         .padding(16)
         .background(
             RoundedRectangle(cornerRadius: 16)
-                .fill(AppTheme.surfaceCardAdaptive(colorScheme))
+                .fill(AppTheme.surfaceCard)
                 .shadow(color: AppTheme.shadowColor(), radius: 6, y: 3)
-                .overlay(RoundedRectangle(cornerRadius: 16).stroke(AppTheme.hairlineAdaptive(colorScheme), lineWidth: 1))
+                .overlay(RoundedRectangle(cornerRadius: 16).stroke(AppTheme.hairline, lineWidth: 1))
         )
         .padding(.horizontal)
         .onChange(of: isLiveActivityActive) { _, newValue in
@@ -264,7 +263,7 @@ struct TripDetailView: View {
         VStack(spacing: 0) {
             ZStack {
                 if mapVM.isLoading {
-                    AppTheme.surfaceStrongAdaptive(colorScheme)
+                    AppTheme.surfaceStrong
                     ProgressView()
                         .tint(AppTheme.muted)
                 } else {
@@ -329,9 +328,9 @@ struct TripDetailView: View {
         }
         .background(
             RoundedRectangle(cornerRadius: 20)
-                .fill(AppTheme.surfaceCardAdaptive(colorScheme))
+                .fill(AppTheme.surfaceCard)
                 .shadow(color: AppTheme.shadowColor(), radius: 6, y: 3)
-                .overlay(RoundedRectangle(cornerRadius: 20).stroke(AppTheme.hairlineAdaptive(colorScheme), lineWidth: 1))
+                .overlay(RoundedRectangle(cornerRadius: 20).stroke(AppTheme.hairline, lineWidth: 1))
         )
         .padding(.horizontal)
     }

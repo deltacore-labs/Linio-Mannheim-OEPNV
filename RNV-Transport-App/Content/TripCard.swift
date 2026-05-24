@@ -10,7 +10,6 @@ import SwiftUI
 struct TripCard: View {
     let trip: DetailedTrip
 
-    @Environment(\.colorScheme) private var colorScheme
     private let formatter = DateFormattingHelper.shared
 
     @ScaledMetric(relativeTo: .title2) private var largeTimeSize: CGFloat = 22
@@ -49,7 +48,7 @@ struct TripCard: View {
 
     private var worstOccupancy: OccupancyLevel {
         let levels = timedLegs.compactMap { $0.occupancy }.filter { $0 != .unknown }
-        return levels.max(by: { $0.fillPercentage < $1.fillPercentage }) ?? .unknown
+        return levels.max(by: { $0.severityRank < $1.severityRank }) ?? .unknown
     }
 
     var body: some View {
@@ -74,11 +73,11 @@ struct TripCard: View {
         }
         .background(
             isPast
-                ? AppTheme.surfaceStrongAdaptive(colorScheme)
-                : AppTheme.surfaceCardAdaptive(colorScheme)
+                ? AppTheme.surfaceStrong
+                : AppTheme.surfaceCard
         )
         .clipShape(RoundedRectangle(cornerRadius: 20))
-        .overlay(RoundedRectangle(cornerRadius: 20).stroke(AppTheme.hairlineAdaptive(colorScheme), lineWidth: 1))
+        .overlay(RoundedRectangle(cornerRadius: 20).stroke(AppTheme.hairline, lineWidth: 1))
         .shadow(
             color: AppTheme.shadowColor(isPast: isPast),
             radius: isPast ? 4 : 8,
@@ -167,7 +166,7 @@ struct TripCard: View {
             let occ = worstOccupancy
             if occ != .unknown {
                 statusBadge(
-                    text: occ.shortText,
+                    text: occ.displayText,
                     icon: occ.iconName,
                     color: occ.color,
                     bg: occ.color.opacity(0.12)
@@ -264,7 +263,7 @@ struct TripCard: View {
             Group {
                 if isSBahn {
                     Capsule()
-                        .fill(colorScheme == .dark ? AppTheme.surfaceDarkElevated : AppTheme.surfaceCard)
+                        .fill(AppTheme.surfaceCard)
                         .overlay(Capsule().stroke(hasDelay ? Color.red : Color.green, lineWidth: 1.5))
                 } else if hasDelay {
                     Capsule()

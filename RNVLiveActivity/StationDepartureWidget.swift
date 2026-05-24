@@ -127,10 +127,10 @@ private struct WidgetDepartureService {
                   boardStops: stops(onlyHafasID: "\(safeID)") {
                     plannedDeparture { isoString }
                     realtimeDeparture { isoString }
-                    stop { globalID }
+                    pole { platform { label } }
                   }
                   allStops: stops {
-                    stop { name }
+                    station { longName }
                   }
                 }
               }
@@ -183,10 +183,11 @@ private struct WidgetDepartureService {
         }()
 
         let allStops = element["allStops"] as? [[String: Any]] ?? []
-        let destination = allStops.last.flatMap { ($0["stop"] as? [String: Any])?["name"] as? String } ?? ""
+        let destination = allStops.last.flatMap { ($0["station"] as? [String: Any])?["longName"] as? String } ?? ""
 
-        let stopGlobalID = (firstStop["stop"] as? [String: Any])?["globalID"] as? String
-        let quayText = stopGlobalID.flatMap { extractQuayText(from: $0) }
+        let poleObj = firstStop["pole"] as? [String: Any]
+        let platformLabel = (poleObj?["platform"] as? [String: Any])?["label"] as? String
+        let quayText: String? = platformLabel.map { "Steig \($0)" }
 
         return WidgetDeparture(
             serviceName: lineName,
@@ -196,16 +197,6 @@ private struct WidgetDepartureService {
             realtimeTimeISO: realtime,
             quayText: quayText
         )
-    }
-
-    // Gleiche Logik wie StationQuay.quayText(fromRef:) in GraphQLService.swift
-    private static func extractQuayText(from ref: String) -> String? {
-        let parts = ref.split(separator: ":")
-        guard parts.count >= 5 else { return nil }
-        let segment = String(parts[4])
-        guard !segment.isEmpty, segment != "0", segment != "null" else { return nil }
-        guard segment.range(of: #"^[A-Z]{1,2}[0-9]?$|^[0-9]{1,3}$"#, options: .regularExpression) != nil else { return nil }
-        return "Steig \(segment)"
     }
 
     private static func sanitize(_ input: String) -> String {

@@ -64,24 +64,32 @@ Priorität beim Parsen (erste erfolgreiche Quelle gewinnt):
 
 ## Datenfluss: Steig-Koordinaten für die Karte
 
-Wenn `SteigSheet` geöffnet wird, lädt `GraphQLService.getStationQuays(hafasID:)` einmalig alle Haltepunkte der Station:
+Wenn `SteigSheet` geöffnet wird, lädt `GraphQLService.getStationQuays(hafasID:)` einmalig alle Steige der Station.
+
+**Schema-Korrektur (2026-05-22):** `Station` hat kein `stops`-Feld. Steig-Koordinaten kommen über `Platform`:
 
 ```graphql
 {
   station(id: "<hafasID>") {
-    stops {
-      hafasID
-      name
-      lat
-      lon
+    platforms(first: 50) {
+      elements {
+        ... on Platform {
+          id
+          label       # Steig-Buchstabe z.B. "A"
+          location {
+            lat
+            long      # Achtung: "long" nicht "lon"
+          }
+        }
+      }
     }
   }
 }
 ```
 
-- Letter-Extraktion: letztes Wort von `name` (z.B. `"MA Hauptbahnhof, Steig A"` → `"A"`), Fallback: letztes Segment der `hafasID`.
+- `Platform.label` ist der Steig-Buchstabe direkt (z.B. `"A"`).
 - Falls `lat`/`lon` null oder 0,0 → Haltepunkt wird nicht auf der Karte angezeigt.
-- Falls die Query fehlschlägt oder keine Stops zurückgibt → Karte entfällt, Sheet zeigt nur die Abfahrtsliste.
+- Falls die Query fehlschlägt oder keine Platforms zurückgibt → Karte entfällt, Sheet zeigt nur die Abfahrtsliste.
 
 ---
 

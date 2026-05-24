@@ -55,6 +55,8 @@ final class DateFormattingHelper: @unchecked Sendable {
     // MARK: - Parsing
 
     func parseISO8601(_ isoString: String) -> Date? {
+        lock.lock()
+        defer { lock.unlock() }
         if let date = Self.iso8601WithFractionalSeconds.date(from: isoString) {
             return date
         }
@@ -124,6 +126,7 @@ final class DateFormattingHelper: @unchecked Sendable {
                 return d
             }
         }
+        fullDateFormatter.dateFormat = "dd.MM.yyyy"
         return nil
     }
 
@@ -148,6 +151,14 @@ final class DateFormattingHelper: @unchecked Sendable {
         let delayMinutes = Int(delaySeconds / 60)
 
         return delayMinutes > 0 ? delayMinutes : nil
+    }
+
+    /// Berechnet Verspätung in Minuten; gibt 0 zurück wenn pünktlich, nil wenn keine Daten.
+    func delayValue(timetabled: String, estimated: String?) -> Int? {
+        guard let estimatedString = estimated else { return nil }
+        guard let timetabledDate = parseISO8601(timetabled),
+              let estimatedDate = parseISO8601(estimatedString) else { return nil }
+        return max(0, Int(estimatedDate.timeIntervalSince(timetabledDate) / 60))
     }
 
     // MARK: - Duration Calculation
@@ -288,10 +299,15 @@ struct TransportIconHelper {
     /// Entfernt Präfixe aus Liniennamen für kompaktere Darstellung
     static func getShortLineName(from serviceName: String?) -> String {
         guard let name = serviceName else { return "?" }
-        return name
+        var result = name
             .replacingOccurrences(of: "RNV ", with: "")
             .replacingOccurrences(of: "rnv ", with: "")
             .replacingOccurrences(of: "Linie ", with: "")
+        // Richtungs-Suffix entfernen: "3-3" → "3", "5-2" → "5"
+        if let range = result.range(of: #"-\d+$"#, options: .regularExpression) {
+            result.removeSubrange(range)
+        }
+        return result
     }
 }
 

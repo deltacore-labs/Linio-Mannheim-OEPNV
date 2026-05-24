@@ -263,7 +263,7 @@ struct TripCard: View {
             Group {
                 if isSBahn {
                     Capsule()
-                        .fill(AppTheme.surfaceCard)
+                        .fill(AppTheme.surfaceStrong)
                         .overlay(Capsule().stroke(hasDelay ? Color.red : Color.green, lineWidth: 1.5))
                 } else if hasDelay {
                     Capsule()

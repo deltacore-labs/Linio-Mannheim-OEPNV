@@ -45,6 +45,28 @@ struct ShowPlannedTripsIntent: AppIntent {
     }
 }
 
+// MARK: - Notification Names
+
+extension Notification.Name {
+    static let showTicketFullscreen = Notification.Name("de.rnv.showTicketFullscreen")
+}
+
+// MARK: - Show Ticket Intent
+
+struct ShowTicketIntent: AppIntent {
+    static let title: LocalizedStringResource = "Ticket vorzeigen"
+    static let description = IntentDescription("Zeigt dein Deutschlandticket sofort im Vollbild.")
+
+    static let openAppWhenRun: Bool = true
+
+    @MainActor
+    func perform() async throws -> some IntentResult {
+        UserDefaults.standard.set(true, forKey: "pendingShowTicketFullscreen")
+        NotificationCenter.default.post(name: .showTicketFullscreen, object: nil)
+        return .result()
+    }
+}
+
 // MARK: - App Shortcuts Provider
 
 struct RNVAppShortcuts: AppShortcutsProvider {
@@ -74,6 +96,15 @@ struct RNVAppShortcuts: AppShortcutsProvider {
             ],
             shortTitle: "Geplante Fahrten",
             systemImageName: "bell.fill"
+        )
+        AppShortcut(
+            intent: ShowTicketIntent(),
+            phrases: [
+                "Ticket vorzeigen mit \(.applicationName)",
+                "Deutschlandticket mit \(.applicationName) zeigen"
+            ],
+            shortTitle: "Ticket vorzeigen",
+            systemImageName: "qrcode"
         )
     }
 }

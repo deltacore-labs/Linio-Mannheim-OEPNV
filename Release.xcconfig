@@ -1,5 +1,10 @@
 // Release.xcconfig
-#include "Secrets.xcconfig"
+#include? "Secrets.xcconfig"
+
+// Wallet defaults (overridden by Secrets.xcconfig if present)
+WALLET_PASS_TYPE_ID =
+WALLET_TEAM_ID =
+WALLET_CERT_NAME =
 
 // Release-spezifische Build Settings
 DEBUG_INFORMATION_FORMAT = dwarf-with-dsym

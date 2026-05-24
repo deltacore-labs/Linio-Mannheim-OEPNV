@@ -8,6 +8,7 @@
 import Foundation
 import Combine
 import CoreLocation
+import MapKit
 
 // MARK: - Data Models
 
@@ -42,86 +43,63 @@ enum OccupancyLevel: String, Codable, CaseIterable {
     case low = "LOW"
     case medium = "MEDIUM"
     case high = "HIGH"
-    case veryHigh = "VERY_HIGH"
-    case full = "FULL"
 
-    /// Initialisiert aus beliebigem API-String (case-insensitive)
+    // API liefert römische Ziffern: I → low, II → medium, III → high
     init(from apiValue: String) {
-        let normalized = apiValue.uppercased()
-            .replacingOccurrences(of: " ", with: "_")
-            .replacingOccurrences(of: "-", with: "_")
-        self = OccupancyLevel(rawValue: normalized) ?? .unknown
+        switch apiValue.trimmingCharacters(in: .whitespaces) {
+        case "I":   self = .low
+        case "II":  self = .medium
+        case "III": self = .high
+        default:
+            let normalized = apiValue.uppercased()
+                .replacingOccurrences(of: " ", with: "_")
+                .replacingOccurrences(of: "-", with: "_")
+            self = OccupancyLevel(rawValue: normalized) ?? .unknown
+        }
     }
 
-    /// Benutzerfreundliche Beschreibung
     var displayText: String {
         switch self {
         case .unknown: return "Keine Daten"
-        case .low: return "Gering"
-        case .medium: return "Mittel"
-        case .high: return "Hoch"
-        case .veryHigh: return "Sehr hoch"
-        case .full: return "Voll"
+        case .low:     return "Gering"
+        case .medium:  return "Mittel"
+        case .high:    return "Hoch"
         }
     }
 
-    /// Kurztext für kompakte Darstellung
-    var shortText: String {
-        switch self {
-        case .unknown: return "?"
-        case .low: return "Gering"
-        case .medium: return "Mittel"
-        case .high: return "Hoch"
-        case .veryHigh: return "Sehr hoch"
-        case .full: return "Voll"
-        }
-    }
-
-    /// SF Symbol Name
     var iconName: String {
         switch self {
         case .unknown: return "questionmark.circle"
-        case .low: return "person"
-        case .medium: return "person.2"
-        case .high: return "person.3"
-        case .veryHigh: return "person.3.fill"
-        case .full: return "exclamationmark.triangle.fill"
+        case .low:     return "person"
+        case .medium:  return "person.2"
+        case .high:    return "person.3"
         }
     }
 
-    /// Farbe für die UI-Darstellung
     var color: Color {
         switch self {
         case .unknown: return .gray
-        case .low: return .green
-        case .medium: return .yellow
-        case .high: return .orange
-        case .veryHigh: return .red
-        case .full: return .red
+        case .low:     return .green
+        case .medium:  return .orange
+        case .high:    return .red
         }
     }
 
-    /// Prozentuale Füllung (für Fortschrittsanzeige)
-    var fillPercentage: Double {
-        switch self {
-        case .unknown: return 0
-        case .low: return 0.25
-        case .medium: return 0.5
-        case .high: return 0.75
-        case .veryHigh: return 0.9
-        case .full: return 1.0
-        }
-    }
-
-    /// Anzahl gefüllter Personen-Icons (von 3) für kompakte Darstellung
     var filledCount: Int {
         switch self {
-        case .unknown: return 1
-        case .low: return 1
-        case .medium: return 2
-        case .high: return 3
-        case .veryHigh: return 3
-        case .full: return 3
+        case .unknown: return 0
+        case .low:     return 1
+        case .medium:  return 2
+        case .high:    return 3
+        }
+    }
+
+    var severityRank: Int {
+        switch self {
+        case .unknown: return 0
+        case .low:     return 1
+        case .medium:  return 2
+        case .high:    return 3
         }
     }
 }
@@ -145,6 +123,27 @@ struct StationQuay: Identifiable {
 
     static func letter(fromName name: String) -> String {
         String(name.split(separator: " ").last ?? Substring(name.prefix(1)))
+    }
+
+    static func boundingRegion(for quays: [StationQuay]) -> MKCoordinateRegion {
+        let lats = quays.map { $0.coordinate.latitude }
+        let lons = quays.map { $0.coordinate.longitude }
+        guard let minLat = lats.min(), let maxLat = lats.max(),
+              let minLon = lons.min(), let maxLon = lons.max() else {
+            return MKCoordinateRegion(
+                center: CLLocationCoordinate2D(latitude: 49.48, longitude: 8.47),
+                span: MKCoordinateSpan(latitudeDelta: 0.005, longitudeDelta: 0.005)
+            )
+        }
+        let center = CLLocationCoordinate2D(
+            latitude: (minLat + maxLat) / 2,
+            longitude: (minLon + maxLon) / 2
+        )
+        let span = MKCoordinateSpan(
+            latitudeDelta: max((maxLat - minLat) * 1.3, 0.0012),
+            longitudeDelta: max((maxLon - minLon) * 1.3, 0.0012)
+        )
+        return MKCoordinateRegion(center: center, span: span)
     }
 }
 
@@ -423,6 +422,23 @@ class GraphQLService: ObservableObject {
 #if DEBUG
                 print("❌ [GraphQL] Error body (\(httpResponse.statusCode)): \(body)")
 #endif
+                if httpResponse.statusCode == 401 {
+                    plog("executeQuery: HTTP 401 – Token erneuern und erneut versuchen")
+                    await AuthService.shared.autoAuthenticate()
+                    guard let newToken = AuthService.shared.accessToken else {
+                        throw GraphQLError(message: "HTTP-Fehler: 401")
+                    }
+                    var retryRequest = request
+                    retryRequest.setValue("Bearer \(newToken)", forHTTPHeaderField: "Authorization")
+                    let (retryData, retryResponse) = try await URLSession.shared.data(for: retryRequest)
+                    if let retryHTTP = retryResponse as? HTTPURLResponse,
+                       !(200...299).contains(retryHTTP.statusCode) {
+                        let retryBody = String(data: retryData.prefix(500), encoding: .utf8) ?? "?"
+                        plog("executeQuery: Retry HTTP \(retryHTTP.statusCode) – \(retryBody)")
+                        throw GraphQLError(message: "HTTP-Fehler: \(retryHTTP.statusCode)")
+                    }
+                    return retryData
+                }
                 throw GraphQLError(message: "HTTP-Fehler: \(httpResponse.statusCode)")
             }
         }
@@ -804,6 +820,9 @@ class GraphQLService: ObservableObject {
             if !journeysResult.departures.isEmpty {
                 return journeysResult
             }
+            if Task.isCancelled {
+                return DeparturesResult(departures: [], error: nil)
+            }
         }
 
         // Fallback: hub-workaround (wenn journeys keine Daten liefert)
@@ -1118,13 +1137,15 @@ class GraphQLService: ObservableObject {
                     realtimeDeparture {
                       isoString
                     }
-                    stop {
-                      globalID
+                    pole {
+                      platform {
+                        label
+                      }
                     }
                   }
                   allStops: stops {
-                    stop {
-                      name
+                    station {
+                      longName
                     }
                   }
                 }
@@ -1160,6 +1181,25 @@ class GraphQLService: ObservableObject {
 
         plog("getDeparturesViaJourneys: \(elements.count) Journey-Elemente für hafasID=\(hafasID)")
 
+        #if DEBUG
+        // Dump des ersten Elements zur vollständigen API-Analyse
+        if let firstEl = elements.first,
+           let dumpData = try? JSONSerialization.data(withJSONObject: firstEl, options: .prettyPrinted),
+           let dumpStr = String(data: dumpData, encoding: .utf8) {
+            print("🔍 [Journeys] Erstes Element (hafasID=\(hafasID)):\n\(dumpStr)")
+        }
+        // Dump aller boardStops pole/platform-Objekte (für Steig-Analyse)
+        for (i, el) in elements.prefix(5).enumerated() {
+            if let stops = el["boardStops"] as? [[String: Any]],
+               let fs = stops.first {
+                let poleObj = fs["pole"] as? [String: Any]
+                let label = (poleObj?["platform"] as? [String: Any])?["label"] as? String ?? "–"
+                let lineID = (el["line"] as? [String: Any])?["id"] as? String ?? "–"
+                print("🚏 [Journeys] Journey[\(i)] line=\(lineID) platform.label=\(label)")
+            }
+        }
+        #endif
+
         let departures: [Departure] = elements.compactMap { element -> Departure? in
             guard let lineObj = element["line"] as? [String: Any],
                   let lineID = lineObj["id"] as? String,
@@ -1190,7 +1230,7 @@ class GraphQLService: ObservableObject {
             // Letzter Halt aus allStops als Richtung
             let allStops = element["allStops"] as? [[String: Any]] ?? []
             let destinationName = allStops.last.flatMap {
-                ($0["stop"] as? [String: Any])?["name"] as? String
+                ($0["station"] as? [String: Any])?["longName"] as? String
             } ?? ""
 
             // Auslastung
@@ -1201,9 +1241,10 @@ class GraphQLService: ObservableObject {
                 occupancy = OccupancyLevel(from: loadType)
             }
 
-            let stopGlobalID = (firstStop["stop"] as? [String: Any])?["globalID"] as? String
-            let quayText = stopGlobalID.flatMap { StationQuay.quayText(fromRef: $0) }
-            plog("getDeparturesViaJourneys: Linie \(lineName) globalID=\(stopGlobalID ?? "–") quayText=\(quayText ?? "–")")
+            let poleObj = firstStop["pole"] as? [String: Any]
+            let platformLabel = (poleObj?["platform"] as? [String: Any])?["label"] as? String
+            let quayText = platformLabel.map { "Steig \($0)" }
+            plog("getDeparturesViaJourneys: Linie \(lineName) platform.label=\(platformLabel ?? "–") quayText=\(quayText ?? "–")")
 
             var departure = Departure(
                 scheduledDeparture: planned,
@@ -1358,11 +1399,17 @@ class GraphQLService: ObservableObject {
         let query = """
         {
           station(id: "\(safeID)") {
-            stops {
-              hafasID
-              name
-              lat
-              lon
+            platforms(first: 50) {
+              elements {
+                ... on Platform {
+                  id
+                  label
+                  location {
+                    lat
+                    long
+                  }
+                }
+              }
             }
           }
         }
@@ -1372,28 +1419,42 @@ class GraphQLService: ObservableObject {
               let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
               let responseData = json["data"] as? [String: Any],
               let stationObj = responseData["station"] as? [String: Any],
-              let stopsArr = stationObj["stops"] as? [[String: Any]]
+              let platformsObj = stationObj["platforms"] as? [String: Any],
+              let elements = platformsObj["elements"] as? [[String: Any]]
         else {
-            plog("getStationQuays: Keine Stop-Daten für hafasID=\(hafasID)")
+            plog("getStationQuays: Keine Platform-Daten für hafasID=\(hafasID)")
             return []
         }
 
-        let quays: [StationQuay] = stopsArr.compactMap { stop in
-            guard let hid = stop["hafasID"] as? String,
-                  let name = stop["name"] as? String,
-                  let lat = stop["lat"] as? Double,
-                  let lon = stop["lon"] as? Double,
+        let quays: [StationQuay] = elements.compactMap { platform in
+            guard let id = platform["id"] as? String,
+                  let label = platform["label"] as? String, !label.isEmpty,
+                  let locationObj = platform["location"] as? [String: Any],
+                  let lat = locationObj["lat"] as? Double,
+                  let lon = locationObj["long"] as? Double,
                   lat != 0, lon != 0 else { return nil }
-            let letter = StationQuay.letter(fromName: name)
             return StationQuay(
-                id: hid,
-                name: name,
-                letter: letter,
+                id: id,
+                name: "Steig \(label)",
+                letter: label,
                 coordinate: CLLocationCoordinate2D(latitude: lat, longitude: lon)
             )
         }
 
         plog("getStationQuays: \(quays.count) Steige für hafasID=\(hafasID)")
+
+        #if DEBUG
+        print("🗺️ [Quays] Alle Platforms für hafasID=\(hafasID):")
+        for platform in elements {
+            let id = platform["id"] as? String ?? "–"
+            let label = platform["label"] as? String ?? "–"
+            let loc = platform["location"] as? [String: Any]
+            let lat = loc?["lat"] as? Double ?? 0
+            let lon = loc?["long"] as? Double ?? 0
+            print("   id=\(id) label=\"\(label)\" lat=\(lat) lon=\(lon)")
+        }
+        #endif
+
         return quays
     }
 }

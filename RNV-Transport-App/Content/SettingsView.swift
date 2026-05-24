@@ -22,6 +22,7 @@ struct SettingsView: View {
     @AppStorage("enableBus") private var enableBus = true
     @AppStorage("enableSBahn") private var enableSBahn = true
     @AppStorage("developerMode") private var developerMode = false
+    @AppStorage("reminderMinutes") private var reminderMinutes = 10
 
     @State private var showingResetAlert = false
     @State private var showingCleanupSuccess = false
@@ -76,6 +77,9 @@ struct SettingsView: View {
             }
             .sheet(isPresented: $showPrivacyPolicy) {
                 PrivacyPolicyView()
+            }
+            .onChange(of: reminderMinutes) { _ in
+                rescheduleAllNotifications()
             }
         }
     }
@@ -241,6 +245,23 @@ struct SettingsView: View {
                 iconColor: .orange,
                 binding: $notificationsEnabled
             )
+            RowDivider(color: AppTheme.hairline)
+            HStack(spacing: 12) {
+                IconBadge(icon: "timer", color: .orange)
+                Text("Erinnerung")
+                    .font(.body)
+                    .foregroundColor(AppTheme.ink)
+                Spacer()
+                Picker("", selection: $reminderMinutes) {
+                    ForEach([5, 10, 15, 20, 30], id: \.self) { min in
+                        Text("\(min) Min").tag(min)
+                    }
+                }
+                .pickerStyle(.menu)
+                .tint(AppTheme.primaryColor)
+            }
+            .padding(.horizontal, 16)
+            .padding(.vertical, 12)
             RowDivider(color: AppTheme.hairline)
             ActionRow(
                 title: "Systemeinstellungen öffnen",
@@ -439,6 +460,14 @@ struct SettingsView: View {
             #if DEBUG
             print("✅ [SETTINGS] Live Activities beendet")
             #endif
+        }
+    }
+
+    private func rescheduleAllNotifications() {
+        NotificationService.shared.cancelAll()
+        let trips = TripDataManager.shared.getAllTrips()
+        for trip in trips where trip.notificationsEnabled {
+            NotificationService.shared.schedule(trip: trip, minutesBefore: reminderMinutes)
         }
     }
 }

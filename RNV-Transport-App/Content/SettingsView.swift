@@ -10,8 +10,8 @@ import CoreLocation
 
 struct SettingsView: View {
     @ObservedObject var locationManager: LocationManager
+    @Binding var navigateToTrips: Bool
     @EnvironmentObject var liveActivityManager: LiveActivityManager
-    @Environment(\.colorScheme) private var colorScheme
 
     @AppStorage("autoStartLiveActivity") private var autoStartLiveActivity = false
     @AppStorage("notificationsEnabled") private var notificationsEnabled = true
@@ -28,10 +28,6 @@ struct SettingsView: View {
     @State private var showingCacheSuccess = false
     @State private var showPrivacyPolicy = false
 
-    private var cardBg: Color { AppTheme.surfaceCardAdaptive(colorScheme) }
-    private var canvasBg: Color { AppTheme.canvasAdaptive(colorScheme) }
-    private var dividerColor: Color { AppTheme.hairlineAdaptive(colorScheme) }
-
     private var appVersion: String {
         Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.1.0"
     }
@@ -41,12 +37,12 @@ struct SettingsView: View {
             ScrollView {
                 VStack(spacing: 28) {
                     appHeader
+                    tripsSection
                     searchSection
                     transportSection
                     notificationSection
                     locationSection
-                    dataSection
-                    privacySection
+                    appSection
                     developerSection
                     footerSection
                 }
@@ -54,7 +50,7 @@ struct SettingsView: View {
                 .padding(.top, 4)
                 .padding(.bottom, 32)
             }
-            .background(canvasBg.ignoresSafeArea())
+            .background(AppTheme.canvas.ignoresSafeArea())
             .navigationTitle("Einstellungen")
             .navigationBarTitleDisplayMode(.large)
             .alert("Alle Activities beenden?", isPresented: $showingResetAlert) {
@@ -110,7 +106,7 @@ struct SettingsView: View {
             VStack(alignment: .leading, spacing: 4) {
                 Text("ÖPNV Mannheim")
                     .font(.title2.weight(.bold))
-                    .foregroundColor(AppTheme.inkAdaptive(colorScheme))
+                    .foregroundColor(AppTheme.ink)
 
                 HStack(spacing: 6) {
                     Text("v\(appVersion)")
@@ -130,36 +126,63 @@ struct SettingsView: View {
             Spacer()
         }
         .padding(20)
-        .background(cardBg)
+        .background(AppTheme.surfaceCard)
         .clipShape(RoundedRectangle(cornerRadius: 20))
         .shadow(color: Color.black.opacity(0.05), radius: 8, x: 0, y: 2)
         .accessibilityElement(children: .combine)
         .accessibilityLabel("ÖPNV Mannheim, Version \(appVersion), Mannheim & Umgebung")
     }
 
+    // MARK: - Trips Section
+
+    private var tripsSection: some View {
+        SettingsCard(title: "Geplante Fahrten", icon: "bell.fill", iconColor: AppTheme.primaryColor, cardBg: AppTheme.surfaceCard, dividerColor: AppTheme.hairline) {
+            NavigationLink(destination: PlannedTripsView().environmentObject(liveActivityManager), isActive: $navigateToTrips) {
+                HStack(spacing: 12) {
+                    IconBadge(icon: "bell.fill", color: AppTheme.primaryColor)
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("Fahrten & Archiv")
+                            .font(.body)
+                            .foregroundColor(AppTheme.ink)
+                        Text("Aktive Live Activities und Fahrtenverlauf")
+                            .font(.caption)
+                            .foregroundColor(AppTheme.muted)
+                    }
+                    Spacer()
+                    Image(systemName: "chevron.right")
+                        .font(.caption.weight(.semibold))
+                        .foregroundColor(AppTheme.mutedSoft)
+                }
+                .padding(.horizontal, 16)
+                .padding(.vertical, 12)
+            }
+            .buttonStyle(.plain)
+        }
+    }
+
     // MARK: - Search Section
 
     private var searchSection: some View {
-        SettingsCard(title: "Verbindungssuche", icon: "magnifyingglass", iconColor: AppTheme.primaryColor, cardBg: cardBg, dividerColor: dividerColor) {
+        SettingsCard(title: "Verbindungssuche", icon: "magnifyingglass", iconColor: AppTheme.primaryColor, cardBg: AppTheme.surfaceCard, dividerColor: AppTheme.hairline) {
             HStack(spacing: 12) {
                 IconBadge(icon: "list.number", color: AppTheme.primaryColor)
                 Text("Max. Verbindungen")
                     .font(.body)
-                    .foregroundColor(AppTheme.inkAdaptive(colorScheme))
+                    .foregroundColor(AppTheme.ink)
                 Spacer()
                 CounterControl(value: $maxConnections, range: 3...10, tint: AppTheme.primaryColor, label: "Maximale Verbindungen")
             }
             .padding(.horizontal, 16)
             .padding(.vertical, 12)
 
-            RowDivider(color: dividerColor)
+            RowDivider(color: AppTheme.hairline)
 
             VStack(spacing: 8) {
                 HStack(spacing: 12) {
                     IconBadge(icon: "scope", color: AppTheme.primaryColor)
                     Text("Suchradius")
                         .font(.body)
-                        .foregroundColor(AppTheme.inkAdaptive(colorScheme))
+                        .foregroundColor(AppTheme.ink)
                     Spacer()
                     Text("\(String(format: "%.1f", defaultSearchRadius)) km")
                         .font(.body.weight(.semibold))
@@ -175,7 +198,7 @@ struct SettingsView: View {
             .padding(.horizontal, 16)
             .padding(.vertical, 12)
 
-            RowDivider(color: dividerColor)
+            RowDivider(color: AppTheme.hairline)
 
             ToggleRow(
                 title: "Nur Verspätungen",
@@ -190,11 +213,11 @@ struct SettingsView: View {
     // MARK: - Transport Section
 
     private var transportSection: some View {
-        SettingsCard(title: "Verkehrsmittel", icon: "tram.fill", iconColor: .red, cardBg: cardBg, dividerColor: dividerColor) {
+        SettingsCard(title: "Verkehrsmittel", icon: "tram.fill", iconColor: .red, cardBg: AppTheme.surfaceCard, dividerColor: AppTheme.hairline) {
             ToggleRow(title: "Straßenbahn", icon: "tram.fill", iconColor: .red, binding: $enableTram)
-            RowDivider(color: dividerColor)
+            RowDivider(color: AppTheme.hairline)
             ToggleRow(title: "Bus", icon: "bus.fill", iconColor: .blue, binding: $enableBus)
-            RowDivider(color: dividerColor)
+            RowDivider(color: AppTheme.hairline)
             ToggleRow(title: "S-Bahn", icon: "train.side.front.car", iconColor: .green, binding: $enableSBahn)
         }
     }
@@ -202,7 +225,7 @@ struct SettingsView: View {
     // MARK: - Notification Section
 
     private var notificationSection: some View {
-        SettingsCard(title: "Live Activity & Mitteilungen", icon: "bell.badge.fill", iconColor: .orange, cardBg: cardBg, dividerColor: dividerColor) {
+        SettingsCard(title: "Live Activity & Mitteilungen", icon: "bell.badge.fill", iconColor: .orange, cardBg: AppTheme.surfaceCard, dividerColor: AppTheme.hairline) {
             ToggleRow(
                 title: "Automatisch starten",
                 subtitle: "Bei jeder Verbindungssuche",
@@ -210,7 +233,7 @@ struct SettingsView: View {
                 iconColor: AppTheme.primaryColor,
                 binding: $autoStartLiveActivity
             )
-            RowDivider(color: dividerColor)
+            RowDivider(color: AppTheme.hairline)
             ToggleRow(
                 title: "Push-Benachrichtigungen",
                 subtitle: "Verspätungen und Änderungen",
@@ -218,12 +241,12 @@ struct SettingsView: View {
                 iconColor: .orange,
                 binding: $notificationsEnabled
             )
-            RowDivider(color: dividerColor)
+            RowDivider(color: AppTheme.hairline)
             ActionRow(
                 title: "Systemeinstellungen öffnen",
                 icon: "arrow.up.right.square",
                 iconColor: AppTheme.muted,
-                inkColor: AppTheme.inkAdaptive(colorScheme),
+                inkColor: AppTheme.ink,
                 showChevron: false
             ) {
                 if let url = URL(string: UIApplication.openSettingsURLString) {
@@ -236,13 +259,13 @@ struct SettingsView: View {
     // MARK: - Location Section
 
     private var locationSection: some View {
-        SettingsCard(title: "Standort", icon: "location.fill", iconColor: AppTheme.primaryColor, cardBg: cardBg, dividerColor: dividerColor) {
+        SettingsCard(title: "Standort", icon: "location.fill", iconColor: AppTheme.primaryColor, cardBg: AppTheme.surfaceCard, dividerColor: AppTheme.hairline) {
             HStack(spacing: 12) {
                 IconBadge(icon: "location.fill", color: AppTheme.primaryColor)
                 VStack(alignment: .leading, spacing: 3) {
                     Text("Aktueller Standort")
                         .font(.body)
-                        .foregroundColor(AppTheme.inkAdaptive(colorScheme))
+                        .foregroundColor(AppTheme.ink)
                     locationStatusText
                 }
                 Spacer()
@@ -266,7 +289,7 @@ struct SettingsView: View {
             .padding(.vertical, 12)
 
             if locationManager.authorizationStatus == .denied || locationManager.authorizationStatus == .restricted {
-                RowDivider(color: dividerColor)
+                RowDivider(color: AppTheme.hairline)
                 ActionRow(
                     title: "Standortzugriff in Einstellungen erlauben",
                     icon: "arrow.up.right.square",
@@ -311,21 +334,21 @@ struct SettingsView: View {
         }
     }
 
-    // MARK: - Data Section
+    // MARK: - App Section (Daten & Datenschutz)
 
-    private var dataSection: some View {
-        SettingsCard(title: "Datenverwaltung", icon: "externaldrive.fill", iconColor: AppTheme.muted, cardBg: cardBg, dividerColor: dividerColor) {
+    private var appSection: some View {
+        SettingsCard(title: "App & Daten", icon: "externaldrive.fill", iconColor: AppTheme.muted, cardBg: AppTheme.surfaceCard, dividerColor: AppTheme.hairline) {
             ActionRow(
                 title: "Cache leeren",
                 icon: "arrow.clockwise",
                 iconColor: AppTheme.primaryColor,
-                inkColor: AppTheme.inkAdaptive(colorScheme),
+                inkColor: AppTheme.ink,
                 showChevron: false
             ) {
                 clearCache()
                 showingCacheSuccess = true
             }
-            RowDivider(color: dividerColor)
+            RowDivider(color: AppTheme.hairline)
             ActionRow(
                 title: "Alle Live Activities beenden",
                 icon: "xmark.circle.fill",
@@ -335,18 +358,12 @@ struct SettingsView: View {
             ) {
                 showingResetAlert = true
             }
-        }
-    }
-
-    // MARK: - Privacy Section
-
-    private var privacySection: some View {
-        SettingsCard(title: "Datenschutz", icon: "lock.shield.fill", iconColor: .blue, cardBg: cardBg, dividerColor: dividerColor) {
+            RowDivider(color: AppTheme.hairline)
             ActionRow(
                 title: "Datenschutzerklärung",
-                icon: "doc.text.fill",
+                icon: "lock.shield.fill",
                 iconColor: .blue,
-                inkColor: AppTheme.inkAdaptive(colorScheme)
+                inkColor: AppTheme.ink
             ) {
                 showPrivacyPolicy = true
             }
@@ -356,7 +373,7 @@ struct SettingsView: View {
     // MARK: - Developer Section
 
     private var developerSection: some View {
-        SettingsCard(title: "Entwickler", icon: "hammer.fill", iconColor: developerMode ? .orange : AppTheme.muted, cardBg: cardBg, dividerColor: dividerColor) {
+        SettingsCard(title: "Entwickler", icon: "hammer.fill", iconColor: developerMode ? .orange : AppTheme.muted, cardBg: AppTheme.surfaceCard, dividerColor: AppTheme.hairline) {
             ToggleRow(
                 title: "Entwicklermodus",
                 icon: "hammer.fill",
@@ -364,16 +381,16 @@ struct SettingsView: View {
                 binding: $developerMode
             )
             if developerMode {
-                RowDivider(color: dividerColor)
-                ActionRow(title: "Mannheim Hbf (Test)", icon: "mappin.circle.fill", iconColor: .orange, inkColor: AppTheme.inkAdaptive(colorScheme), showChevron: false) {
+                RowDivider(color: AppTheme.hairline)
+                ActionRow(title: "Mannheim Hbf (Test)", icon: "mappin.circle.fill", iconColor: .orange, inkColor: AppTheme.ink, showChevron: false) {
                     locationManager.location = CLLocationCoordinate2D(latitude: 49.483076, longitude: 8.468409)
                 }
-                RowDivider(color: dividerColor)
-                ActionRow(title: "Heidelberg Hbf (Test)", icon: "mappin.circle.fill", iconColor: .purple, inkColor: AppTheme.inkAdaptive(colorScheme), showChevron: false) {
+                RowDivider(color: AppTheme.hairline)
+                ActionRow(title: "Heidelberg Hbf (Test)", icon: "mappin.circle.fill", iconColor: .purple, inkColor: AppTheme.ink, showChevron: false) {
                     locationManager.location = CLLocationCoordinate2D(latitude: 49.4044, longitude: 8.6765)
                 }
-                RowDivider(color: dividerColor)
-                ActionRow(title: "Debug: State ausgeben", icon: "ant.fill", iconColor: AppTheme.semanticError, inkColor: AppTheme.inkAdaptive(colorScheme), showChevron: false) {
+                RowDivider(color: AppTheme.hairline)
+                ActionRow(title: "Debug: State ausgeben", icon: "ant.fill", iconColor: AppTheme.semanticError, inkColor: AppTheme.ink, showChevron: false) {
                     LiveActivityState.shared.debugPrintState()
                 }
             }
@@ -468,15 +485,13 @@ private struct ToggleRow: View {
     let iconColor: Color
     @Binding var binding: Bool
 
-    @Environment(\.colorScheme) private var colorScheme
-
     var body: some View {
         HStack(spacing: 12) {
             IconBadge(icon: icon, color: iconColor)
             VStack(alignment: .leading, spacing: 2) {
                 Text(title)
                     .font(.body)
-                    .foregroundColor(AppTheme.inkAdaptive(colorScheme))
+                    .foregroundColor(AppTheme.ink)
                 if let sub = subtitle {
                     Text(sub)
                         .font(.caption)
@@ -594,6 +609,6 @@ private struct RowDivider: View {
 }
 
 #Preview {
-    SettingsView(locationManager: LocationManager())
+    SettingsView(locationManager: LocationManager(), navigateToTrips: .constant(false))
         .environmentObject(LiveActivityManager())
 }

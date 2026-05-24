@@ -16,7 +16,6 @@ struct PlannedTripCard: View {
     @State private var isPulsing = false
 
     @EnvironmentObject var liveActivityManager: LiveActivityManager
-    @Environment(\.colorScheme) private var colorScheme
 
     private let formatter = DateFormattingHelper.shared
 
@@ -76,9 +75,9 @@ struct PlannedTripCard: View {
         .padding(16)
         .background(
             RoundedRectangle(cornerRadius: 16)
-                .fill(AppTheme.surfaceCardAdaptive(colorScheme))
+                .fill(AppTheme.surfaceCard)
                 .shadow(color: AppTheme.shadowColor(), radius: 8, y: 4)
-                .overlay(RoundedRectangle(cornerRadius: 16).stroke(AppTheme.hairlineAdaptive(colorScheme), lineWidth: 1))
+                .overlay(RoundedRectangle(cornerRadius: 16).stroke(AppTheme.hairline, lineWidth: 1))
         )
         .onAppear {
             loadTripData()

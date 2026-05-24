@@ -22,7 +22,6 @@ struct StationPickerView: View {
     @Binding var selectedDate: Date
 
     @Environment(\.dismiss) private var dismiss
-    @Environment(\.colorScheme) private var colorScheme
 
     @State private var hasLoadedStations = false
     @State private var searchText = ""
@@ -37,7 +36,7 @@ struct StationPickerView: View {
     var body: some View {
         NavigationView {
             ZStack {
-                AppTheme.canvasAdaptive(colorScheme)
+                AppTheme.canvas
                     .ignoresSafeArea()
 
                 VStack(spacing: 0) {
@@ -153,12 +152,12 @@ struct StationPickerView: View {
             .padding(.vertical, 10)
             .background(
                 RoundedRectangle(cornerRadius: 12, style: .continuous)
-                    .fill(AppTheme.surfaceCardAdaptive(colorScheme))
+                    .fill(AppTheme.surfaceCard)
             )
             .overlay(
                 RoundedRectangle(cornerRadius: 12, style: .continuous)
                     .stroke(
-                        isSearchFocused ? AppTheme.primary.opacity(0.5) : AppTheme.hairlineAdaptive(colorScheme),
+                        isSearchFocused ? AppTheme.primary.opacity(0.5) : AppTheme.hairline,
                         lineWidth: isSearchFocused ? 1.5 : 1
                     )
             )
@@ -184,7 +183,7 @@ struct StationPickerView: View {
                         HStack(spacing: 14) {
                             ZStack {
                                 Circle()
-                                    .fill(AppTheme.surfaceStrongAdaptive(colorScheme))
+                                    .fill(AppTheme.surfaceStrong)
                                     .frame(width: 44, height: 44)
                                 Image(systemName: "map.fill")
                                     .font(.system(size: 16, weight: .semibold))
@@ -211,8 +210,8 @@ struct StationPickerView: View {
                     .buttonStyle(.plain)
                     .background(
                         RoundedRectangle(cornerRadius: 14, style: .continuous)
-                            .fill(AppTheme.surfaceCardAdaptive(colorScheme))
-                            .overlay(RoundedRectangle(cornerRadius: 14, style: .continuous).stroke(AppTheme.hairlineAdaptive(colorScheme), lineWidth: 1))
+                            .fill(AppTheme.surfaceCard)
+                            .overlay(RoundedRectangle(cornerRadius: 14, style: .continuous).stroke(AppTheme.hairline, lineWidth: 1))
                     )
                 }
 
@@ -248,8 +247,8 @@ struct StationPickerView: View {
                         }
                         .background(
                             RoundedRectangle(cornerRadius: 14, style: .continuous)
-                                .fill(AppTheme.surfaceCardAdaptive(colorScheme))
-                                .overlay(RoundedRectangle(cornerRadius: 14, style: .continuous).stroke(AppTheme.hairlineAdaptive(colorScheme), lineWidth: 1))
+                                .fill(AppTheme.surfaceCard)
+                                .overlay(RoundedRectangle(cornerRadius: 14, style: .continuous).stroke(AppTheme.hairline, lineWidth: 1))
                         )
                     }
                 }
@@ -266,7 +265,7 @@ struct StationPickerView: View {
     private var dateTimeSection: some View {
         VStack(alignment: .leading, spacing: 10) {
             HStack(spacing: 6) {
-                Image(systemName: "calendar.clock")
+                Image(systemName: "calendar.badge.clock")
                     .font(.system(size: 12, weight: .semibold))
                     .foregroundColor(.secondary)
                 Text("Abfahrtzeit")
@@ -293,10 +292,10 @@ struct StationPickerView: View {
             .padding(.vertical, 12)
             .background(
                 RoundedRectangle(cornerRadius: 14, style: .continuous)
-                    .fill(AppTheme.surfaceCardAdaptive(colorScheme))
+                    .fill(AppTheme.surfaceCard)
                     .overlay(
                         RoundedRectangle(cornerRadius: 14, style: .continuous)
-                            .stroke(AppTheme.hairlineAdaptive(colorScheme), lineWidth: 1)
+                            .stroke(AppTheme.hairline, lineWidth: 1)
                     )
             )
         }
@@ -340,7 +339,7 @@ struct StationPickerView: View {
                 HStack(spacing: 6) {
                     Text("\(graphQLService.stations.count)")
                         .font(.system(size: 12, weight: .bold))
-                        .foregroundColor(AppTheme.inkAdaptive(colorScheme))
+                        .foregroundColor(AppTheme.ink)
                     Text("Ergebnis\(graphQLService.stations.count == 1 ? "" : "se")")
                         .font(.system(size: 12, weight: .semibold))
                         .foregroundColor(.secondary)
@@ -369,8 +368,8 @@ struct StationPickerView: View {
             }
             .background(
                 RoundedRectangle(cornerRadius: 14, style: .continuous)
-                    .fill(AppTheme.surfaceCardAdaptive(colorScheme))
-                    .overlay(RoundedRectangle(cornerRadius: 14, style: .continuous).stroke(AppTheme.hairlineAdaptive(colorScheme), lineWidth: 1))
+                    .fill(AppTheme.surfaceCard)
+                    .overlay(RoundedRectangle(cornerRadius: 14, style: .continuous).stroke(AppTheme.hairline, lineWidth: 1))
                     .padding(.horizontal, 16)
             )
             .padding(.bottom, 30)
@@ -622,6 +621,8 @@ struct NearbyStationMapSheet: View {
     @State private var geocoded: [String: CLLocationCoordinate2D] = [:]
     @State private var selected: Station?
 
+    private let nearbySearchRadiusMeters: Double = 80_000
+
     private static let rnvRegion = MKCoordinateRegion(
         center: CLLocationCoordinate2D(latitude: 49.4875, longitude: 8.4660),
         latitudinalMeters: 80_000,
@@ -686,7 +687,7 @@ struct NearbyStationMapSheet: View {
             if isSelected {
                 Text(name)
                     .font(.system(size: 11, weight: .semibold))
-                    .foregroundColor(.white)
+                    .foregroundColor(AppTheme.onPrimary)
                     .padding(.horizontal, 8)
                     .padding(.vertical, 4)
                     .background(Capsule().fill(AppTheme.primaryColor))
@@ -699,7 +700,7 @@ struct NearbyStationMapSheet: View {
                     .shadow(color: .black.opacity(0.18), radius: 3, x: 0, y: 1)
                 Image(systemName: "tram.fill")
                     .font(.system(size: isSelected ? 15 : 11, weight: .semibold))
-                    .foregroundColor(isSelected ? .white : AppTheme.primaryColor)
+                    .foregroundColor(isSelected ? AppTheme.onPrimary : AppTheme.primaryColor)
             }
             if !isSelected {
                 Text(name)
@@ -747,7 +748,7 @@ struct NearbyStationMapSheet: View {
                 } label: {
                     Text("Auswählen")
                         .font(.system(size: 14, weight: .semibold))
-                        .foregroundColor(.white)
+                        .foregroundColor(AppTheme.onPrimary)
                         .padding(.horizontal, 16)
                         .padding(.vertical, 10)
                         .background(Capsule().fill(AppTheme.primaryColor))

@@ -200,15 +200,6 @@ struct AppTheme {
     static let buttonFont = Font.system(size: 15, weight: .medium)
     static func monoFont(size: CGFloat, weight: Font.Weight = .bold) -> Font { .system(size: size, weight: weight, design: .monospaced) }
 
-    // *Adaptive stubs — forward to new properties (colorScheme param ignored).
-    // Call sites are cleaned up in Tasks 2–15. Stubs removed in Task 16.
-    static func canvasAdaptive(_ s: ColorScheme) -> Color { canvas }
-    static func surfaceCardAdaptive(_ s: ColorScheme) -> Color { surfaceCard }
-    static func surfaceStrongAdaptive(_ s: ColorScheme) -> Color { surfaceStrong }
-    static func hairlineAdaptive(_ s: ColorScheme) -> Color { hairline }
-    static func inkAdaptive(_ s: ColorScheme) -> Color { ink }
-    static func mutedAdaptive(_ s: ColorScheme, contrast: ColorSchemeContrast = .standard) -> Color { muted }
-    static func bodyTextAdaptive(_ s: ColorScheme) -> Color { bodyText }
 }
 
 // MARK: - Color(hex:) initializer

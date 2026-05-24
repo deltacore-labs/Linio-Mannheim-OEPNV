@@ -16,7 +16,6 @@ struct ContentView: View {
 
     @State private var selectedTab = 0
     @State private var navigateToTrips = false
-    @Environment(\.colorScheme) private var colorScheme
     @AppStorage("hasSeenWalletIntro") private var hasSeenWalletIntro = false
     @State private var showWalletIntro = false
 
@@ -74,7 +73,7 @@ struct ContentView: View {
                 }
                 .tag(3)
         }
-        .tint(colorScheme == .dark ? .white : AppTheme.primaryColor)
+        .tint(AppTheme.primaryColor)
         .dynamicTypeSize(.xSmall ... .accessibility2)
         .sheet(isPresented: $showWalletIntro, onDismiss: { hasSeenWalletIntro = true }) {
             WalletIntroSheet { hasSeenWalletIntro = true }
@@ -86,8 +85,14 @@ struct ContentView: View {
                 navigateToTrips = true
             }
         }
+        .onReceive(NotificationCenter.default.publisher(for: .showTicketFullscreen)) { _ in
+            selectedTab = 2
+        }
         .onAppear {
             if !hasSeenWalletIntro { showWalletIntro = true }
+            if UserDefaults.standard.bool(forKey: "pendingShowTicketFullscreen") {
+                selectedTab = 2
+            }
             #if DEBUG
             print("🔍 [xcconfig] CLIENT_ID: \(Bundle.main.object(forInfoDictionaryKey: "RNV_CLIENT_ID") ?? "❌ NIL")")
             print("🔍 [xcconfig] GRAPHQL_URL: \(Bundle.main.object(forInfoDictionaryKey: "RNV_GRAPHQL_URL") ?? "❌ NIL")")

@@ -108,66 +108,102 @@ struct ContentView: View {
 // MARK: - App Theme
 
 struct AppTheme {
-    // Canvas & Surfaces
-    static let canvas         = Color(hex: "#f5f5f5")
+    // Canvas & Surfaces (adaptive)
+    static let canvas = Color(UIColor { t in
+        t.userInterfaceStyle == .dark ? UIColor(hex: "#1c1917") : UIColor(hex: "#f5f5f5")
+    })
     static let canvasSoft     = Color(hex: "#fafafa")
-    static let surfaceCard    = Color.white
-    static let surfaceStrong  = Color(hex: "#f0efed")
-    static let hairline       = Color(hex: "#e7e5e4")
-    static let hairlineStrong = Color(hex: "#d6d3d1")
-    // Text
-    static let ink       = Color(hex: "#0c0a09")
-    static let bodyText  = Color(hex: "#4e4e4e")
-    static let muted     = Color(hex: "#777169")
-    static let mutedSoft = Color(hex: "#a8a29e")
-    // Actions
-    static let primary       = Color(hex: "#292524")
-    static let primaryActive = Color(hex: "#0c0a09")
-    static let primaryColor  = Color(hex: "#292524")
-    // Dark hero surfaces
+    static let surfaceCard = Color(UIColor { t in
+        t.userInterfaceStyle == .dark ? UIColor(hex: "#292524") : .white
+    })
+    static let surfaceStrong = Color(UIColor { t in
+        t.userInterfaceStyle == .dark ? UIColor(hex: "#3c3836") : UIColor(hex: "#f0efed")
+    })
+    static let hairline = Color(UIColor { t in
+        t.userInterfaceStyle == .dark ? UIColor(hex: "#44403c") : UIColor(hex: "#e7e5e4")
+    })
+    static let hairlineStrong = Color(UIColor { t in
+        t.userInterfaceStyle == .dark ? UIColor(hex: "#57534e") : UIColor(hex: "#d6d3d1")
+    })
+
+    // Text (adaptive)
+    static let ink = Color(UIColor { t in
+        t.userInterfaceStyle == .dark ? .white : UIColor(hex: "#0c0a09")
+    })
+    static let bodyText = Color(UIColor { t in
+        t.userInterfaceStyle == .dark ? UIColor(hex: "#c8c2bc") : UIColor(hex: "#4e4e4e")
+    })
+    static let muted = Color(UIColor { t in
+        if t.accessibilityContrast == .high {
+            return t.userInterfaceStyle == .dark ? UIColor(hex: "#c8c2bc") : UIColor(hex: "#565049")
+        }
+        return t.userInterfaceStyle == .dark ? UIColor(hex: "#a8a29e") : UIColor(hex: "#777169")
+    })
+    static let mutedSoft = Color(UIColor { t in
+        t.userInterfaceStyle == .dark ? UIColor(hex: "#78716c") : UIColor(hex: "#a8a29e")
+    })
+
+    // Actions (adaptive)
+    static let primary = Color(UIColor { t in
+        t.userInterfaceStyle == .dark ? UIColor(hex: "#e7e5e4") : UIColor(hex: "#292524")
+    })
+    static let primaryActive = Color(UIColor { t in
+        t.userInterfaceStyle == .dark ? .white : UIColor(hex: "#0c0a09")
+    })
+    static let primaryColor = Color(UIColor { t in
+        t.userInterfaceStyle == .dark ? UIColor(hex: "#e7e5e4") : UIColor(hex: "#292524")
+    })
+    static let onPrimary = Color(UIColor { t in
+        t.userInterfaceStyle == .dark ? UIColor(hex: "#1c1917") : .white
+    })
+
+    // Dark hero surfaces (always dark — not adaptive)
     static let surfaceDark         = Color(hex: "#0c0a09")
     static let surfaceDarkElevated = Color(hex: "#1c1917")
     static let onDark              = Color.white
     static let onDarkSoft          = Color(hex: "#a8a29e")
-    // Atmospheric gradient orbs (decoration only)
+
+    // Atmospheric gradient orbs (decoration — no contrast requirement)
     static let gradientMint     = Color(hex: "#a7e5d3")
     static let gradientPeach    = Color(hex: "#f4c5a8")
     static let gradientLavender = Color(hex: "#c8b8e0")
     static let gradientSky      = Color(hex: "#a8c8e8")
     static let gradientRose     = Color(hex: "#e8b8c4")
-    // Semantic
-    static let semanticError   = Color(hex: "#dc2626")
-    static let semanticSuccess = Color(hex: "#16a34a")
-    // Legacy aliases — existing callers update automatically
+
+    // Semantic (adaptive — WCAG AA compliant in both modes)
+    static let semanticError = Color(UIColor { t in
+        t.userInterfaceStyle == .dark ? UIColor(hex: "#f87171") : UIColor(hex: "#dc2626")
+    })
+    static let semanticSuccess = Color(UIColor { t in
+        t.userInterfaceStyle == .dark ? UIColor(hex: "#4ade80") : UIColor(hex: "#16a34a")
+    })
+
+    // Legacy aliases
     static let accentGradient   = LinearGradient(colors: [primary, primary], startPoint: .leading, endPoint: .trailing)
     static let headerBackground = LinearGradient(colors: [surfaceDark, surfaceDarkElevated], startPoint: .topLeading, endPoint: .bottomTrailing)
     static let cardBackground   = surfaceCard
     static let subtleBackground = surfaceStrong
-    static let secondaryColor   = Color(hex: "#292524")
+    static let secondaryColor   = primary
+
     // Shadow
     static func shadowColor(isPast: Bool = false) -> Color {
         Color.black.opacity(isPast ? 0.03 : 0.05)
     }
+
     // Typography
     static func displayFont(size: CGFloat) -> Font { .system(size: size, weight: .light, design: .serif) }
     static let buttonFont = Font.system(size: 15, weight: .medium)
     static func monoFont(size: CGFloat, weight: Font.Weight = .bold) -> Font { .system(size: size, weight: weight, design: .monospaced) }
-    // Dark-mode adaptive surfaces
-    static func canvasAdaptive(_ s: ColorScheme) -> Color { s == .dark ? Color(hex: "#1c1917") : canvas }
-    static func surfaceCardAdaptive(_ s: ColorScheme) -> Color { s == .dark ? Color(hex: "#292524") : surfaceCard }
-    static func surfaceStrongAdaptive(_ s: ColorScheme) -> Color { s == .dark ? Color(hex: "#3c3836") : surfaceStrong }
-    static func hairlineAdaptive(_ s: ColorScheme) -> Color { s == .dark ? Color(hex: "#44403c") : hairline }
-    static func inkAdaptive(_ s: ColorScheme) -> Color { s == .dark ? onDark : ink }
-    // Contrast-adaptive muted (WCAG AA: ≥4.5:1)
-    static func mutedAdaptive(_ s: ColorScheme, contrast: ColorSchemeContrast = .standard) -> Color {
-        if contrast == .increased {
-            return s == .dark ? Color(hex: "#c8c2bc") : Color(hex: "#565049")
-        }
-        return s == .dark ? Color(hex: "#a8a29e") : muted
-    }
-    static func bodyTextAdaptive(_ s: ColorScheme) -> Color {
-        s == .dark ? Color(hex: "#c8c2bc") : bodyText
-    }
+
+    // *Adaptive stubs — forward to new properties (colorScheme param ignored).
+    // Call sites are cleaned up in Tasks 2–15. Stubs removed in Task 16.
+    static func canvasAdaptive(_ s: ColorScheme) -> Color { canvas }
+    static func surfaceCardAdaptive(_ s: ColorScheme) -> Color { surfaceCard }
+    static func surfaceStrongAdaptive(_ s: ColorScheme) -> Color { surfaceStrong }
+    static func hairlineAdaptive(_ s: ColorScheme) -> Color { hairline }
+    static func inkAdaptive(_ s: ColorScheme) -> Color { ink }
+    static func mutedAdaptive(_ s: ColorScheme, contrast: ColorSchemeContrast = .standard) -> Color { muted }
+    static func bodyTextAdaptive(_ s: ColorScheme) -> Color { bodyText }
 }
 
 // MARK: - Color(hex:) initializer
@@ -184,6 +220,21 @@ extension Color {
         default: (a, r, g, b) = (255, 0, 0, 0)
         }
         self.init(.sRGB, red: Double(r) / 255, green: Double(g) / 255, blue: Double(b) / 255, opacity: Double(a) / 255)
+    }
+}
+
+private extension UIColor {
+    convenience init(hex: String) {
+        let hex = hex.trimmingCharacters(in: CharacterSet.alphanumerics.inverted)
+        var int: UInt64 = 0
+        Scanner(string: hex).scanHexInt64(&int)
+        let a, r, g, b: UInt64
+        switch hex.count {
+        case 6: (a, r, g, b) = (255, (int >> 16) & 0xFF, (int >> 8) & 0xFF, int & 0xFF)
+        case 8: (a, r, g, b) = ((int >> 24) & 0xFF, (int >> 16) & 0xFF, (int >> 8) & 0xFF, int & 0xFF)
+        default: (a, r, g, b) = (255, 0, 0, 0)
+        }
+        self.init(red: Double(r) / 255, green: Double(g) / 255, blue: Double(b) / 255, alpha: Double(a) / 255)
     }
 }
 

@@ -31,10 +31,10 @@ final class NotificationService {
         content.title = "Abfahrt in \(minutesBefore) Min"
 
         let firstLeg = trip.legs.first(where: { $0.legType != "continuousLeg" })
-        let line = firstLeg?.serviceName ?? ""
+        let line = firstLeg?.serviceName.map { "\($0) " } ?? ""
         let direction = firstLeg?.destinationLabel ?? trip.endStation
         let time = DateFormattingHelper.shared.formatTime(trip.startTime)
-        content.body = "\(line) Richtung \(direction) – \(time) Uhr von \(trip.startStation)"
+        content.body = "\(line)Richtung \(direction) – \(time) Uhr von \(trip.startStation)"
         content.sound = .default
 
         let trigger = UNTimeIntervalNotificationTrigger(timeInterval: timeInterval, repeats: false)

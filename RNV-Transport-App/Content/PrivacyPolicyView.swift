@@ -7,7 +7,6 @@ import SwiftUI
 
 struct PrivacyPolicyView: View {
     @Environment(\.dismiss) private var dismiss
-    @Environment(\.colorScheme) private var colorScheme
 
     var body: some View {
         NavigationView {
@@ -27,7 +26,7 @@ struct PrivacyPolicyView: View {
                 .padding(.horizontal, 20)
                 .padding(.top, 16)
             }
-            .background(AppTheme.canvasAdaptive(colorScheme).ignoresSafeArea())
+            .background(AppTheme.canvas.ignoresSafeArea())
             .navigationTitle("Datenschutzerklärung")
             .navigationBarTitleDisplayMode(.large)
             .toolbar {
@@ -43,17 +42,17 @@ struct PrivacyPolicyView: View {
         VStack(alignment: .leading, spacing: 10) {
             Text(section.title)
                 .font(.system(size: 15, weight: .semibold))
-                .foregroundColor(AppTheme.inkAdaptive(colorScheme))
+                .foregroundColor(AppTheme.ink)
 
             Text(section.body)
                 .font(.system(size: 14))
-                .foregroundColor(AppTheme.bodyTextAdaptive(colorScheme))
+                .foregroundColor(AppTheme.bodyText)
                 .lineSpacing(4)
         }
         .padding(16)
         .background(
             RoundedRectangle(cornerRadius: 14)
-                .fill(AppTheme.surfaceCardAdaptive(colorScheme))
+                .fill(AppTheme.surfaceCard)
                 .shadow(color: .black.opacity(0.04), radius: 6, y: 2)
         )
     }

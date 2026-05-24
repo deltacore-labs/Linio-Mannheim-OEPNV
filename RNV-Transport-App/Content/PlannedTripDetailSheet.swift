@@ -12,7 +12,6 @@ struct PlannedTripDetailSheet: View {
 
     @EnvironmentObject var liveActivityManager: LiveActivityManager
     @Environment(\.dismiss) private var dismiss
-    @Environment(\.colorScheme) private var colorScheme
 
     private let formatter = DateFormattingHelper.shared
 
@@ -43,7 +42,7 @@ struct PlannedTripDetailSheet: View {
                 .padding(.top, 12)
                 .padding(.bottom, 40)
             }
-            .background(AppTheme.canvasAdaptive(colorScheme).ignoresSafeArea())
+            .background(AppTheme.canvas.ignoresSafeArea())
             .navigationTitle("Fahrtdetails")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -168,13 +167,13 @@ struct PlannedTripDetailSheet: View {
             HStack(spacing: 10) {
                 Text(formatter.formatTime(tripData.startTime))
                     .font(AppTheme.displayFont(size: 38))
-                    .foregroundStyle(AppTheme.inkAdaptive(colorScheme))
+                    .foregroundStyle(AppTheme.ink)
                 Image(systemName: "arrow.right")
                     .font(.system(size: 16, weight: .light))
                     .foregroundStyle(AppTheme.mutedSoft)
                 Text(formatter.formatTime(tripData.endTime))
                     .font(AppTheme.displayFont(size: 38))
-                    .foregroundStyle(AppTheme.inkAdaptive(colorScheme))
+                    .foregroundStyle(AppTheme.ink)
                 Spacer()
             }
 
@@ -214,9 +213,9 @@ struct PlannedTripDetailSheet: View {
         .padding(20)
         .background(
             RoundedRectangle(cornerRadius: 20)
-                .fill(AppTheme.surfaceCardAdaptive(colorScheme))
+                .fill(AppTheme.surfaceCard)
                 .shadow(color: AppTheme.shadowColor(), radius: 8, y: 4)
-                .overlay(RoundedRectangle(cornerRadius: 20).stroke(AppTheme.hairlineAdaptive(colorScheme), lineWidth: 1))
+                .overlay(RoundedRectangle(cornerRadius: 20).stroke(AppTheme.hairline, lineWidth: 1))
         )
     }
 
@@ -228,7 +227,7 @@ struct PlannedTripDetailSheet: View {
         .foregroundStyle(AppTheme.muted)
         .padding(.horizontal, 10)
         .padding(.vertical, 5)
-        .background(Capsule().fill(AppTheme.surfaceStrongAdaptive(colorScheme)))
+        .background(Capsule().fill(AppTheme.surfaceStrong))
     }
 
     // MARK: - Route Timeline Card
@@ -257,9 +256,9 @@ struct PlannedTripDetailSheet: View {
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(
             RoundedRectangle(cornerRadius: 20)
-                .fill(AppTheme.surfaceCardAdaptive(colorScheme))
+                .fill(AppTheme.surfaceCard)
                 .shadow(color: AppTheme.shadowColor(), radius: 8, y: 4)
-                .overlay(RoundedRectangle(cornerRadius: 20).stroke(AppTheme.hairlineAdaptive(colorScheme), lineWidth: 1))
+                .overlay(RoundedRectangle(cornerRadius: 20).stroke(AppTheme.hairline, lineWidth: 1))
         )
     }
 
@@ -278,7 +277,7 @@ struct PlannedTripDetailSheet: View {
                 VStack(alignment: .leading, spacing: 1) {
                     Text(leg.boardStopName ?? "–")
                         .font(.system(size: 14, weight: .semibold))
-                        .foregroundStyle(AppTheme.inkAdaptive(colorScheme))
+                        .foregroundStyle(AppTheme.ink)
                     if let dep = leg.departureTime {
                         Text(formatter.formatTime(dep))
                             .font(.system(size: 12, weight: .bold, design: .monospaced))
@@ -322,7 +321,7 @@ struct PlannedTripDetailSheet: View {
                 VStack(alignment: .leading, spacing: 1) {
                     Text(leg.alightStopName ?? "–")
                         .font(.system(size: 14, weight: .semibold))
-                        .foregroundStyle(isLast ? AppTheme.inkAdaptive(colorScheme) : AppTheme.muted)
+                        .foregroundStyle(isLast ? AppTheme.ink : AppTheme.muted)
                     if let arr = leg.arrivalTime {
                         Text(formatter.formatTime(arr))
                             .font(.system(size: 12, weight: .bold, design: .monospaced))

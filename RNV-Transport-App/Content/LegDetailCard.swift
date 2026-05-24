@@ -16,7 +16,6 @@ struct TimedLegCard: View {
     let isLast: Bool
 
     @State private var isExpanded = false
-    @Environment(\.colorScheme) private var colorScheme
     private let formatter = DateFormattingHelper.shared
 
     private var lineColor: Color {
@@ -67,9 +66,9 @@ struct TimedLegCard: View {
         }
         .background(
             RoundedRectangle(cornerRadius: 16)
-                .fill(AppTheme.surfaceCardAdaptive(colorScheme))
+                .fill(AppTheme.surfaceCard)
                 .shadow(color: AppTheme.shadowColor(), radius: 6, y: 3)
-                .overlay(RoundedRectangle(cornerRadius: 16).stroke(AppTheme.hairlineAdaptive(colorScheme), lineWidth: 1))
+                .overlay(RoundedRectangle(cornerRadius: 16).stroke(AppTheme.hairline, lineWidth: 1))
         )
     }
 
@@ -133,7 +132,7 @@ struct TimedLegCard: View {
             .background(
                 Capsule()
                     .fill(isSBahn
-                          ? AppTheme.surfaceCardAdaptive(colorScheme)
+                          ? AppTheme.surfaceCard
                           : lineColor)
                     .overlay(
                         isSBahn ? Capsule().stroke(Color.green, lineWidth: 1.5) : nil
@@ -153,18 +152,19 @@ struct TimedLegCard: View {
             }
 
             // Auslastungs-Badge
-            let occ = leg.occupancy ?? .low
-            HStack(spacing: 1) {
-                ForEach(0..<3, id: \.self) { i in
-                    Image(systemName: "person.fill")
-                        .font(.system(size: 8, weight: .medium))
-                        .opacity(i < occ.filledCount ? 1.0 : 0.18)
+            if let occ = leg.occupancy, occ != .unknown {
+                HStack(spacing: 1) {
+                    ForEach(0..<3, id: \.self) { i in
+                        Image(systemName: "person.fill")
+                            .font(.system(size: 8, weight: .medium))
+                            .opacity(i < occ.filledCount ? 1.0 : 0.18)
+                    }
                 }
+                .foregroundColor(occ.color)
+                .padding(.horizontal, 6)
+                .padding(.vertical, 3)
+                .background(Capsule().fill(occ.color.opacity(0.1)))
             }
-            .foregroundColor(occ.color)
-            .padding(.horizontal, 6)
-            .padding(.vertical, 3)
-            .background(Capsule().fill(occ.color.opacity(0.1)))
 
             Spacer()
         }
@@ -537,7 +537,6 @@ struct TripJourneyView: View {
 struct TripRouteSummary: View {
     let legs: [TripLeg]
 
-    @Environment(\.colorScheme) private var colorScheme
     private let formatter = DateFormattingHelper.shared
 
     var body: some View {
@@ -602,7 +601,7 @@ struct TripRouteSummary: View {
         .padding(.vertical, 5)
         .background(
             Capsule()
-                .fill(isSBahn ? AppTheme.surfaceCardAdaptive(colorScheme) : lineColor)
+                .fill(isSBahn ? AppTheme.surfaceCard : lineColor)
                 .overlay(isSBahn ? Capsule().stroke(Color.green, lineWidth: 1.5) : nil)
         )
     }

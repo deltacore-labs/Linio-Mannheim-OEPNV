@@ -96,7 +96,12 @@ class TripDataManager {
                 let allEncoded = try encoder.encode(savedTrips)
                 defaults.set(allEncoded, forKey: self.tripDataKey)
                 self.cachedTrips = savedTrips
-                
+
+                if tripData.notificationsEnabled {
+                    let minutes = UserDefaults.standard.integer(forKey: "reminderMinutes")
+                    NotificationService.shared.schedule(trip: tripData, minutesBefore: minutes == 0 ? 10 : minutes)
+                }
+
                 #if DEBUG
                 print("✅ [TRIPDATA] Trip gespeichert: \(String(trip.id.uuidString.prefix(8)))")
                 #endif
@@ -112,21 +117,50 @@ class TripDataManager {
     }
     
     // MARK: - Trip laden
-    
+
     func getTripData(for tripId: String) -> TripData? {
         return queue.sync {
             let savedTrips = self.loadCachedTrips(defaults: userDefaults)
             return savedTrips.first { $0.id == tripId }
         }
     }
-    
+
+    func getAllTrips() -> [TripData] {
+        return queue.sync {
+            loadCachedTrips(defaults: userDefaults)
+        }
+    }
+
+    func toggleNotification(for tripId: String) {
+        queue.async { [weak self] in
+            guard let self else { return }
+            guard let defaults = self.userDefaults else { return }
+            var trips = self.loadCachedTrips(defaults: defaults)
+            guard let idx = trips.firstIndex(where: { $0.id == tripId }) else { return }
+            trips[idx].notificationsEnabled.toggle()
+            let enabled = trips[idx].notificationsEnabled
+            do {
+                defaults.set(try JSONEncoder().encode(trips), forKey: self.tripDataKey)
+                self.cachedTrips = trips
+            } catch { return }
+            if enabled {
+                let minutes = UserDefaults.standard.integer(forKey: "reminderMinutes")
+                NotificationService.shared.schedule(trip: trips[idx], minutesBefore: minutes == 0 ? 10 : minutes)
+            } else {
+                NotificationService.shared.cancel(tripId: tripId)
+            }
+        }
+    }
+
     // MARK: - Trip löschen
     
     func removeTripData(for tripId: String) {
         queue.async { [weak self] in
             guard let self = self else { return }
             guard let defaults = self.userDefaults else { return }
-            
+
+            NotificationService.shared.cancel(tripId: tripId)
+
             var savedTrips = self.loadCachedTrips(defaults: defaults)
             savedTrips.removeAll { $0.id == tripId }
             
@@ -187,6 +221,8 @@ class TripDataManager {
         queue.async { [weak self] in
             guard let self = self else { return }
             guard let defaults = self.userDefaults else { return }
+
+            NotificationService.shared.cancel(tripId: tripId)
 
             var savedTrips = self.loadCachedTrips(defaults: defaults)
             guard let tripData = savedTrips.first(where: { $0.id == tripId }) else { return }

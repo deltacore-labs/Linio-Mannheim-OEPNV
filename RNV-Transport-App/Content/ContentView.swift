@@ -140,7 +140,7 @@ struct AppTheme {
         return t.userInterfaceStyle == .dark ? UIColor(hex: "#a8a29e") : UIColor(hex: "#777169")
     })
     static let mutedSoft = Color(UIColor { t in
-        t.userInterfaceStyle == .dark ? UIColor(hex: "#78716c") : UIColor(hex: "#a8a29e")
+        t.userInterfaceStyle == .dark ? UIColor(hex: "#a8a29e") : UIColor(hex: "#a8a29e")
     })
 
     // Actions (adaptive)
@@ -170,7 +170,7 @@ struct AppTheme {
     static let gradientSky      = Color(hex: "#a8c8e8")
     static let gradientRose     = Color(hex: "#e8b8c4")
 
-    // Semantic (adaptive — WCAG AA compliant in both modes)
+    // Semantic (adaptive — WCAG AA compliant in dark mode; success passes AA for large text in light mode)
     static let semanticError = Color(UIColor { t in
         t.userInterfaceStyle == .dark ? UIColor(hex: "#f87171") : UIColor(hex: "#dc2626")
     })

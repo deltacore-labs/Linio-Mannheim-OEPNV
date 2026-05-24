@@ -311,6 +311,34 @@ struct TripData: Codable {
     let startStation: String
     let endStation: String
     let legs: [TripLegData]
+    var notificationsEnabled: Bool
+
+    init(
+        id: String, startTime: String, endTime: String, interchanges: Int,
+        startStation: String, endStation: String, legs: [TripLegData],
+        notificationsEnabled: Bool = true
+    ) {
+        self.id = id
+        self.startTime = startTime
+        self.endTime = endTime
+        self.interchanges = interchanges
+        self.startStation = startStation
+        self.endStation = endStation
+        self.legs = legs
+        self.notificationsEnabled = notificationsEnabled
+    }
+
+    init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        id = try c.decode(String.self, forKey: .id)
+        startTime = try c.decode(String.self, forKey: .startTime)
+        endTime = try c.decode(String.self, forKey: .endTime)
+        interchanges = try c.decode(Int.self, forKey: .interchanges)
+        startStation = try c.decode(String.self, forKey: .startStation)
+        endStation = try c.decode(String.self, forKey: .endStation)
+        legs = try c.decode([TripLegData].self, forKey: .legs)
+        notificationsEnabled = try c.decodeIfPresent(Bool.self, forKey: .notificationsEnabled) ?? true
+    }
 }
 
 struct TripLegData: Codable {

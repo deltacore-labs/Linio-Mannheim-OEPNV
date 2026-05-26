@@ -91,6 +91,7 @@ struct SteigSheet: View {
                     .font(.title2)
                     .foregroundStyle(AppTheme.muted)
             }
+            .accessibilityLabel("Schließen")
         }
         .padding(.horizontal, 20)
         .padding(.top, 20)
@@ -155,6 +156,16 @@ struct SteigSheet: View {
                 }
                 .padding(.horizontal, 20)
                 .padding(.vertical, 12)
+                .accessibilityElement(children: .combine)
+                .accessibilityLabel({
+                    let timeText: String
+                    if let mins = dep.minutesUntilDeparture {
+                        timeText = mins == 0 ? "jetzt" : "in \(mins) Minuten"
+                    } else {
+                        timeText = formatter.formatTime(dep.scheduledDeparture)
+                    }
+                    return "\(dep.lineName) Richtung \(dep.direction), \(timeText)"
+                }())
 
                 if index < departuresAtQuay.count - 1 {
                     AppTheme.hairline

@@ -66,6 +66,7 @@ struct PlannedTripsView: View {
                         Image(systemName: "arrow.clockwise")
                             .foregroundStyle(AppTheme.primaryColor)
                     }
+                    .accessibilityLabel("Aktualisieren")
                 }
 
                 if !activeTrips.isEmpty {
@@ -106,6 +107,7 @@ struct PlannedTripsView: View {
                 Image(systemName: "bell.slash")
                     .font(.system(size: 36, weight: .light))
                     .foregroundStyle(AppTheme.muted)
+                    .accessibilityHidden(true)
             }
 
             VStack(spacing: 8) {
@@ -151,6 +153,7 @@ struct PlannedTripsView: View {
                 Image(systemName: "archivebox")
                     .font(.system(size: 36, weight: .light))
                     .foregroundStyle(AppTheme.muted)
+                    .accessibilityHidden(true)
             }
 
             VStack(spacing: 8) {
@@ -212,6 +215,13 @@ private struct ArchivedTripRow: View {
     let trip: ArchivedTripData
 
     private let formatter = DateFormattingHelper.shared
+
+    private var accessibilityDescription: String {
+        let startTime = formatter.formatTime(trip.startTime)
+        let endTime = formatter.formatTime(trip.endTime)
+        let duration = formatter.calculateDuration(start: trip.startTime, end: trip.endTime)
+        return "Abgeschlossene Fahrt: \(trip.startStation) nach \(trip.endStation), \(startTime) bis \(endTime), Dauer \(duration)"
+    }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
@@ -288,6 +298,8 @@ private struct ArchivedTripRow: View {
                 .shadow(color: AppTheme.shadowColor(isPast: true), radius: 4, y: 2)
                 .overlay(RoundedRectangle(cornerRadius: 14).stroke(AppTheme.hairline, lineWidth: 1))
         )
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel(accessibilityDescription)
     }
 
     private func archivedLineBadge(serviceType: String, serviceName: String) -> some View {

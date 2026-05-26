@@ -336,7 +336,7 @@ private struct TicketScanService {
         let dates = allDateMatches(in: joined)
             .compactMap { helper.parseGermanDate($0) }
             .sorted()
-        if dates.count >= 2 {
+        if dates.count >= 2, dates[0] != dates[1] {
             ticket.validFrom = dates[0]
             ticket.validUntil = dates[1]
         } else if let single = dates.first {

@@ -662,7 +662,7 @@ struct NearbyStationMapSheet: View {
                             }
                             .buttonStyle(.plain)
                             .accessibilityLabel(station.longName)
-                            .accessibilityHint(isSelected ? "Tippen zum Schließen" : "Tippen zum Auswählen")
+                            .accessibilityHint(isSelected ? "Tippen zum Abwählen" : "Tippen zum Auswählen")
                         }
                     }
                 }

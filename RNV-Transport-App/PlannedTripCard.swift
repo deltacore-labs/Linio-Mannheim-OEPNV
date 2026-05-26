@@ -16,8 +16,18 @@ struct PlannedTripCard: View {
     @State private var isPulsing = false
 
     @EnvironmentObject var liveActivityManager: LiveActivityManager
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     private let formatter = DateFormattingHelper.shared
+
+    private var headerAccessibilityLabel: String {
+        if let trip = tripData {
+            let start = formatter.formatTime(trip.startTime)
+            let end = formatter.formatTime(trip.endTime)
+            return "Aktive Fahrt, \(start) bis \(end)"
+        }
+        return "Live Activity"
+    }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -43,6 +53,10 @@ struct PlannedTripCard: View {
             }
             .contentShape(Rectangle())
             .onTapGesture { showDetail = true }
+            .accessibilityElement(children: .combine)
+            .accessibilityAddTraits(.isButton)
+            .accessibilityLabel(headerAccessibilityLabel)
+            .accessibilityHint("Details anzeigen")
 
             HStack(spacing: 12) {
                 Button {
@@ -56,6 +70,7 @@ struct PlannedTripCard: View {
                     }
                     .foregroundStyle(AppTheme.primaryColor)
                 }
+                .accessibilityLabel("Details anzeigen")
 
                 Spacer()
 
@@ -70,6 +85,7 @@ struct PlannedTripCard: View {
                     }
                     .foregroundColor(.red)
                 }
+                .accessibilityLabel("Fahrt beenden")
             }
         }
         .padding(16)
@@ -81,8 +97,10 @@ struct PlannedTripCard: View {
         )
         .onAppear {
             loadTripData()
-            withAnimation(.easeInOut(duration: 1.2).repeatForever(autoreverses: false)) {
-                isPulsing = true
+            if !reduceMotion {
+                withAnimation(.easeInOut(duration: 1.2).repeatForever(autoreverses: false)) {
+                    isPulsing = true
+                }
             }
         }
         .sheet(isPresented: $showDetail) {

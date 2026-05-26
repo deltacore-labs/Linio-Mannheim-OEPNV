@@ -427,6 +427,7 @@ struct TicketView: View {
     @State private var showWalletSheet = false
     @State private var walletError: String? = nil
     @State private var showWalletError = false
+    @State private var showRenewalSheet = false
 
     private let scanner = TicketScanService()
 
@@ -495,8 +496,31 @@ struct TicketView: View {
         } message: {
             Text(walletError ?? "Unbekannter Fehler")
         }
+        .sheet(isPresented: $showRenewalSheet) {
+            if let ticket {
+                TicketRenewalSheet(
+                    ticket: ticket,
+                    onRenewed: {
+                        let renewed = TicketRenewalService.shared.advanceToNextMonth(ticket)
+                        TicketRenewalService.shared.clearSnooze()
+                        applyTicket(renewed, barcode: barcodeImage)
+                        TicketRenewalService.shared.scheduleRenewalNotification(for: renewed)
+                        Task { await silentlyRenewWalletPass(for: renewed) }
+                    },
+                    onSnoozed: {
+                        TicketRenewalService.shared.snooze()
+                    },
+                    onRescan: {
+                        showImportOptions = true
+                    }
+                )
+            }
+        }
         .onAppear {
             if ticket == nil { loadTicket() }
+            if let ticket, TicketRenewalService.shared.isRenewalDue(for: ticket) {
+                showRenewalSheet = true
+            }
             if UserDefaults.standard.bool(forKey: "pendingShowTicketFullscreen") {
                 UserDefaults.standard.set(false, forKey: "pendingShowTicketFullscreen")
                 if ticket != nil { showFullscreen = true }
@@ -520,6 +544,8 @@ struct TicketView: View {
                 .foregroundStyle(AppTheme.muted)
             Spacer()
         }
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("Ticket wird erkannt")
     }
 
     // MARK: - Empty State
@@ -571,6 +597,7 @@ struct TicketView: View {
                     .foregroundStyle(Color(hex: "#1a1a1a"))
             }
         }
+        .accessibilityHidden(true)
     }
 
     // MARK: - Ticket Detail
@@ -627,7 +654,18 @@ struct TicketView: View {
                     Button("Neu scannen", systemImage: "photo.badge.plus") { showImportOptions = true }
                     Button("Bearbeiten", systemImage: "pencil") { showManualSheet = true }
                     Button("Entfernen", systemImage: "trash", role: .destructive) { showDeleteConfirm = true }
+                    #if DEBUG
+                    Divider()
+                    Button("Ablauf simulieren", systemImage: "clock.badge.exclamationmark") {
+                        simulateExpiry()
+                    }
+                    Button("Test-Notification (5s)", systemImage: "bell.badge") {
+                        TicketRenewalService.shared.scheduleTestNotification(in: 5)
+                        print("🔔 Test-Notification in 5s — App in den Hintergrund wechseln!")
+                    }
+                    #endif
                 } label: { Image(systemName: "ellipsis.circle") }
+                .accessibilityLabel("Ticketmenü")
             }
         }
     }
@@ -643,6 +681,31 @@ struct TicketView: View {
     }
 
     // MARK: - Apple Wallet
+
+    /// Ersetzt den bestehenden Wallet-Pass still via PKPassLibrary.replacePass — kein UI, kein Sheet.
+    /// Fallback auf addToWallet() wenn der Pass noch nicht in Wallet war.
+    private func silentlyRenewWalletPass(for ticket: DeutschlandTicket) async {
+        guard PKAddPassesViewController.canAddPasses() else { return }
+        do {
+            let generator = WalletPassGenerator()
+            let passData  = try generator.generatePass(for: ticket, barcodeImage: barcodeImage)
+            let newPass   = try PKPass(data: passData)
+            let library   = PKPassLibrary()
+            let serial    = newPass.serialNumber
+            let typeID    = newPass.passTypeIdentifier
+            if library.passes().contains(where: { $0.serialNumber == serial && $0.passTypeIdentifier == typeID }) {
+                library.replacePass(with: newPass)
+                #if DEBUG
+                print("✅ [WALLET] Pass still ersetzt: \(serial)")
+                #endif
+            }
+            // Kein Fallback auf addToWallet: wer den Pass nie hinzugefügt hat, bekommt kein unerwartetes Sheet
+        } catch {
+            #if DEBUG
+            print("❌ [WALLET] Renewal-Fehler: \(error)")
+            #endif
+        }
+    }
 
     private func addToWallet() async {
         guard let ticket else { return }
@@ -704,6 +767,7 @@ struct TicketView: View {
         barcodeImage = barcode
         persist(t)
         if let img = barcode { BarcodeStorage.save(img) } else { BarcodeStorage.delete() }
+        TicketRenewalService.shared.scheduleRenewalNotification(for: t)
     }
 
     private func persist(_ t: DeutschlandTicket) {
@@ -726,6 +790,19 @@ struct TicketView: View {
         storedJSON = ""
         BarcodeStorage.delete()
     }
+
+    #if DEBUG
+    private func simulateExpiry() {
+        guard var t = ticket else { return }
+        let cal = Calendar.current
+        t.validUntil = cal.date(byAdding: .day, value: -1, to: Date()) ?? t.validUntil
+        t.validFrom = cal.date(from: cal.dateComponents([.year, .month], from: t.validUntil)) ?? t.validFrom
+        ticket = t
+        persist(t)
+        TicketRenewalService.shared.clearSnooze()
+        showRenewalSheet = true
+    }
+    #endif
 }
 
 // MARK: - Ticket Card View
@@ -742,6 +819,21 @@ struct TicketCardView: View {
         return f
     }()
 
+    private var cardAccessibilityLabel: String {
+        var parts: [String] = ["Deutschlandticket"]
+        if ticket.ticketLabel != "Deutschlandticket" {
+            parts.append(ticket.ticketLabel)
+        }
+        if !ticket.holderName.isEmpty {
+            parts.append("Inhaber: \(ticket.holderName)")
+        }
+        parts.append("Gültig von \(Self.df.string(from: ticket.validFrom)) bis \(Self.df.string(from: ticket.validUntil))")
+        if !ticket.customerNumber.isEmpty {
+            parts.append("Kundennummer: \(ticket.customerNumber)")
+        }
+        return parts.joined(separator: ". ")
+    }
+
     var body: some View {
         VStack(spacing: 0) {
             cardHeader
@@ -753,6 +845,8 @@ struct TicketCardView: View {
         .clipShape(RoundedRectangle(cornerRadius: 20))
         .overlay(RoundedRectangle(cornerRadius: 20).stroke(AppTheme.hairline, lineWidth: 1))
         .shadow(color: AppTheme.shadowColor(), radius: 12, y: 6)
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel(cardAccessibilityLabel)
     }
 
     private var cardHeader: some View {
@@ -805,6 +899,7 @@ struct TicketCardView: View {
             }
         }
         .frame(height: 20)
+        .accessibilityHidden(true)
     }
 
     private var barcodeSection: some View {
@@ -1164,6 +1259,82 @@ private struct AddToWalletButton: UIViewRepresentable {
         let action: () -> Void
         init(action: @escaping () -> Void) { self.action = action }
         @objc func tapped() { action() }
+    }
+}
+
+// MARK: - Renewal Sheet
+
+struct TicketRenewalSheet: View {
+    let ticket: DeutschlandTicket
+    let onRenewed: () -> Void
+    let onSnoozed: () -> Void
+    let onRescan: () -> Void
+    @Environment(\.dismiss) private var dismiss
+
+    private static let df: DateFormatter = {
+        let f = DateFormatter()
+        f.dateFormat = "dd.MM.yyyy"
+        f.locale = Locale(identifier: "de_DE")
+        return f
+    }()
+
+    var body: some View {
+        VStack(spacing: 28) {
+            Image(systemName: "creditcard.and.123")
+                .font(.system(size: 52))
+                .foregroundStyle(.secondary)
+                .padding(.top, 8)
+
+            VStack(spacing: 10) {
+                Text("Ticket verlängert?")
+                    .font(.title2.weight(.semibold))
+                Text("Dein Deutschlandticket war bis **\(Self.df.string(from: ticket.validUntil))** gültig. Hast du für \(TicketRenewalService.shared.nextMonthName(from: ticket.validUntil)) verlängert?")
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+                    .multilineTextAlignment(.center)
+            }
+
+            VStack(spacing: 12) {
+                Button {
+                    onRenewed()
+                    dismiss()
+                } label: {
+                    Text("Ja, Ticket aktualisieren")
+                        .font(.headline)
+                        .foregroundStyle(.white)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 15)
+                        .background(AppTheme.primary)
+                        .clipShape(RoundedRectangle(cornerRadius: 14))
+                }
+
+                Button {
+                    onRescan()
+                    dismiss()
+                } label: {
+                    Text("Neu einscannen")
+                        .font(.subheadline.weight(.medium))
+                        .foregroundStyle(AppTheme.ink)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 13)
+                        .background(AppTheme.surfaceCard)
+                        .clipShape(RoundedRectangle(cornerRadius: 14))
+                        .overlay(RoundedRectangle(cornerRadius: 14).stroke(AppTheme.hairline, lineWidth: 1))
+                }
+
+                Button("Nicht jetzt") {
+                    onSnoozed()
+                    dismiss()
+                }
+                .foregroundStyle(.secondary)
+                .font(.subheadline)
+                .padding(.bottom, 8)
+            }
+        }
+        .padding(.horizontal, 28)
+        .presentationDetents([.medium])
+        .presentationDragIndicator(.hidden)
+        .interactiveDismissDisabled(true)
     }
 }
 

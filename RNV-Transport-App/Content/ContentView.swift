@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import UIKit
 import WidgetKit
 import CoreLocation
 
@@ -196,9 +197,13 @@ struct AppTheme {
     }
 
     // Typography
-    static func displayFont(size: CGFloat) -> Font { .system(size: size, weight: .light, design: .serif) }
+    static func displayFont(size: CGFloat) -> Font {
+        .system(size: UIFontMetrics(forTextStyle: .body).scaledValue(for: size), weight: .light, design: .serif)
+    }
     static let buttonFont = Font.system(size: 15, weight: .medium)
-    static func monoFont(size: CGFloat, weight: Font.Weight = .bold) -> Font { .system(size: size, weight: weight, design: .monospaced) }
+    static func monoFont(size: CGFloat, weight: Font.Weight = .bold) -> Font {
+        .system(size: UIFontMetrics(forTextStyle: .body).scaledValue(for: size), weight: weight, design: .monospaced)
+    }
 
 }
 

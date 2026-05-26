@@ -28,6 +28,21 @@ struct PlannedTripDetailSheet: View {
         LiveActivityState.shared.isTripActive(tripId)
     }
 
+    private var phaseBannerLabel: String {
+        switch tripPhase {
+        case .beforeDeparture:
+            if let depDate = formatter.parseISO8601(tripData.startTime) {
+                let mins = max(0, Int(depDate.timeIntervalSinceNow / 60))
+                return mins == 0 ? "Vor Abfahrt: Fährt jetzt ab" : "Vor Abfahrt: in \(mins) Minuten, \(formatter.formatTime(tripData.startTime))"
+            }
+            return "Vor Abfahrt"
+        case .duringJourney:
+            return "Unterwegs, Ankunft \(formatter.formatTime(tripData.endTime))"
+        case .arrived:
+            return "Angekommen bei \(tripData.endStation)"
+        }
+    }
+
     // MARK: - Body
 
     var body: some View {
@@ -54,6 +69,7 @@ struct PlannedTripDetailSheet: View {
                             .foregroundStyle(AppTheme.mutedSoft)
                             .font(.title3)
                     }
+                    .accessibilityLabel("Schließen")
                 }
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button {
@@ -138,9 +154,21 @@ struct PlannedTripDetailSheet: View {
                                 : Color.green.opacity(0.25), lineWidth: 1)
                 )
         )
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel(phaseBannerLabel)
     }
 
     // MARK: - Overview Card
+
+    private var overviewLabel: String {
+        let start = formatter.formatTime(tripData.startTime)
+        let end = formatter.formatTime(tripData.endTime)
+        let duration = formatter.calculateDuration(start: tripData.startTime, end: tripData.endTime)
+        let interchangeText = tripData.interchanges == 0
+            ? "Direktfahrt"
+            : "\(tripData.interchanges) Umstieg\(tripData.interchanges == 1 ? "" : "e")"
+        return "\(tripData.startStation) nach \(tripData.endStation), \(start) bis \(end), \(duration), \(interchangeText)"
+    }
 
     private var overviewCard: some View {
         VStack(alignment: .leading, spacing: 14) {
@@ -217,6 +245,8 @@ struct PlannedTripDetailSheet: View {
                 .shadow(color: AppTheme.shadowColor(), radius: 8, y: 4)
                 .overlay(RoundedRectangle(cornerRadius: 20).stroke(AppTheme.hairline, lineWidth: 1))
         )
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel(overviewLabel)
     }
 
     private func metaPill(icon: String, text: String) -> some View {
@@ -228,6 +258,26 @@ struct PlannedTripDetailSheet: View {
         .padding(.horizontal, 10)
         .padding(.vertical, 5)
         .background(Capsule().fill(AppTheme.surfaceStrong))
+    }
+
+    // MARK: - Leg Label Helpers
+
+    private func timedLegAccessibilityLabel(leg: TripLegData) -> String {
+        let board = leg.boardStopName ?? ""
+        let alight = leg.alightStopName ?? ""
+        let dep = leg.departureTime.map { formatter.formatTime($0) } ?? ""
+        let arr = leg.arrivalTime.map { formatter.formatTime($0) } ?? ""
+        let line = leg.serviceName.map { TransportIconHelper.getShortLineName(from: $0) } ?? ""
+        let dest = leg.destinationLabel ?? ""
+        return "\(line) Richtung \(dest), ab \(board) \(dep), an \(alight) \(arr)"
+    }
+
+    private func walkLegAccessibilityLabel(leg: TripLegData) -> String {
+        let duration = formatter.calculateDuration(
+            start: leg.departureTime ?? "",
+            end: leg.arrivalTime ?? ""
+        )
+        return "Fußweg, Dauer \(duration)"
     }
 
     // MARK: - Route Timeline Card
@@ -244,11 +294,15 @@ struct PlannedTripDetailSheet: View {
             ForEach(Array(tripData.legs.enumerated()), id: \.offset) { idx, leg in
                 if leg.legType == "continuousLeg" {
                     walkLegRow(leg: leg)
+                        .accessibilityElement(children: .combine)
+                        .accessibilityLabel(walkLegAccessibilityLabel(leg: leg))
                 } else {
                     let timedLegs = tripData.legs.filter { $0.legType != "continuousLeg" }
                     let timedIdx = timedLegs.firstIndex(where: { $0.boardStopName == leg.boardStopName && $0.departureTime == leg.departureTime })
                     let isLastTimed = timedIdx == (timedLegs.count - 1)
                     timedLegRows(leg: leg, isLast: isLastTimed)
+                        .accessibilityElement(children: .combine)
+                        .accessibilityLabel(timedLegAccessibilityLabel(leg: leg))
                 }
             }
         }

@@ -112,6 +112,7 @@ struct StationPickerView: View {
                 Image(systemName: "magnifyingglass")
                     .foregroundColor(.secondary)
                     .font(.system(size: 15, weight: .medium))
+                    .accessibilityHidden(true)
 
                 TextField("Haltestelle suchen...", text: $searchText)
                     .textFieldStyle(.plain)
@@ -140,12 +141,14 @@ struct StationPickerView: View {
                             .font(.system(size: 16))
                     }
                     .transition(.opacity.combined(with: .scale))
+                    .accessibilityLabel("Suche löschen")
                 }
 
                 if graphQLService.isLoading && !searchText.isEmpty {
                     ProgressView()
                         .scaleEffect(0.7)
                         .transition(.opacity)
+                        .accessibilityHidden(true)
                 }
             }
             .padding(.horizontal, 12)
@@ -208,6 +211,7 @@ struct StationPickerView: View {
                         .padding(14)
                     }
                     .buttonStyle(.plain)
+                    .accessibilityLabel("In der Nähe: Haltestellen auf der Karte auswählen")
                     .background(
                         RoundedRectangle(cornerRadius: 14, style: .continuous)
                             .fill(AppTheme.surfaceCard)
@@ -222,6 +226,7 @@ struct StationPickerView: View {
                             Image(systemName: "clock.arrow.circlepath")
                                 .font(.system(size: 12, weight: .semibold))
                                 .foregroundColor(.secondary)
+                                .accessibilityHidden(true)
                             Text("Zuletzt verwendet")
                                 .font(.system(size: 12, weight: .bold))
                                 .foregroundColor(.secondary)
@@ -238,6 +243,8 @@ struct StationPickerView: View {
                                     stationRowContent(station: station)
                                 }
                                 .buttonStyle(.plain)
+                                .accessibilityLabel(station.longName)
+                                .accessibilityHint("Tippen zum Auswählen")
 
                                 if index < min(recentStations.count - 1, 4) {
                                     Divider()
@@ -268,6 +275,7 @@ struct StationPickerView: View {
                 Image(systemName: "calendar.badge.clock")
                     .font(.system(size: 12, weight: .semibold))
                     .foregroundColor(.secondary)
+                    .accessibilityHidden(true)
                 Text("Abfahrtzeit")
                     .font(.system(size: 12, weight: .bold))
                     .foregroundColor(.secondary)
@@ -328,6 +336,8 @@ struct StationPickerView: View {
                 .foregroundColor(.secondary)
             Spacer()
         }
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("Haltestellen werden gesucht")
     }
 
     // MARK: - Station List
@@ -358,6 +368,8 @@ struct StationPickerView: View {
                         stationRowContent(station: station)
                     }
                     .buttonStyle(StationRowButtonStyle())
+                    .accessibilityLabel(station.longName)
+                    .accessibilityHint("Tippen zum Auswählen")
 
                     if index < graphQLService.stations.count - 1 {
                         Divider()
@@ -390,6 +402,7 @@ struct StationPickerView: View {
                 Image(systemName: "tram.fill")
                     .font(.system(size: 14, weight: .medium))
                     .foregroundStyle(AppTheme.primary)
+                    .accessibilityHidden(true)
             }
 
             VStack(alignment: .leading, spacing: 2) {
@@ -410,6 +423,7 @@ struct StationPickerView: View {
             Image(systemName: "chevron.right")
                 .font(.system(size: 11, weight: .medium))
                 .foregroundColor(.secondary.opacity(0.25))
+                .accessibilityHidden(true)
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 11)
@@ -647,6 +661,8 @@ struct NearbyStationMapSheet: View {
                                 stationPin(isSelected: isSelected, name: station.longName)
                             }
                             .buttonStyle(.plain)
+                            .accessibilityLabel(station.longName)
+                            .accessibilityHint(isSelected ? "Tippen zum Schließen" : "Tippen zum Auswählen")
                         }
                     }
                 }
@@ -668,6 +684,8 @@ struct NearbyStationMapSheet: View {
                 }
                 .padding(16)
                 .background(RoundedRectangle(cornerRadius: 12, style: .continuous).fill(.ultraThinMaterial))
+                .accessibilityElement(children: .combine)
+                .accessibilityLabel("Haltestellen werden geladen")
                 .padding(.bottom, 160)
             }
 

@@ -270,6 +270,8 @@ struct TransitMapViewRepresentable: View {
                     }
                 }
                 .buttonStyle(.plain)
+                .accessibilityLabel(item.name ?? "Zwischenhalt")
+                .accessibilityHint(isSelected ? "Tippen zum Aufheben" : "Tippen zum Hervorheben")
             }
         }
         if !mergedCoordinates.isEmpty {
@@ -390,6 +392,7 @@ struct FullMapView: View {
                             .foregroundStyle(.white, Color.black.opacity(0.28))
                             .font(.system(size: 30))
                     }
+                    .accessibilityLabel("Schließen")
                     .padding(.top, 54)
                     .padding(.trailing, 16)
                 }
@@ -447,6 +450,14 @@ struct RouteStopsPanel: View {
     }
 
     private var allStops: [RouteStopEntry] { buildStops() }
+
+    private var dragHandleLabel: String {
+        switch position {
+        case .peek:      return "Streckenpanel einblenden"
+        case .collapsed: return "Streckenpanel ausklappen"
+        case .expanded:  return "Streckenpanel einklappen"
+        }
+    }
 
     var body: some View {
         VStack(spacing: 0) {
@@ -542,6 +553,8 @@ struct RouteStopsPanel: View {
                     }
                 }
             }
+                .accessibilityLabel(dragHandleLabel)
+                .accessibilityAddTraits(.isButton)
     }
 
     // MARK: Collapsed
@@ -600,6 +613,8 @@ struct RouteStopsPanel: View {
                             stopRow(stop, isFirst: i == 0, isLast: i == stops.count - 1)
                                 .padding(.horizontal, 4)
                                 .id(stop.name)
+                                .accessibilityElement(children: .combine)
+                                .accessibilityLabel(stopRowAccessibilityLabel(stop))
                         }
                     }
                     .padding(.bottom, 16)
@@ -614,6 +629,20 @@ struct RouteStopsPanel: View {
     }
 
     // MARK: Stop Row
+
+    private func stopRowAccessibilityLabel(_ stop: RouteStopEntry) -> String {
+        let kindText: String
+        switch stop.kind {
+        case .origin:       kindText = "Startstation"
+        case .destination:  kindText = "Zielstation"
+        case .transfer:     kindText = "Umstieg"
+        case .intermediate: kindText = "Zwischenstation"
+        }
+        if let time = stop.time {
+            return "\(kindText): \(stop.name), \(formatter.formatTime(time))"
+        }
+        return "\(kindText): \(stop.name)"
+    }
 
     @ViewBuilder
     private func stopRow(_ stop: RouteStopEntry, isFirst: Bool = false, isLast: Bool = false) -> some View {

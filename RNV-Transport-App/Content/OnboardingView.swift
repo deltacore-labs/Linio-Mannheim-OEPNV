@@ -1,6 +1,6 @@
 //
 //  OnboardingView.swift
-//  RNV-Transport-App
+//  Linio
 //
 
 import SwiftUI
@@ -78,12 +78,12 @@ struct OnboardingView: View {
             .accessibilityHidden(true)
 
             VStack(spacing: 16) {
-                Text(pages[currentPage].title)
+                Text(LocalizedStringKey(pages[currentPage].title))
                     .font(.system(size: 32, weight: .bold, design: .default))
                     .foregroundStyle(.white)
                     .multilineTextAlignment(.center)
 
-                Text(pages[currentPage].body)
+                Text(LocalizedStringKey(pages[currentPage].body))
                     .font(.system(size: 17))
                     .foregroundStyle(.white.opacity(0.75))
                     .multilineTextAlignment(.center)

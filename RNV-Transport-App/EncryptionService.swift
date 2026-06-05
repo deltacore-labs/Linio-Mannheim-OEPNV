@@ -1,6 +1,6 @@
 //
 //  EncryptionService.swift
-//  RNV-Transport-App
+//  Linio
 //
 //  AES-256-GCM Verschlüsselung zusätzlich zu Apple Keychain
 //

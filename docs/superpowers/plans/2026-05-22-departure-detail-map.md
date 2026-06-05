@@ -15,7 +15,7 @@
 ### Task 1: `PlatformPin` zugänglich machen
 
 **Files:**
-- Modify: `RNV-Transport-App/Content/SteigSheet.swift` — Zeile 184
+- Modify: `Linio/Content/SteigSheet.swift` — Zeile 184
 
 `PlatformPin` ist als `private struct` deklariert. Damit ihn auch `DepartureTripDetailView` (in `DepartureBoardView.swift`) nutzen kann, muss die Sichtbarkeit angehoben werden.
 
@@ -42,7 +42,7 @@ Erwartet: Build Succeeded. Kein Verhaltens-Unterschied — `PlatformPin` wird bi
 - [ ] **Schritt 3: Commit**
 
 ```bash
-git add RNV-Transport-App/Content/SteigSheet.swift
+git add Linio/Content/SteigSheet.swift
 git commit -m "refactor: PlatformPin von private auf internal"
 ```
 
@@ -51,7 +51,7 @@ git commit -m "refactor: PlatformPin von private auf internal"
 ### Task 2: Neue Parameter in `DepartureTripDetailView`
 
 **Files:**
-- Modify: `RNV-Transport-App/Content/DepartureBoardView.swift` — Struct-Definition (ab ca. Zeile 622) und Aufruf-Stelle (ab ca. Zeile 107)
+- Modify: `Linio/Content/DepartureBoardView.swift` — Struct-Definition (ab ca. Zeile 622) und Aufruf-Stelle (ab ca. Zeile 107)
 
 Zwei neue Parameter werden an `DepartureTripDetailView` durchgereicht: die `Station` (für die `hafasID` zum Quay-Laden) und `allDepartures` (zum Weiterreichen an den `SteigSheet`).
 
@@ -116,7 +116,7 @@ Erwartet: Build Succeeded. Kein sichtbares Verhaltens-Update — die neuen Param
 - [ ] **Schritt 4: Commit**
 
 ```bash
-git add RNV-Transport-App/Content/DepartureBoardView.swift
+git add Linio/Content/DepartureBoardView.swift
 git commit -m "feat: station und allDepartures an DepartureTripDetailView durchreichen"
 ```
 
@@ -125,7 +125,7 @@ git commit -m "feat: station und allDepartures an DepartureTripDetailView durchr
 ### Task 3: Quay-Daten laden
 
 **Files:**
-- Modify: `RNV-Transport-App/Content/DepartureBoardView.swift` — `DepartureTripDetailView`
+- Modify: `Linio/Content/DepartureBoardView.swift` — `DepartureTripDetailView`
 
 Drei neue States plus eine `loadQuays()`-Funktion. Wird parallel zum bestehenden `loadFullRoute()` im `.task`-Modifier aufgerufen.
 
@@ -184,7 +184,7 @@ Erwartet: Build Succeeded. Quays werden geladen, aber noch nicht angezeigt.
 - [ ] **Schritt 5: Commit**
 
 ```bash
-git add RNV-Transport-App/Content/DepartureBoardView.swift
+git add Linio/Content/DepartureBoardView.swift
 git commit -m "feat: Quay-Daten in DepartureTripDetailView laden"
 ```
 
@@ -193,7 +193,7 @@ git commit -m "feat: Quay-Daten in DepartureTripDetailView laden"
 ### Task 4: `quayMapSection`-View und SteigSheet-Trigger
 
 **Files:**
-- Modify: `RNV-Transport-App/Content/DepartureBoardView.swift` — `DepartureTripDetailView`
+- Modify: `Linio/Content/DepartureBoardView.swift` — `DepartureTripDetailView`
 
 Die neue Sektion zeigt einen Header mit Steig-Buchstaben und eine MapKit-Karte. Die ganze Sektion ist tippbar und öffnet den `SteigSheet`.
 
@@ -387,7 +387,7 @@ Im iPhone-Simulator starten:
 - [ ] **Schritt 8: Commit**
 
 ```bash
-git add RNV-Transport-App/Content/DepartureBoardView.swift
+git add Linio/Content/DepartureBoardView.swift
 git commit -m "feat: Steig-Karte in DepartureTripDetailView — tappable, öffnet SteigSheet"
 ```
 

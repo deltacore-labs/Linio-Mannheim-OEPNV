@@ -1,0 +1,3097 @@
+{
+  "sourceLanguage": "de",
+  "strings": {
+    "": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": ""
+          }
+        }
+      }
+    },
+    " → ": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": " → "
+          }
+        }
+      }
+    },
+    "%@ %@ Richtung %@": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "new",
+            "value": "%1$@ %2$@ Richtung %3$@"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ %@ towards %@"
+          }
+        }
+      }
+    },
+    "%@ Kilometer": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ kilometers"
+          }
+        }
+      }
+    },
+    "%@ Richtung %@, %@": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "new",
+            "value": "%1$@ Richtung %2$@, %3$@"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ towards %@, %@"
+          }
+        }
+      }
+    },
+    "%@ Richtung %@, %@%@%@": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "new",
+            "value": "%1$@ Richtung %2$@, %3$@%4$@%5$@"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ towards %@, %@%@%@"
+          }
+        }
+      }
+    },
+    "%@ auf der Karte. Tippen für Details und alle Abfahrten am Steig.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ on the map. Tap for details and all departures at this platform."
+          }
+        }
+      }
+    },
+    "%@ erhöhen": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Increase %@"
+          }
+        }
+      }
+    },
+    "%@ km": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ km"
+          }
+        }
+      }
+    },
+    "%@ verringern": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Decrease %@"
+          }
+        }
+      }
+    },
+    "%@ → %@": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "new",
+            "value": "%1$@ → %2$@"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ → %@"
+          }
+        }
+      }
+    },
+    "%@, %@": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "new",
+            "value": "%1$@, %2$@"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@, %@"
+          }
+        }
+      }
+    },
+    "%@. Tippen zum Auswählen.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@. Tap to select."
+          }
+        }
+      }
+    },
+    "%@: %@. Tippen zum Ändern.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "new",
+            "value": "%1$@: %2$@. Tippen zum Ändern."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@: %@. Tap to change."
+          }
+        }
+      }
+    },
+    "%lld": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld"
+          }
+        }
+      }
+    },
+    "%lld Min": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld min"
+          }
+        }
+      }
+    },
+    "%lld Stationen": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld stations"
+          }
+        }
+      }
+    },
+    "%lld Umstieg%@": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "new",
+            "value": "%1$lld Umstieg%2$@"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld transfer%@"
+          }
+        }
+      }
+    },
+    "%lld Zwischenhalte": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld intermediate stops"
+          }
+        }
+      }
+    },
+    "%lld Zwischenhalte, Ausklappen": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld intermediate stops, expand"
+          }
+        }
+      }
+    },
+    "%lld Zwischenhalte, Einklappen": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld intermediate stops, collapse"
+          }
+        }
+      }
+    },
+    "%lld aktiv": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld active"
+          }
+        }
+      }
+    },
+    "%lld min": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld min"
+          }
+        }
+      }
+    },
+    "%lld min Fußweg": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld min walk"
+          }
+        }
+      }
+    },
+    "%lld weitere Abfahrten": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld more departures"
+          }
+        }
+      }
+    },
+    "%lld weitere Abfahrten anzeigen": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Show %lld more departures"
+          }
+        }
+      }
+    },
+    "%lld'": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld'"
+          }
+        }
+      }
+    },
+    "%lld× Umstieg": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld× transfer"
+          }
+        }
+      }
+    },
+    "%lld× umsteigen": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Transfer %lld×"
+          }
+        }
+      }
+    },
+    "+ %lld weitere": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "+ %lld more"
+          }
+        }
+      }
+    },
+    "+ %lld weitere Fahrten": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "+ %lld more trips"
+          }
+        }
+      }
+    },
+    "+%lld Min.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "+%lld min."
+          }
+        }
+      }
+    },
+    "+%lld min": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "+%lld min"
+          }
+        }
+      }
+    },
+    "ABFAHRTEN": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "DEPARTURES"
+          }
+        }
+      }
+    },
+    "ANBIETER": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "PROVIDER"
+          }
+        }
+      }
+    },
+    "Abbrechen": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cancel"
+          }
+        }
+      }
+    },
+    "Abfahrt": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Departure"
+          }
+        }
+      }
+    },
+    "Abfahrt in": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Departing in"
+          }
+        }
+      }
+    },
+    "Abfahrten": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Departures"
+          }
+        }
+      }
+    },
+    "Abfahrten für %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Departures for %@"
+          }
+        }
+      }
+    },
+    "Abfahrten in der Nähe": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nearby Departures"
+          }
+        }
+      }
+    },
+    "Abfahrten werden geladen": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Loading departures"
+          }
+        }
+      }
+    },
+    "Abfahrtszeit auswählen": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Select departure time"
+          }
+        }
+      }
+    },
+    "Abfahrtzeit": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Departure time"
+          }
+        }
+      }
+    },
+    "Abgeschlossene Fahrten erscheinen\nhier nach Beendigung": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Completed trips appear\nhere after completion"
+          }
+        }
+      }
+    },
+    "Ablauf simulieren": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Simulate Expiry"
+          }
+        }
+      }
+    },
+    "Aktiv": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Active"
+          }
+        }
+      }
+    },
+    "Aktiv · Dynamic Island & Sperrbildschirm": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Active · Dynamic Island & Lock Screen"
+          }
+        }
+      }
+    },
+    "Aktiv, Tippen zum Deaktivieren": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Active, tap to deactivate"
+          }
+        }
+      }
+    },
+    "Aktive Fahrten": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Active Trips"
+          }
+        }
+      }
+    },
+    "Aktive Live Activities und Fahrtenverlauf": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Active Live Activities and trip history"
+          }
+        }
+      }
+    },
+    "Aktiviere die Live-Verfolgung für eine Verbindung": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Activate live tracking for a connection"
+          }
+        }
+      }
+    },
+    "Aktualisieren": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Refresh"
+          }
+        }
+      }
+    },
+    "Aktuell um %@ Uhr": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Currently at %@"
+          }
+        }
+      }
+    },
+    "Aktuelle Uhrzeit: %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Current time: %@"
+          }
+        }
+      }
+    },
+    "Aktueller Standort": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Current Location"
+          }
+        }
+      }
+    },
+    "Alle Activities beenden?": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "End All Activities?"
+          }
+        }
+      }
+    },
+    "Alle Live Activities beenden": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "End All Live Activities"
+          }
+        }
+      }
+    },
+    "Alle Live Activities wurden beendet.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "All Live Activities have been ended."
+          }
+        }
+      }
+    },
+    "Alle aktiven Live Activities werden beendet und die Toggles zurückgesetzt.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "All active Live Activities will be ended and toggles reset."
+          }
+        }
+      }
+    },
+    "Alle beenden": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "End All"
+          }
+        }
+      }
+    },
+    "Anbieter": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Provider"
+          }
+        }
+      }
+    },
+    "Angekommen": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Arrived"
+          }
+        }
+      }
+    },
+    "Ankunft": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Arrival"
+          }
+        }
+      }
+    },
+    "Ankunft %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Arrival %@"
+          }
+        }
+      }
+    },
+    "Ankunftszeit auswählen": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Select arrival time"
+          }
+        }
+      }
+    },
+    "Ansicht": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "View"
+          }
+        }
+      }
+    },
+    "App & Daten": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "App & Data"
+          }
+        }
+      }
+    },
+    "Archiv": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Archive"
+          }
+        }
+      }
+    },
+    "Archiv leer": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Archive Empty"
+          }
+        }
+      }
+    },
+    "Archiv leeren": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Clear Archive"
+          }
+        }
+      }
+    },
+    "Art": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Type"
+          }
+        }
+      }
+    },
+    "Aus Dateien": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "From Files"
+          }
+        }
+      }
+    },
+    "Aus Fotos": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "From Photos"
+          }
+        }
+      }
+    },
+    "Aus Fotos (1–2 Screenshots)": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "From Photos (1–2 Screenshots)"
+          }
+        }
+      }
+    },
+    "Aus Screenshot importieren": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Import from Screenshot"
+          }
+        }
+      }
+    },
+    "Auswählen": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Select"
+          }
+        }
+      }
+    },
+    "Automatisch starten": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Auto Start"
+          }
+        }
+      }
+    },
+    "Barcode": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Barcode"
+          }
+        }
+      }
+    },
+    "Barcode importieren": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Import Barcode"
+          }
+        }
+      }
+    },
+    "Bearbeiten": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Edit"
+          }
+        }
+      }
+    },
+    "Beenden": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "End"
+          }
+        }
+      }
+    },
+    "Beendet alle aktiven Verbindungs-Verfolgungen": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ends all active connection trackings"
+          }
+        }
+      }
+    },
+    "Bei jeder Verbindungssuche": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "On every connection search"
+          }
+        }
+      }
+    },
+    "Benachrichtigungen in Einstellungen erlauben": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Allow Notifications in Settings"
+          }
+        }
+      }
+    },
+    "Bis": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "To"
+          }
+        }
+      }
+    },
+    "Bitte erneut versuchen": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Please try again"
+          }
+        }
+      }
+    },
+    "Bitte prüfe die erkannten Daten und korrigiere sie falls nötig.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Please check the recognized data and correct if necessary."
+          }
+        }
+      }
+    },
+    "Bundesweit im Nahverkehr": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nationwide in local transit"
+          }
+        }
+      }
+    },
+    "Bus": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bus"
+          }
+        }
+      }
+    },
+    "Cache geleert": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cache Cleared"
+          }
+        }
+      }
+    },
+    "Cache leeren": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Clear Cache"
+          }
+        }
+      }
+    },
+    "D-TICKET": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "D-TICKET"
+          }
+        }
+      }
+    },
+    "Daten prüfen": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Review Data"
+          }
+        }
+      }
+    },
+    "Datenschutzerklärung": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Privacy Policy"
+          }
+        }
+      }
+    },
+    "Debug: State ausgeben": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Debug: Print State"
+          }
+        }
+      }
+    },
+    "Dein Begleiter für Bus, Tram und S-Bahn in Mannheim und Umgebung. Verbindungen in Echtzeit – direkt auf deinem iPhone.": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your companion for bus, tram and S-Bahn in Mannheim and the surrounding area. Real-time connections – directly on your iPhone."
+          }
+        }
+      }
+    },
+    "Dein Deutschlandticket ist jetzt als\nWallet-Pass verfügbar.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your Deutschlandticket is now\navailable as a Wallet pass."
+          }
+        }
+      }
+    },
+    "Dein Deutschlandticket war bis **%@** gültig. Hast du für %@ verlängert?": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Dein Deutschlandticket war bis **%1$@** gültig. Hast du für %2$@ verlängert?"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your Deutschlandticket was valid until **%@**. Have you renewed for %@?"
+          }
+        }
+      }
+    },
+    "Der gespeicherte Suchverlauf wurde gelöscht.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The saved search history has been deleted."
+          }
+        }
+      }
+    },
+    "Details": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Details"
+          }
+        }
+      }
+    },
+    "Details anzeigen": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Show Details"
+          }
+        }
+      }
+    },
+    "Die App nutzt deinen Standort, um nahegelegene Haltestellen zu finden. Deine Position wird nur für die Suche verwendet und nie gespeichert.": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The app uses your location to find nearby stops. Your position is only used for searching and never stored."
+          }
+        }
+      }
+    },
+    "Direkt": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Direct"
+          }
+        }
+      }
+    },
+    "Direktfahrt": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Direct"
+          }
+        }
+      }
+    },
+    "Echtzeit-Updates auf dem Sperrbildschirm": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Real-time updates on the lock screen"
+          }
+        }
+      }
+    },
+    "Eingeschränkt": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Restricted"
+          }
+        }
+      }
+    },
+    "Einstellungen": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Settings"
+          }
+        }
+      }
+    },
+    "Entfernen": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Remove"
+          }
+        }
+      }
+    },
+    "Entwickler": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Developer"
+          }
+        }
+      }
+    },
+    "Entwicklermodus": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Developer Mode"
+          }
+        }
+      }
+    },
+    "Erfolgreich": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Success"
+          }
+        }
+      }
+    },
+    "Ergebnis%@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Result%@"
+          }
+        }
+      }
+    },
+    "Erinnerung": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reminder"
+          }
+        }
+      }
+    },
+    "Erneut verbinden": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reconnect"
+          }
+        }
+      }
+    },
+    "Erneut versuchen": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Try Again"
+          }
+        }
+      }
+    },
+    "Ersetzen": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Replace"
+          }
+        }
+      }
+    },
+    "Fahrt beenden": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "End trip"
+          }
+        }
+      }
+    },
+    "Fahrtdetails": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Trip Details"
+          }
+        }
+      }
+    },
+    "Fahrten & Archiv": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Trips & Archive"
+          }
+        }
+      }
+    },
+    "Fehler: %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Error: %@"
+          }
+        }
+      }
+    },
+    "Fertig": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Done"
+          }
+        }
+      }
+    },
+    "Frühere Verbindungen": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Earlier connections"
+          }
+        }
+      }
+    },
+    "Fußweg": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Walking"
+          }
+        }
+      }
+    },
+    "Fußweg · %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Walk · %@"
+          }
+        }
+      }
+    },
+    "Fährt": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Departing"
+          }
+        }
+      }
+    },
+    "Fährt jetzt ab": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Departing now"
+          }
+        }
+      }
+    },
+    "Für diese Haltestelle sind aktuell\nkeine Abfahrten verfügbar.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No departures currently\navailable for this stop."
+          }
+        }
+      }
+    },
+    "GELTUNGSBEREICH": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "VALID FOR"
+          }
+        }
+      }
+    },
+    "Geplante Fahrten": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Planned Trips"
+          }
+        }
+      }
+    },
+    "Geplante Fahrten anzeigen": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Show planned trips"
+          }
+        }
+      }
+    },
+    "GÜLTIGKEIT": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "VALIDITY"
+          }
+        }
+      }
+    },
+    "Gültigkeit": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Validity"
+          }
+        }
+      }
+    },
+    "Haltestelle": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stop"
+          }
+        }
+      }
+    },
+    "Haltestelle auswählen": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Select Stop"
+          }
+        }
+      }
+    },
+    "Haltestelle suchen...": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Search stop..."
+          }
+        }
+      }
+    },
+    "Haltestelle wählen": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Select stop"
+          }
+        }
+      }
+    },
+    "Haltestellen\nin deiner Nähe": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stops\nNearby"
+          }
+        }
+      }
+    },
+    "Haltestellen auf der Karte auswählen": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Select stops on map"
+          }
+        }
+      }
+    },
+    "Haltestellen laden…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Loading stops…"
+          }
+        }
+      }
+    },
+    "Haltestellen werden geladen": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Loading stops"
+          }
+        }
+      }
+    },
+    "Haltestellen werden gesucht": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Searching stops"
+          }
+        }
+      }
+    },
+    "Heidelberg Hbf (Test)": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Heidelberg Hbf (Test)"
+          }
+        }
+      }
+    },
+    "INHABER": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "HOLDER"
+          }
+        }
+      }
+    },
+    "Importiere die Barcode-Seite aus deiner Ticket-App.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Import the barcode page from your ticket app."
+          }
+        }
+      }
+    },
+    "Importiere einen oder zwei Screenshots\ndeines Tickets — die Daten werden\nautomatisch erkannt.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Import one or two screenshots\nof your ticket — the data will\nbe recognized automatically."
+          }
+        }
+      }
+    },
+    "In Apple Karten navigieren": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Navigate in Apple Maps"
+          }
+        }
+      }
+    },
+    "In der Nähe": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nearby"
+          }
+        }
+      }
+    },
+    "In der Nähe: Haltestellen auf der Karte auswählen": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nearby: select stops on map"
+          }
+        }
+      }
+    },
+    "Inaktiv, Tippen zum Aktivieren": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Inactive, tap to activate"
+          }
+        }
+      }
+    },
+    "Inhaber": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Holder"
+          }
+        }
+      }
+    },
+    "Ja, Ticket aktualisieren": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Yes, Update Ticket"
+          }
+        }
+      }
+    },
+    "Jetzt": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Now"
+          }
+        }
+      }
+    },
+    "KUNDENNUMMER": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "CUSTOMER NO."
+          }
+        }
+      }
+    },
+    "Kein Barcode": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No Barcode"
+          }
+        }
+      }
+    },
+    "Kein Internet": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No Internet"
+          }
+        }
+      }
+    },
+    "Kein Internet – Daten könnten veraltet sein": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No Internet – data may be outdated"
+          }
+        }
+      }
+    },
+    "Kein Internet – Verbindung nicht möglich": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No internet – connection not possible"
+          }
+        }
+      }
+    },
+    "Kein Internet – angezeigte Daten könnten veraltet sein": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No Internet – displayed data may be outdated"
+          }
+        }
+      }
+    },
+    "Kein Ticket hinterlegt": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No ticket stored"
+          }
+        }
+      }
+    },
+    "Keine\nAbfahrten": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No\nDepartures"
+          }
+        }
+      }
+    },
+    "Keine Ergebnisse für \"%@\"": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No results for \"%@\""
+          }
+        }
+      }
+    },
+    "Keine Fahrten": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No Trips"
+          }
+        }
+      }
+    },
+    "Keine Haltestelle": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No Stop"
+          }
+        }
+      }
+    },
+    "Keine aktiven Fahrten": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No Active Trips"
+          }
+        }
+      }
+    },
+    "Keine verspäteten Verbindungen.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No delayed connections."
+          }
+        }
+      }
+    },
+    "Koordinaten: %@ nördlich, %@ östlich": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Koordinaten: %1$@ nördlich, %2$@ östlich"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Coordinates: %@ north, %@ east"
+          }
+        }
+      }
+    },
+    "Kundennummer (optional)": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Customer Number (optional)"
+          }
+        }
+      }
+    },
+    "Kurzer Umstieg!": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Short transfer!"
+          }
+        }
+      }
+    },
+    "Lade Abfahrten …": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Loading departures …"
+          }
+        }
+      }
+    },
+    "Live": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Live"
+          }
+        }
+      }
+    },
+    "Live Activities werden hier angezeigt,\nsobald du eine Verbindung verfolgst": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Live Activities will appear here\nonce you track a connection"
+          }
+        }
+      }
+    },
+    "Live Activity": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Live Activity"
+          }
+        }
+      }
+    },
+    "Live Activity &\nDynamic Island": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Live Activity &\nDynamic Island"
+          }
+        }
+      }
+    },
+    "Live Activity & Mitteilungen": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Live Activity & Notifications"
+          }
+        }
+      }
+    },
+    "Live aktiv": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Live Active"
+          }
+        }
+      }
+    },
+    "Live-Verfolgung": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Live Tracking"
+          }
+        }
+      }
+    },
+    "Loslegen": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Get Started"
+          }
+        }
+      }
+    },
+    "Lädt Verbindungen eine Stunde früher": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Loads connections one hour earlier"
+          }
+        }
+      }
+    },
+    "Lädt Verbindungen eine Stunde später": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Loads connections one hour later"
+          }
+        }
+      }
+    },
+    "MEIN STEIG": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "MY PLATFORM"
+          }
+        }
+      }
+    },
+    "Mannheim": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mannheim"
+          }
+        }
+      }
+    },
+    "Mannheim & Umgebung": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mannheim & Surroundings"
+          }
+        }
+      }
+    },
+    "Mannheim Hbf (Test)": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mannheim Hbf (Test)"
+          }
+        }
+      }
+    },
+    "Manuell eingeben": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enter Manually"
+          }
+        }
+      }
+    },
+    "Max. Verbindungen": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Max. Connections"
+          }
+        }
+      }
+    },
+    "Neu einscannen": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rescan"
+          }
+        }
+      }
+    },
+    "Neu scannen": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rescan"
+          }
+        }
+      }
+    },
+    "Nicht\nverfügbar": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Not\nAvailable"
+          }
+        }
+      }
+    },
+    "Nicht angegeben": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Not specified"
+          }
+        }
+      }
+    },
+    "Nicht jetzt": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Not Now"
+          }
+        }
+      }
+    },
+    "Nicht verfügbar": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Not available"
+          }
+        }
+      }
+    },
+    "Noch %lld Zeichen eingeben": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enter %lld more characters"
+          }
+        }
+      }
+    },
+    "Nur mit gültigem Lichtbildausweis · Nicht übertragbar": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Only with valid photo ID · Non-transferable"
+          }
+        }
+      }
+    },
+    "NÄCHSTE ABFAHRTEN": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "NEXT DEPARTURES"
+          }
+        }
+      }
+    },
+    "Nächste Abfahrt": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Next departure"
+          }
+        }
+      }
+    },
+    "OK": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "OK"
+          }
+        }
+      }
+    },
+    "Push-Benachrichtigungen": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Push Notifications"
+          }
+        }
+      }
+    },
+    "Route": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Route"
+          }
+        }
+      }
+    },
+    "S-Bahn": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "S-Bahn"
+          }
+        }
+      }
+    },
+    "Schließen": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Close"
+          }
+        }
+      }
+    },
+    "Schnellsuche": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Quick search"
+          }
+        }
+      }
+    },
+    "Seite %lld von %lld": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Seite %1$lld von %2$lld"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Page %lld of %lld"
+          }
+        }
+      }
+    },
+    "Sichern": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Save"
+          }
+        }
+      }
+    },
+    "Sprache": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Language"
+          }
+        }
+      }
+    },
+    "Spätere Verbindungen": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Later connections"
+          }
+        }
+      }
+    },
+    "Stand: Mai 2026": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "As of: May 2026"
+          }
+        }
+      }
+    },
+    "Standort": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Location"
+          }
+        }
+      }
+    },
+    "Standort aktualisieren": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Update location"
+          }
+        }
+      }
+    },
+    "Standortzugriff in Einstellungen erlauben": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Allow Location Access in Settings"
+          }
+        }
+      }
+    },
+    "Start und Ziel tauschen": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Swap Start and Destination"
+          }
+        }
+      }
+    },
+    "Starte eine\nLive-Verfolgung": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Start a\nlive tracking"
+          }
+        }
+      }
+    },
+    "Straßenbahn": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tram"
+          }
+        }
+      }
+    },
+    "Streckenverlauf": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Route Overview"
+          }
+        }
+      }
+    },
+    "Streckenübersicht auf der Karte": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Route Overview on Map"
+          }
+        }
+      }
+    },
+    "Studentenprojekt – nicht verbunden mit der rnv GmbH oder anderen Verkehrsbetrieben.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Student project – not affiliated with rnv GmbH or other transit operators."
+          }
+        }
+      }
+    },
+    "Suche Haltestellen...": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Search stops..."
+          }
+        }
+      }
+    },
+    "Suche eine Verbindung und starte die Live-Verfolgung": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Search for a connection and start live tracking"
+          }
+        }
+      }
+    },
+    "Suche löschen": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Clear search"
+          }
+        }
+      }
+    },
+    "Suche...": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Search..."
+          }
+        }
+      }
+    },
+    "Suchradius": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Search Radius"
+          }
+        }
+      }
+    },
+    "Sucht Verbindungen zwischen Start und Ziel": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Searching connections between start and destination"
+          }
+        }
+      }
+    },
+    "Systemeinstellungen öffnen": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open System Settings"
+          }
+        }
+      }
+    },
+    "Test-Notification (5s)": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Test Notification (5s)"
+          }
+        }
+      }
+    },
+    "Ticket": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ticket"
+          }
+        }
+      }
+    },
+    "Ticket entfernen?": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Remove Ticket?"
+          }
+        }
+      }
+    },
+    "Ticket im Apple Wallet": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ticket in Apple Wallet"
+          }
+        }
+      }
+    },
+    "Ticket verlängert?": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ticket Renewed?"
+          }
+        }
+      }
+    },
+    "Ticket vorzeigen": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Present ticket"
+          }
+        }
+      }
+    },
+    "Ticket wird erkannt": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Scanning ticket"
+          }
+        }
+      }
+    },
+    "Ticket wird erkannt…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Scanning ticket…"
+          }
+        }
+      }
+    },
+    "Ticket-Screenshot importieren": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Import Ticket Screenshot"
+          }
+        }
+      }
+    },
+    "Ticketmenü": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ticket menu"
+          }
+        }
+      }
+    },
+    "Tickets": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tickets"
+          }
+        }
+      }
+    },
+    "Tippen für Details": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tap for details"
+          }
+        }
+      }
+    },
+    "Tippen für vollständige Karte": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tap for full map"
+          }
+        }
+      }
+    },
+    "Tippen zum Abwählen": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tap to deselect"
+          }
+        }
+      }
+    },
+    "Tippen zum Anzeigen": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tap to show"
+          }
+        }
+      }
+    },
+    "Tippen zum Aufheben": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tap to cancel"
+          }
+        }
+      }
+    },
+    "Tippen zum Ausblenden": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tap to hide"
+          }
+        }
+      }
+    },
+    "Tippen zum Auswählen": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tap to select"
+          }
+        }
+      }
+    },
+    "Tippen zum Hervorheben": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tap to highlight"
+          }
+        }
+      }
+    },
+    "Trip ID: %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Trip ID: %@"
+          }
+        }
+      }
+    },
+    "Um aktuelle Abfahrten\nin deiner Nähe zu sehen.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "To see current departures\nnearby."
+          }
+        }
+      }
+    },
+    "Umstieg": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Transfer"
+          }
+        }
+      }
+    },
+    "Unterwegs": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "En Route"
+          }
+        }
+      }
+    },
+    "Verbindung fehlgeschlagen": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Connection Failed"
+          }
+        }
+      }
+    },
+    "Verbindung suchen": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Search connection"
+          }
+        }
+      }
+    },
+    "Verbindung teilen": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Share Connection"
+          }
+        }
+      }
+    },
+    "Verbindung wird hergestellt": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Connecting"
+          }
+        }
+      }
+    },
+    "Verbindung wird hergestellt...": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Connecting..."
+          }
+        }
+      }
+    },
+    "Verbindungen": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Connections"
+          }
+        }
+      }
+    },
+    "Verbindungen suchen": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Search Connections"
+          }
+        }
+      }
+    },
+    "Verbindungsdetails": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Connection Details"
+          }
+        }
+      }
+    },
+    "Verbindungssuche": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Connection Search"
+          }
+        }
+      }
+    },
+    "Verfolge deine Fahrt direkt im Dynamic Island oder auf dem Sperrbildschirm – mit Echtzeit-Abfahrtszeiten und Verspätungsanzeige.": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Track your journey directly in the Dynamic Island or on the lock screen – with real-time departure times and delay indicator."
+          }
+        }
+      }
+    },
+    "Verkehrsmittel": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Transport"
+          }
+        }
+      }
+    },
+    "Verspätungen und Änderungen": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Delays and changes"
+          }
+        }
+      }
+    },
+    "Verstanden": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Got it"
+          }
+        }
+      }
+    },
+    "Versuche einen anderen Suchbegriff\noder prüfe die Schreibweise": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Try a different search term\nor check the spelling"
+          }
+        }
+      }
+    },
+    "Von": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "From"
+          }
+        }
+      }
+    },
+    "Vor Abfahrt": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Before Departure"
+          }
+        }
+      }
+    },
+    "Vor- und Nachname": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "First and Last Name"
+          }
+        }
+      }
+    },
+    "Vorzeigen": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Present"
+          }
+        }
+      }
+    },
+    "Wallet-Fehler": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wallet Error"
+          }
+        }
+      }
+    },
+    "Weiter": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Next"
+          }
+        }
+      }
+    },
+    "Weiter bis %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Continue to %@"
+          }
+        }
+      }
+    },
+    "Willkommen bei\nÖPNV Mannheim": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Welcome to\nPublic Transit Mannheim"
+          }
+        }
+      }
+    },
+    "Wird ermittelt …": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Determining …"
+          }
+        }
+      }
+    },
+    "Wohin möchtest du fahren?": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Where do you want to go?"
+          }
+        }
+      }
+    },
+    "Wähle Start und Ziel oben, um Verbindungen zu finden.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Select start and destination above to find connections."
+          }
+        }
+      }
+    },
+    "Wähle eine\nHaltestelle": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Select a\nStop"
+          }
+        }
+      }
+    },
+    "Zeigt aktive Live Activities und verfolgte Fahrten.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Shows active Live Activities and tracked trips."
+          }
+        }
+      }
+    },
+    "Zeigt dein Deutschlandticket sofort im Vollbild.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Shows your Deutschlandticket immediately in full screen."
+          }
+        }
+      }
+    },
+    "Zeigt deine nächste geplante Fahrt.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Shows your next planned trip."
+          }
+        }
+      }
+    },
+    "Zeigt die nächsten Abfahrten von Haltestellen in deiner Nähe.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Shows the next departures from stops near you."
+          }
+        }
+      }
+    },
+    "Zugriff verweigert": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Access Denied"
+          }
+        }
+      }
+    },
+    "Zuletzt verwendet": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Recently used"
+          }
+        }
+      }
+    },
+    "Zurücksetzen": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reset"
+          }
+        }
+      }
+    },
+    "in %lld Min": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "in %lld min"
+          }
+        }
+      }
+    },
+    "in %lld Min · %@": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "new",
+            "value": "in %1$lld Min · %2$@"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "in %lld min · %@"
+          }
+        }
+      }
+    },
+    "jetzt": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "now"
+          }
+        }
+      }
+    },
+    "min": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "min"
+          }
+        }
+      }
+    },
+    "nach %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "after %@"
+          }
+        }
+      }
+    },
+    "pünktlich": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "on time"
+          }
+        }
+      }
+    },
+    "v%@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "v%@"
+          }
+        }
+      }
+    },
+    "·": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "·"
+          }
+        }
+      }
+    },
+    "Ändern": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Change"
+          }
+        }
+      }
+    },
+    "ÖPNV": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Transit"
+          }
+        }
+      }
+    },
+    "ÖPNV Mannheim": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Public Transit Mannheim"
+          }
+        }
+      }
+    },
+    "ÖPNV Mannheim, Version %@, Mannheim & Umgebung": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Transit Mannheim, Version %@, Mannheim & Surroundings"
+          }
+        }
+      }
+    },
+    "Öffentliche Daten": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Public Data"
+          }
+        }
+      }
+    },
+    "Öffne die App direkt zur Verbindungssuche.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Opens the app directly to connection search."
+          }
+        }
+      }
+    },
+    "Öffne die App, suche eine Verbindung\nund starte die Live-Verfolgung": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open the app, search for a connection\nand start live tracking"
+          }
+        }
+      }
+    },
+    "Öffnet die ÖPNV Mannheim App zur Verbindungssuche.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Opens the Transit Mannheim app for connection search."
+          }
+        }
+      }
+    },
+    "Übersicht aller aktuell verfolgten Fahrten.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Overview of all currently tracked trips."
+          }
+        }
+      }
+    },
+    "Überspringen": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Skip"
+          }
+        }
+      }
+    },
+    "–": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "–"
+          }
+        }
+      }
+    },
+    "→ %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "→ %@"
+          }
+        }
+      }
+    }
+  },
+  "version": "1.0"
+}

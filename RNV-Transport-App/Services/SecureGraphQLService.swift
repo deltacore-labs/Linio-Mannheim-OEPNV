@@ -1,6 +1,6 @@
 //
 //  SecureGraphQLService.swift
-//  RNV-Transport-App
+//  Linio
 //
 //  Created by Friedrich, Stefan on $(date +%d.%m.%y)
 //

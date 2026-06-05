@@ -1,8 +1,6 @@
 //
 //  LiveActivityManager.swift
-//  RNV-Transport-App
-//
-//  Created by Friedrich, Stefan on 10.01.26.
+//  Linio
 //
 
 import Foundation

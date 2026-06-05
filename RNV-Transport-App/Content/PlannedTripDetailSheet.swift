@@ -1,6 +1,6 @@
 //
 //  PlannedTripDetailSheet.swift
-//  RNV-Transport-App
+//  Linio
 //
 
 import SwiftUI

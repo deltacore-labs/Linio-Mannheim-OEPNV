@@ -1,6 +1,6 @@
 //
 //  WalletService.swift
-//  RNV-Transport-App
+//  Linio
 //
 // Generates and signs a .pkpass for the Deutschlandticket.
 //
@@ -127,7 +127,7 @@ final class WalletPassGenerator {
     // MARK: - pass.json
 
     private func makePassJSON(ticket: DeutschlandTicket, barcodeInfo: (message: String, pkFormat: String, encoding: String)?) -> [String: Any] {
-        let serial = "DT-\(ticket.customerNumber.isEmpty ? UUID().uuidString : ticket.customerNumber)-\(df.string(from: ticket.validFrom))"
+        let serial = "DT-\(ticket.customerNumber.isEmpty ? "dt" : ticket.customerNumber)"
 
         var dict: [String: Any] = [
             "formatVersion":      1,
@@ -559,13 +559,13 @@ final class WalletPassGenerator {
 
     private func sha1Hex(_ data: Data) -> String {
         var digest = [UInt8](repeating: 0, count: Int(CC_SHA1_DIGEST_LENGTH))
-        data.withUnsafeBytes { CC_SHA1($0.baseAddress, CC_LONG(data.count), &digest) }
+        data.withUnsafeBytes { _ = CC_SHA1($0.baseAddress, CC_LONG(data.count), &digest) }
         return digest.map { String(format: "%02x", $0) }.joined()
     }
 
     private func sha1Data(_ data: Data) -> Data {
         var digest = [UInt8](repeating: 0, count: Int(CC_SHA1_DIGEST_LENGTH))
-        data.withUnsafeBytes { CC_SHA1($0.baseAddress, CC_LONG(data.count), &digest) }
+        data.withUnsafeBytes { _ = CC_SHA1($0.baseAddress, CC_LONG(data.count), &digest) }
         return Data(digest)
     }
 

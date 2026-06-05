@@ -16,9 +16,9 @@
 
 | Aktion | Datei |
 |---|---|
-| ✅ Modify | `RNV-Transport-App/AppIntents.swift` |
-| ✅ Modify | `RNV-Transport-App/Content/ContentView.swift` |
-| ✅ Modify | `RNV-Transport-App/Content/TicketView.swift` |
+| ✅ Modify | `Linio/AppIntents.swift` |
+| ✅ Modify | `Linio/Content/ContentView.swift` |
+| ✅ Modify | `Linio/Content/TicketView.swift` |
 
 ---
 
@@ -103,9 +103,9 @@ Kein Unit-Test-Target vorhanden — alle Szenarien manuell auf Gerät oder Simul
 - [ ] **Schritt 2: Committen**
 
   ```bash
-  git add RNV-Transport-App/AppIntents.swift \
-          RNV-Transport-App/Content/ContentView.swift \
-          RNV-Transport-App/Content/TicketView.swift
+  git add Linio/AppIntents.swift \
+          Linio/Content/ContentView.swift \
+          Linio/Content/TicketView.swift
 
   git commit -m "feat: Action Button öffnet Ticket im Vollbild
 

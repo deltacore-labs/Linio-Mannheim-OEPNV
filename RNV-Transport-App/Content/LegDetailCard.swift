@@ -1,8 +1,7 @@
 //
 //  LegDetailCard.swift
-//  RNV-Transport-App
+//  Linio
 //
-//  Created by Friedrich, Stefan on 18.01.26.
 //  Redesigned: Zusammenhängende Timeline mit verbesserter Umsteige-Darstellung
 //
 

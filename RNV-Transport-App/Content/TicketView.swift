@@ -1,6 +1,6 @@
 //
 //  TicketView.swift
-//  RNV-Transport-App
+//  Linio
 //
 
 import SwiftUI
@@ -953,7 +953,7 @@ struct TicketCardView: View {
                 infoRow("KUNDENNUMMER", ticket.customerNumber)
                 Divider().padding(.horizontal, 20)
             }
-            infoRow("GELTUNGSBEREICH", "Bundesweit im Nahverkehr")
+            infoRow("GELTUNGSBEREICH", NSLocalizedString("Bundesweit im Nahverkehr", comment: ""))
             Divider().padding(.horizontal, 20)
             infoRow("GÜLTIGKEIT", "\(Self.df.string(from: ticket.validFrom)) – \(Self.df.string(from: ticket.validUntil))")
             if !ticket.issuer.isEmpty {
@@ -973,7 +973,7 @@ struct TicketCardView: View {
 
     private func infoRow(_ label: String, _ value: String) -> some View {
         HStack(alignment: .top) {
-            Text(label)
+            Text(LocalizedStringKey(label))
                 .font(.system(size: 10, weight: .semibold))
                 .foregroundStyle(AppTheme.muted)
                 .frame(width: 120, alignment: .leading)

@@ -1,6 +1,6 @@
 //
 //  EncryptSecretsScript.swift
-//  RNV-Transport-App
+//  Linio
 //
 //  EINMALIG AUSFÜHREN: Verschlüsselt Secrets aus Secrets.xcconfig
 //  Danach die generierte EncryptedSecrets.json ins Projekt kopieren

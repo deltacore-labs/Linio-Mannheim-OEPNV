@@ -15,19 +15,19 @@
 | Datei | Aktion | Verantwortlichkeit |
 |-------|--------|--------------------|
 | `RNVLiveActivity/StationDepartureWidget.swift` | Neu erstellen | Widget komplett: Modell, Intent, Provider, Views |
-| `RNV-Transport-App/AuthService.swift` | Ändern | Token + URL nach Login in App Group schreiben |
-| `RNV-Transport-App/Content/StationPickerView.swift` | Ändern | Gewählte Stationen in App Group spiegeln |
+| `Linio/AuthService.swift` | Ändern | Token + URL nach Login in App Group schreiben |
+| `Linio/Content/StationPickerView.swift` | Ändern | Gewählte Stationen in App Group spiegeln |
 | `RNVLiveActivity/RNVLiveActivityBundle.swift` | Ändern | `StationDepartureWidget()` registrieren |
-| `RNV-Transport-App/Content/ContentView.swift` | Ändern | Widget-Reload bei App-Öffnung |
-| `RNV-Transport-App/SharedModels.swift` | Ändern | Widget-Reload in `scheduleWidgetReload()` |
-| `Mannheim ÖPNV.xcodeproj` | Manuell in Xcode | Neue Datei zum `RNVLiveActivity`-Target hinzufügen |
+| `Linio/Content/ContentView.swift` | Ändern | Widget-Reload bei App-Öffnung |
+| `Linio/SharedModels.swift` | Ändern | Widget-Reload in `scheduleWidgetReload()` |
+| `Linio.xcodeproj` | Manuell in Xcode | Neue Datei zum `RNVLiveActivity`-Target hinzufügen |
 
 ---
 
 ## Task 1: Token + GraphQL-URL bei Login in App Group schreiben
 
 **Files:**
-- Modify: `RNV-Transport-App/AuthService.swift`
+- Modify: `Linio/AuthService.swift`
 
 ### Kontext
 
@@ -58,7 +58,7 @@ appGroupDefaults?.removeObject(forKey: "widgetAccessToken")
 - [ ] **Schritt 3: Commit**
 
 ```bash
-git add RNV-Transport-App/AuthService.swift
+git add Linio/AuthService.swift
 git commit -m "feat: Token und GraphQL-URL bei Login in App Group schreiben (Widget-Vorbereitung)"
 ```
 
@@ -67,7 +67,7 @@ git commit -m "feat: Token und GraphQL-URL bei Login in App Group schreiben (Wid
 ## Task 2: Zuletzt genutzte Stationen in App Group spiegeln
 
 **Files:**
-- Modify: `RNV-Transport-App/Content/StationPickerView.swift`
+- Modify: `Linio/Content/StationPickerView.swift`
 
 ### Kontext
 
@@ -90,7 +90,7 @@ Die Variable `recents` ist bereits als `[Station]` im gleichen Scope vorhanden.
 - [ ] **Schritt 2: Commit**
 
 ```bash
-git add RNV-Transport-App/Content/StationPickerView.swift
+git add Linio/Content/StationPickerView.swift
 git commit -m "feat: Recent Stations zusätzlich in App Group spiegeln (für Widget-Stationsauswahl)"
 ```
 
@@ -893,7 +893,7 @@ Erwartetes Ergebnis: Build Succeeded, keine Fehler
 - [ ] **Schritt 4: Commit**
 
 ```bash
-git add RNVLiveActivity/RNVLiveActivityBundle.swift "Mannheim ÖPNV.xcodeproj/project.pbxproj"
+git add RNVLiveActivity/RNVLiveActivityBundle.swift "Linio.xcodeproj/project.pbxproj"
 git commit -m "feat: StationDepartureWidget im WidgetBundle registriert"
 ```
 
@@ -902,8 +902,8 @@ git commit -m "feat: StationDepartureWidget im WidgetBundle registriert"
 ## Task 5: Widget-Reload bei App-Öffnung + Token-Erneuerung
 
 **Files:**
-- Modify: `RNV-Transport-App/Content/ContentView.swift`
-- Modify: `RNV-Transport-App/SharedModels.swift`
+- Modify: `Linio/Content/ContentView.swift`
+- Modify: `Linio/SharedModels.swift`
 
 - [ ] **Schritt 1: Reload nach `autoAuthenticate()` in ContentView**
 
@@ -942,7 +942,7 @@ Erwartetes Ergebnis: Build Succeeded
 - [ ] **Schritt 4: Commit**
 
 ```bash
-git add RNV-Transport-App/Content/ContentView.swift RNV-Transport-App/SharedModels.swift
+git add Linio/Content/ContentView.swift Linio/SharedModels.swift
 git commit -m "feat: StationDepartureWidget-Reload bei App-Öffnung und Token-Erneuerung"
 ```
 

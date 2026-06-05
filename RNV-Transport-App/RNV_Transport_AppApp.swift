@@ -1,8 +1,6 @@
 //
 //  RNV_Transport_AppApp.swift
-//  RNV-Transport-App
-//
-//  Created by Friedrich, Stefan on 09.01.26.
+//  Linio
 //
 
 import SwiftUI
@@ -20,6 +18,9 @@ class AppDelegate: NSObject, UIApplicationDelegate {
             LiveActivityManager.registerBackgroundTask()
         }
 
+        NotificationService.shared.requestAuthorizationIfNeeded()
+        scheduleRenewalNotificationIfNeeded()
+
         // Konfiguration in DEBUG prüfen
         #if DEBUG
         let configErrors = AppConfiguration.validateConfiguration()
@@ -29,6 +30,17 @@ class AppDelegate: NSObject, UIApplicationDelegate {
         #endif
 
         return true
+    }
+
+    // MARK: - Renewal Notification
+
+    private func scheduleRenewalNotificationIfNeeded() {
+        guard let json = UserDefaults.standard.string(forKey: "deutschlandTicketData"),
+              let data = json.data(using: .utf8) else { return }
+        let dec = JSONDecoder()
+        dec.dateDecodingStrategy = .iso8601
+        guard let ticket = try? dec.decode(DeutschlandTicket.self, from: data) else { return }
+        TicketRenewalService.shared.scheduleRenewalNotification(for: ticket)
     }
 
     // MARK: - Orientierung auf Portrait beschränken
@@ -48,14 +60,21 @@ struct RNV_Transport_AppApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
     @StateObject private var liveActivityManager = LiveActivityManager()
     @AppStorage("hasSeenOnboarding") private var hasSeenOnboarding = false
+    @AppStorage("appLanguage") private var appLanguage = AppLanguage.systemDefault.rawValue
+
+    init() {
+        AppLocalization.apply()
+    }
 
     var body: some Scene {
         WindowGroup {
             if hasSeenOnboarding {
                 ContentView()
                     .environmentObject(liveActivityManager)
+                    .id(appLanguage)
             } else {
                 OnboardingView(hasSeenOnboarding: $hasSeenOnboarding)
+                    .id(appLanguage)
             }
         }
     }

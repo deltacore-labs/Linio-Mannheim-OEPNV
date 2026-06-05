@@ -1,8 +1,6 @@
 //
 //  TripCard.swift
-//  RNV-Transport-App
-//
-//  Created by Friedrich, Stefan on 18.01.26.
+//  Linio
 //
 
 import SwiftUI
@@ -107,13 +105,13 @@ struct TripCard: View {
 
     private var timeRow: some View {
         HStack(spacing: 8) {
-            timeView(scheduled: trip.startTime, estimated: getFirstLegEstimatedDeparture(), delay: departureDelay)
+            timeView(scheduled: getFirstLegScheduledDeparture() ?? trip.startTime, estimated: getFirstLegEstimatedDeparture(), delay: departureDelay)
 
             Image(systemName: "arrow.right")
                 .font(.system(size: 11, weight: .semibold))
                 .foregroundColor(.secondary.opacity(0.5))
 
-            timeView(scheduled: trip.endTime, estimated: getLastLegEstimatedArrival(), delay: arrivalDelay)
+            timeView(scheduled: getLastLegScheduledArrival() ?? trip.endTime, estimated: getLastLegEstimatedArrival(), delay: arrivalDelay)
         }
     }
 
@@ -290,6 +288,14 @@ struct TripCard: View {
               let scheduled = lastTimedLeg.arrivalTime,
               let estimated = lastTimedLeg.estimatedArrivalTime else { return nil }
         return formatter.calculateDelay(timetabled: scheduled, estimated: estimated)
+    }
+
+    private func getFirstLegScheduledDeparture() -> String? {
+        trip.legs.first(where: { $0.isTimedLeg })?.departureTime
+    }
+
+    private func getLastLegScheduledArrival() -> String? {
+        trip.legs.last(where: { $0.isTimedLeg })?.arrivalTime
     }
 
     private func getFirstLegEstimatedDeparture() -> String? {

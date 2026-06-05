@@ -1,21 +1,20 @@
 //
 //  SettingsView.swift
-//  RNV-Transport-App
-//
-//  Created by Friedrich, Stefan on 14.01.26.
+//  Linio
 //
 
 import SwiftUI
 import CoreLocation
+import UserNotifications
 
 struct SettingsView: View {
     @ObservedObject var locationManager: LocationManager
     @Binding var navigateToTrips: Bool
     @EnvironmentObject var liveActivityManager: LiveActivityManager
+    @Environment(\.scenePhase) private var scenePhase
 
     @AppStorage("autoStartLiveActivity") private var autoStartLiveActivity = false
     @AppStorage("notificationsEnabled") private var notificationsEnabled = true
-    @AppStorage("showDelaysOnly") private var showDelaysOnly = false
     @AppStorage("defaultSearchRadius") private var defaultSearchRadius = 2.0
     @AppStorage("maxConnections") private var maxConnections = 5
     @AppStorage("enableTram") private var enableTram = true
@@ -28,13 +27,16 @@ struct SettingsView: View {
     @State private var showingCleanupSuccess = false
     @State private var showingCacheSuccess = false
     @State private var showPrivacyPolicy = false
+    @State private var notificationAuthStatus: UNAuthorizationStatus = .notDetermined
 
     private var appVersion: String {
         Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.1.0"
     }
 
+    private var notificationsDenied: Bool { notificationAuthStatus == .denied }
+
     var body: some View {
-        NavigationView {
+        NavigationStack {
             ScrollView {
                 VStack(spacing: 28) {
                     appHeader
@@ -44,7 +46,9 @@ struct SettingsView: View {
                     notificationSection
                     locationSection
                     appSection
+                    #if DEBUG
                     developerSection
+                    #endif
                     footerSection
                 }
                 .padding(.horizontal, 16)
@@ -78,8 +82,14 @@ struct SettingsView: View {
             .sheet(isPresented: $showPrivacyPolicy) {
                 PrivacyPolicyView()
             }
-            .onChange(of: reminderMinutes) { _ in
-                rescheduleAllNotifications()
+            .onChange(of: reminderMinutes) { rescheduleAllNotifications() }
+            .task(id: scenePhase) {
+                if scenePhase == .active {
+                    notificationAuthStatus = await NotificationService.shared.authorizationStatus()
+                }
+            }
+            .navigationDestination(isPresented: $navigateToTrips) {
+                PlannedTripsView().environmentObject(liveActivityManager)
             }
         }
     }
@@ -141,7 +151,7 @@ struct SettingsView: View {
 
     private var tripsSection: some View {
         SettingsCard(title: "Geplante Fahrten", icon: "bell.fill", iconColor: AppTheme.primaryColor, cardBg: AppTheme.surfaceCard, dividerColor: AppTheme.hairline) {
-            NavigationLink(destination: PlannedTripsView().environmentObject(liveActivityManager), isActive: $navigateToTrips) {
+            Button { navigateToTrips = true } label: {
                 HStack(spacing: 12) {
                     IconBadge(icon: "bell.fill", color: AppTheme.primaryColor)
                     VStack(alignment: .leading, spacing: 2) {
@@ -202,15 +212,6 @@ struct SettingsView: View {
             .padding(.horizontal, 16)
             .padding(.vertical, 12)
 
-            RowDivider(color: AppTheme.hairline)
-
-            ToggleRow(
-                title: "Nur Verspätungen",
-                subtitle: "Verbindungen ohne Verspätung ausblenden",
-                icon: "exclamationmark.triangle.fill",
-                iconColor: .orange,
-                binding: $showDelaysOnly
-            )
         }
     }
 
@@ -238,42 +239,44 @@ struct SettingsView: View {
                 binding: $autoStartLiveActivity
             )
             RowDivider(color: AppTheme.hairline)
-            ToggleRow(
-                title: "Push-Benachrichtigungen",
-                subtitle: "Verspätungen und Änderungen",
-                icon: "bell.fill",
-                iconColor: .orange,
-                binding: $notificationsEnabled
-            )
-            RowDivider(color: AppTheme.hairline)
-            HStack(spacing: 12) {
-                IconBadge(icon: "timer", color: .orange)
-                Text("Erinnerung")
-                    .font(.body)
-                    .foregroundColor(AppTheme.ink)
-                Spacer()
-                Picker("", selection: $reminderMinutes) {
-                    ForEach([5, 10, 15, 20, 30], id: \.self) { min in
-                        Text("\(min) Min").tag(min)
+            VStack(spacing: 0) {
+                ToggleRow(
+                    title: "Push-Benachrichtigungen",
+                    subtitle: "Verspätungen und Änderungen",
+                    icon: "bell.fill",
+                    iconColor: .orange,
+                    binding: $notificationsEnabled
+                )
+                RowDivider(color: AppTheme.hairline)
+                HStack(spacing: 12) {
+                    IconBadge(icon: "timer", color: .orange)
+                    Text("Erinnerung")
+                        .font(.body)
+                        .foregroundColor(AppTheme.ink)
+                    Spacer()
+                    Picker("", selection: $reminderMinutes) {
+                        ForEach([5, 10, 15, 20, 30], id: \.self) { min in
+                            Text("\(min) Min").tag(min)
+                        }
                     }
+                    .pickerStyle(.menu)
+                    .tint(AppTheme.primaryColor)
                 }
-                .pickerStyle(.menu)
-                .tint(AppTheme.primaryColor)
+                .padding(.horizontal, 16)
+                .padding(.vertical, 12)
             }
-            .padding(.horizontal, 16)
-            .padding(.vertical, 12)
+            .disabled(notificationsDenied)
             RowDivider(color: AppTheme.hairline)
             ActionRow(
-                title: "Systemeinstellungen öffnen",
+                title: notificationsDenied
+                    ? "Benachrichtigungen in Einstellungen erlauben"
+                    : "Systemeinstellungen öffnen",
                 icon: "arrow.up.right.square",
-                iconColor: AppTheme.muted,
-                inkColor: AppTheme.ink,
-                showChevron: false
-            ) {
-                if let url = URL(string: UIApplication.openSettingsURLString) {
-                    UIApplication.shared.open(url)
-                }
-            }
+                iconColor: notificationsDenied ? AppTheme.primaryColor : AppTheme.muted,
+                inkColor: notificationsDenied ? AppTheme.primaryColor : AppTheme.ink,
+                showChevron: false,
+                action: openSystemSettings
+            )
         }
     }
 
@@ -316,12 +319,9 @@ struct SettingsView: View {
                     icon: "arrow.up.right.square",
                     iconColor: AppTheme.primaryColor,
                     inkColor: AppTheme.primaryColor,
-                    showChevron: false
-                ) {
-                    if let url = URL(string: UIApplication.openSettingsURLString) {
-                        UIApplication.shared.open(url)
-                    }
-                }
+                    showChevron: false,
+                    action: openSystemSettings
+                )
             }
         }
     }
@@ -443,6 +443,12 @@ struct SettingsView: View {
 
     // MARK: - Private Methods
 
+    private func openSystemSettings() {
+        if let url = URL(string: UIApplication.openSettingsURLString) {
+            UIApplication.shared.open(url)
+        }
+    }
+
     private func clearCache() {
         UserDefaults.standard.removeObject(forKey: "recentStations")
         #if DEBUG
@@ -489,10 +495,11 @@ private struct SettingsCard<Content: View>: View {
                     .font(.caption.weight(.semibold))
                     .foregroundColor(iconColor)
                     .accessibilityHidden(true)
-                Text(title.uppercased())
+                Text(LocalizedStringKey(title))
                     .font(.caption.weight(.semibold))
                     .foregroundColor(AppTheme.muted)
                     .tracking(0.4)
+                    .textCase(.uppercase)
                     .accessibilityAddTraits(.isHeader)
             }
             .padding(.leading, 4)
@@ -518,11 +525,11 @@ private struct ToggleRow: View {
         HStack(spacing: 12) {
             IconBadge(icon: icon, color: iconColor)
             VStack(alignment: .leading, spacing: 2) {
-                Text(title)
+                Text(LocalizedStringKey(title))
                     .font(.body)
                     .foregroundColor(AppTheme.ink)
                 if let sub = subtitle {
-                    Text(sub)
+                    Text(LocalizedStringKey(sub))
                         .font(.caption)
                         .foregroundColor(AppTheme.muted)
                 }
@@ -550,7 +557,7 @@ private struct ActionRow: View {
         Button(action: action) {
             HStack(spacing: 12) {
                 IconBadge(icon: icon, color: iconColor)
-                Text(title)
+                Text(LocalizedStringKey(title))
                     .font(.body)
                     .foregroundColor(inkColor)
                 Spacer()

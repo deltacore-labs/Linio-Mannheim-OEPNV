@@ -1,7 +1,5 @@
 //  AuthService.swift
-//  RNV-Transport-App
-//
-//  Created by Friedrich, Stefan on 09.01.26.
+//  Linio
 //
 
 import Foundation
@@ -9,7 +7,7 @@ import Combine
 
 @MainActor
 class AuthService: ObservableObject {
-    nonisolated(unsafe) static let shared = AuthService()
+    static let shared = AuthService()
 
     nonisolated init() {}
 

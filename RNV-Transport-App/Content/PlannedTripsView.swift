@@ -1,8 +1,6 @@
 //
 //  PlannedTripsView.swift
-//  RNV-Transport-App
-//
-//  Created by Friedrich, Stefan on 18.01.26.
+//  Linio
 //
 
 import SwiftUI

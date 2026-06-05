@@ -1,8 +1,6 @@
 //
 //  EndAllActivitiesIntent.swift
-//  RNV-Transport-App
-//
-//  Created by Friedrich, Stefan on 14.01.26.
+//  Linio
 //
 
 import Foundation

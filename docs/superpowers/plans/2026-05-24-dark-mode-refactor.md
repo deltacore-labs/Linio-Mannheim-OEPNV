@@ -14,27 +14,27 @@
 
 | File | Changes |
 |---|---|
-| `RNV-Transport-App/Content/ContentView.swift` | AppTheme rewrite + UIColor ext + *Adaptive stubs |
-| `RNV-Transport-App/Content/DepartureBoardView.swift` | Remove @Environment ×3, callsites, onPrimary |
-| `RNV-Transport-App/Content/SettingsView.swift` | Remove @Environment ×2, computed vars, callsites |
-| `RNV-Transport-App/Content/TicketView.swift` | Remove @Environment ×2, computed var, callsites, onPrimary |
-| `RNV-Transport-App/Content/PlannedTripsView.swift` | Remove @Environment, callsites |
-| `RNV-Transport-App/Content/TripCard.swift` | Remove @Environment, callsites, inline check |
-| `RNV-Transport-App/Content/TripDetailView.swift` | Remove @Environment, callsites |
-| `RNV-Transport-App/Content/LegDetailCard.swift` | Callsites only — @Environment stays in one struct |
-| `RNV-Transport-App/Content/StationPickerView.swift` | Remove @Environment, callsites, onPrimary ×3 |
-| `RNV-Transport-App/Content/ConnectionsView.swift` | Remove @Environment ×2, callsites, onPrimary ×2 |
-| `RNV-Transport-App/Content/SteigSheet.swift` | Remove @Environment, callsites |
-| `RNV-Transport-App/Content/PrivacyPolicyView.swift` | Remove @Environment, callsites |
-| `RNV-Transport-App/Content/PlannedTripDetailSheet.swift` | Remove @Environment, callsites |
-| `RNV-Transport-App/PlannedTripCard.swift` | Remove @Environment, callsites |
-| `RNV-Transport-App/Content/ContentView.swift` | Remove *Adaptive stubs (final cleanup) |
+| `Linio/Content/ContentView.swift` | AppTheme rewrite + UIColor ext + *Adaptive stubs |
+| `Linio/Content/DepartureBoardView.swift` | Remove @Environment ×3, callsites, onPrimary |
+| `Linio/Content/SettingsView.swift` | Remove @Environment ×2, computed vars, callsites |
+| `Linio/Content/TicketView.swift` | Remove @Environment ×2, computed var, callsites, onPrimary |
+| `Linio/Content/PlannedTripsView.swift` | Remove @Environment, callsites |
+| `Linio/Content/TripCard.swift` | Remove @Environment, callsites, inline check |
+| `Linio/Content/TripDetailView.swift` | Remove @Environment, callsites |
+| `Linio/Content/LegDetailCard.swift` | Callsites only — @Environment stays in one struct |
+| `Linio/Content/StationPickerView.swift` | Remove @Environment, callsites, onPrimary ×3 |
+| `Linio/Content/ConnectionsView.swift` | Remove @Environment ×2, callsites, onPrimary ×2 |
+| `Linio/Content/SteigSheet.swift` | Remove @Environment, callsites |
+| `Linio/Content/PrivacyPolicyView.swift` | Remove @Environment, callsites |
+| `Linio/Content/PlannedTripDetailSheet.swift` | Remove @Environment, callsites |
+| `Linio/PlannedTripCard.swift` | Remove @Environment, callsites |
+| `Linio/Content/ContentView.swift` | Remove *Adaptive stubs (final cleanup) |
 
 ---
 
 ## Task 1: AppTheme — Adaptive Properties + UIColor-Extension
 
-**File:** `RNV-Transport-App/Content/ContentView.swift`
+**File:** `Linio/Content/ContentView.swift`
 
 - [ ] **Step 1: UIColor(hex:) extension ergänzen**
 
@@ -169,7 +169,7 @@ Dark Mode ist ab jetzt funktional (alle *Adaptive-Stubs leiten an die neuen adap
 - [ ] **Step 4: Commit**
 
 ```bash
-git add RNV-Transport-App/Content/ContentView.swift
+git add Linio/Content/ContentView.swift
 git commit -m "refactor: AppTheme — UIColor-adaptive properties, onPrimary, WCAG semantic colors"
 ```
 
@@ -177,7 +177,7 @@ git commit -m "refactor: AppTheme — UIColor-adaptive properties, onPrimary, WC
 
 ## Task 2: ContentView — @Environment entfernen + tint-Fix
 
-**File:** `RNV-Transport-App/Content/ContentView.swift`
+**File:** `Linio/Content/ContentView.swift`
 
 - [ ] **Step 1: @Environment entfernen**
 
@@ -201,7 +201,7 @@ Find and replace (around line 77):
 - [ ] **Step 4: Commit**
 
 ```bash
-git add RNV-Transport-App/Content/ContentView.swift
+git add Linio/Content/ContentView.swift
 git commit -m "refactor: ContentView — @Environment(colorScheme) und inline tint-Check entfernt"
 ```
 
@@ -209,7 +209,7 @@ git commit -m "refactor: ContentView — @Environment(colorScheme) und inline ti
 
 ## Task 3: DepartureBoardView — 3 Structs bereinigen
 
-**File:** `RNV-Transport-App/Content/DepartureBoardView.swift`
+**File:** `Linio/Content/DepartureBoardView.swift`
 
 Drei Structs in dieser Datei haben @Environment: `DepartureBoardView`, `DepartureRowView`, `DepartureTripDetailView`.
 
@@ -277,7 +277,7 @@ Delete lines 637–638:
 - [ ] **Step 9: Commit**
 
 ```bash
-git add RNV-Transport-App/Content/DepartureBoardView.swift
+git add Linio/Content/DepartureBoardView.swift
 git commit -m "refactor: DepartureBoardView — @Environment und *Adaptive-Boilerplate entfernt, onPrimary"
 ```
 
@@ -285,7 +285,7 @@ git commit -m "refactor: DepartureBoardView — @Environment und *Adaptive-Boile
 
 ## Task 4: SettingsView — @Environment + computed vars entfernen
 
-**File:** `RNV-Transport-App/Content/SettingsView.swift`
+**File:** `Linio/Content/SettingsView.swift`
 
 - [ ] **Step 1: @Environment entfernen**
 
@@ -332,7 +332,7 @@ Replace line 501:
 - [ ] **Step 7: Commit**
 
 ```bash
-git add RNV-Transport-App/Content/SettingsView.swift
+git add Linio/Content/SettingsView.swift
 git commit -m "refactor: SettingsView — @Environment, computed vars und *Adaptive-Boilerplate entfernt"
 ```
 
@@ -340,7 +340,7 @@ git commit -m "refactor: SettingsView — @Environment, computed vars und *Adapt
 
 ## Task 5: TicketView — @Environment + computed var + onPrimary
 
-**File:** `RNV-Transport-App/Content/TicketView.swift`
+**File:** `Linio/Content/TicketView.swift`
 
 - [ ] **Step 1: @Environment entfernen (2 Stellen)**
 
@@ -382,7 +382,7 @@ Replace `.foregroundStyle(.white)` with `.foregroundStyle(AppTheme.onPrimary)`.
 - [ ] **Step 6: Commit**
 
 ```bash
-git add RNV-Transport-App/Content/TicketView.swift
+git add Linio/Content/TicketView.swift
 git commit -m "refactor: TicketView — @Environment, computed var und *Adaptive-Boilerplate entfernt, onPrimary"
 ```
 
@@ -390,7 +390,7 @@ git commit -m "refactor: TicketView — @Environment, computed var und *Adaptive
 
 ## Task 6: PlannedTripsView — @Environment entfernen
 
-**File:** `RNV-Transport-App/Content/PlannedTripsView.swift`
+**File:** `Linio/Content/PlannedTripsView.swift`
 
 - [ ] **Step 1: @Environment entfernen (2 Stellen)**
 
@@ -411,7 +411,7 @@ Delete line 216: `@Environment(\.colorScheme) private var colorScheme`
 - [ ] **Step 4: Commit**
 
 ```bash
-git add RNV-Transport-App/Content/PlannedTripsView.swift
+git add Linio/Content/PlannedTripsView.swift
 git commit -m "refactor: PlannedTripsView — @Environment und *Adaptive-Boilerplate entfernt"
 ```
 
@@ -419,7 +419,7 @@ git commit -m "refactor: PlannedTripsView — @Environment und *Adaptive-Boilerp
 
 ## Task 7: TripCard — @Environment + inline check
 
-**File:** `RNV-Transport-App/Content/TripCard.swift`
+**File:** `Linio/Content/TripCard.swift`
 
 - [ ] **Step 1: @Environment entfernen**
 
@@ -447,7 +447,7 @@ Replace with:
 - [ ] **Step 5: Commit**
 
 ```bash
-git add RNV-Transport-App/Content/TripCard.swift
+git add Linio/Content/TripCard.swift
 git commit -m "refactor: TripCard — @Environment, *Adaptive-Boilerplate und inline Dark-Mode-Check entfernt"
 ```
 
@@ -455,7 +455,7 @@ git commit -m "refactor: TripCard — @Environment, *Adaptive-Boilerplate und in
 
 ## Task 8: TripDetailView — @Environment entfernen
 
-**File:** `RNV-Transport-App/Content/TripDetailView.swift`
+**File:** `Linio/Content/TripDetailView.swift`
 
 - [ ] **Step 1: @Environment entfernen**
 
@@ -474,7 +474,7 @@ Delete line 25: `@Environment(\.colorScheme) private var colorScheme`
 - [ ] **Step 4: Commit**
 
 ```bash
-git add RNV-Transport-App/Content/TripDetailView.swift
+git add Linio/Content/TripDetailView.swift
 git commit -m "refactor: TripDetailView — @Environment und *Adaptive-Boilerplate entfernt"
 ```
 
@@ -482,7 +482,7 @@ git commit -m "refactor: TripDetailView — @Environment und *Adaptive-Boilerpla
 
 ## Task 9: LegDetailCard — *Adaptive-Aufrufe ersetzen (selektiv)
 
-**File:** `RNV-Transport-App/Content/LegDetailCard.swift`
+**File:** `Linio/Content/LegDetailCard.swift`
 
 > **Hinweis:** Diese Datei enthält 3 Structs mit `@Environment(\.colorScheme)`. Nur der zweite Struct (ab Zeile ~365) behält das @Environment, weil er inline Dark-Mode-Opacity-Checks verwendet (`Color.orange.opacity(colorScheme == .dark ? 0.06 : 0.04)`), die nicht in den Scope dieser Refactoring-Spec fallen.
 
@@ -510,7 +510,7 @@ Prüfe: Nutzt Struct 3 noch `colorScheme` nach dieser Ersetzung? Wenn nein, lös
 - [ ] **Step 5: Commit**
 
 ```bash
-git add RNV-Transport-App/Content/LegDetailCard.swift
+git add Linio/Content/LegDetailCard.swift
 git commit -m "refactor: LegDetailCard — *Adaptive-Aufrufe ersetzt (inline opacity-checks bleiben)"
 ```
 
@@ -518,7 +518,7 @@ git commit -m "refactor: LegDetailCard — *Adaptive-Aufrufe ersetzt (inline opa
 
 ## Task 10: StationPickerView — @Environment + onPrimary (3 Stellen)
 
-**File:** `RNV-Transport-App/Content/StationPickerView.swift`
+**File:** `Linio/Content/StationPickerView.swift`
 
 - [ ] **Step 1: @Environment entfernen**
 
@@ -574,7 +574,7 @@ Replace `.foregroundColor(.white)` with `.foregroundColor(AppTheme.onPrimary)`.
 - [ ] **Step 7: Commit**
 
 ```bash
-git add RNV-Transport-App/Content/StationPickerView.swift
+git add Linio/Content/StationPickerView.swift
 git commit -m "refactor: StationPickerView — @Environment, *Adaptive-Boilerplate entfernt, onPrimary"
 ```
 
@@ -582,7 +582,7 @@ git commit -m "refactor: StationPickerView — @Environment, *Adaptive-Boilerpla
 
 ## Task 11: ConnectionsView — @Environment + onPrimary (2 Stellen)
 
-**File:** `RNV-Transport-App/Content/ConnectionsView.swift`
+**File:** `Linio/Content/ConnectionsView.swift`
 
 Diese Datei hat die meisten *Adaptive-Aufrufe (24 Stellen). Systematisch mit Find-Replace arbeiten.
 
@@ -630,7 +630,7 @@ Replace `.foregroundColor(.white)` with `.foregroundColor(AppTheme.onPrimary)`.
 - [ ] **Step 6: Commit**
 
 ```bash
-git add RNV-Transport-App/Content/ConnectionsView.swift
+git add Linio/Content/ConnectionsView.swift
 git commit -m "refactor: ConnectionsView — @Environment, *Adaptive-Boilerplate entfernt, onPrimary"
 ```
 
@@ -638,7 +638,7 @@ git commit -m "refactor: ConnectionsView — @Environment, *Adaptive-Boilerplate
 
 ## Task 12: SteigSheet — @Environment entfernen
 
-**File:** `RNV-Transport-App/Content/SteigSheet.swift`
+**File:** `Linio/Content/SteigSheet.swift`
 
 - [ ] **Step 1: @Environment entfernen**
 
@@ -655,7 +655,7 @@ Delete line 22: `@Environment(\.colorScheme) private var colorScheme`
 - [ ] **Step 4: Commit**
 
 ```bash
-git add RNV-Transport-App/Content/SteigSheet.swift
+git add Linio/Content/SteigSheet.swift
 git commit -m "refactor: SteigSheet — @Environment und *Adaptive-Boilerplate entfernt"
 ```
 
@@ -663,7 +663,7 @@ git commit -m "refactor: SteigSheet — @Environment und *Adaptive-Boilerplate e
 
 ## Task 13: PrivacyPolicyView — @Environment entfernen
 
-**File:** `RNV-Transport-App/Content/PrivacyPolicyView.swift`
+**File:** `Linio/Content/PrivacyPolicyView.swift`
 
 - [ ] **Step 1: @Environment entfernen**
 
@@ -681,7 +681,7 @@ Delete line 10: `@Environment(\.colorScheme) private var colorScheme`
 - [ ] **Step 4: Commit**
 
 ```bash
-git add RNV-Transport-App/Content/PrivacyPolicyView.swift
+git add Linio/Content/PrivacyPolicyView.swift
 git commit -m "refactor: PrivacyPolicyView — @Environment und *Adaptive-Boilerplate entfernt"
 ```
 
@@ -689,7 +689,7 @@ git commit -m "refactor: PrivacyPolicyView — @Environment und *Adaptive-Boiler
 
 ## Task 14: PlannedTripDetailSheet — @Environment entfernen
 
-**File:** `RNV-Transport-App/Content/PlannedTripDetailSheet.swift`
+**File:** `Linio/Content/PlannedTripDetailSheet.swift`
 
 - [ ] **Step 1: @Environment entfernen**
 
@@ -708,7 +708,7 @@ Delete line 15: `@Environment(\.colorScheme) private var colorScheme`
 - [ ] **Step 4: Commit**
 
 ```bash
-git add RNV-Transport-App/Content/PlannedTripDetailSheet.swift
+git add Linio/Content/PlannedTripDetailSheet.swift
 git commit -m "refactor: PlannedTripDetailSheet — @Environment und *Adaptive-Boilerplate entfernt"
 ```
 
@@ -716,7 +716,7 @@ git commit -m "refactor: PlannedTripDetailSheet — @Environment und *Adaptive-B
 
 ## Task 15: PlannedTripCard — @Environment entfernen
 
-**File:** `RNV-Transport-App/PlannedTripCard.swift`
+**File:** `Linio/PlannedTripCard.swift`
 
 - [ ] **Step 1: @Environment entfernen**
 
@@ -732,7 +732,7 @@ Delete line 19: `@Environment(\.colorScheme) private var colorScheme`
 - [ ] **Step 4: Commit**
 
 ```bash
-git add RNV-Transport-App/PlannedTripCard.swift
+git add Linio/PlannedTripCard.swift
 git commit -m "refactor: PlannedTripCard — @Environment und *Adaptive-Boilerplate entfernt"
 ```
 
@@ -740,7 +740,7 @@ git commit -m "refactor: PlannedTripCard — @Environment und *Adaptive-Boilerpl
 
 ## Task 16: *Adaptive-Stubs aus AppTheme entfernen
 
-**File:** `RNV-Transport-App/Content/ContentView.swift`
+**File:** `Linio/Content/ContentView.swift`
 
 - [ ] **Step 1: Stubs löschen**
 
@@ -772,6 +772,6 @@ Wenn Fehler auftreten: Die entsprechende Datei hat noch *Adaptive-Aufrufe. Die F
 - [ ] **Step 4: Commit**
 
 ```bash
-git add RNV-Transport-App/Content/ContentView.swift
+git add Linio/Content/ContentView.swift
 git commit -m "refactor: AppTheme *Adaptive-Stubs entfernt — Refactoring abgeschlossen"
 ```

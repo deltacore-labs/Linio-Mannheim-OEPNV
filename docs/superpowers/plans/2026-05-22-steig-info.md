@@ -13,8 +13,8 @@
 ### Task 1: `StationQuay`-Model, Parsing-Helper und `quayText` auf `Departure`
 
 **Files:**
-- Modify: `RNV-Transport-App/GraphQLService.swift` — neues Struct nach `OccupancyLevel`
-- Modify: `RNV-Transport-App/Content/DepartureBoardView.swift` — neues Feld in `Departure`
+- Modify: `Linio/GraphQLService.swift` — neues Struct nach `OccupancyLevel`
+- Modify: `Linio/Content/DepartureBoardView.swift` — neues Feld in `Departure`
 
 - [ ] **Schritt 1: `StationQuay` Struct und Parsing-Helper in `GraphQLService.swift` einfügen**
 
@@ -69,7 +69,7 @@ Erwartetes Ergebnis: Build Succeeded. Kein neues Code-Verhalten, nur neue Typen/
 - [ ] **Schritt 4: Commit**
 
 ```bash
-git add RNV-Transport-App/GraphQLService.swift RNV-Transport-App/Content/DepartureBoardView.swift
+git add Linio/GraphQLService.swift Linio/Content/DepartureBoardView.swift
 git commit -m "feat: StationQuay-Model, quayText-Parsing-Helper und quayText-Feld auf Departure"
 ```
 
@@ -78,7 +78,7 @@ git commit -m "feat: StationQuay-Model, quayText-Parsing-Helper und quayText-Fel
 ### Task 2: `quayText` im Journeys-Pfad befüllen
 
 **Files:**
-- Modify: `RNV-Transport-App/GraphQLService.swift` — Methode `getDeparturesViaJourneys`
+- Modify: `Linio/GraphQLService.swift` — Methode `getDeparturesViaJourneys`
 
 Der Journeys-Pfad ist der primäre Ladeweg. Er muss `stop { globalID }` pro Haltepunkt abfragen, damit wir daraus den Steig-Buchstaben ableiten können.
 
@@ -159,7 +159,7 @@ Suche nach Logzeilen `getDeparturesViaJourneys: Linie X globalID=... quayText=..
 - [ ] **Schritt 5: Commit**
 
 ```bash
-git add RNV-Transport-App/GraphQLService.swift
+git add Linio/GraphQLService.swift
 git commit -m "feat: quayText aus stop.globalID im Journeys-Abfahrts-Pfad"
 ```
 
@@ -168,7 +168,7 @@ git commit -m "feat: quayText aus stop.globalID im Journeys-Abfahrts-Pfad"
 ### Task 3: `quayText` im Hub-Fallback-Pfad befüllen
 
 **Files:**
-- Modify: `RNV-Transport-App/GraphQLService.swift` — Methode `fetchFirstLegsAsDepartures`
+- Modify: `Linio/GraphQLService.swift` — Methode `fetchFirstLegsAsDepartures`
 
 Der Hub-Fallback nutzt `trips { legs { board { point { ... } } } }`. Hier können wir `ref` auf `StopPoint` abfragen.
 
@@ -236,7 +236,7 @@ return departure
 - [ ] **Schritt 4: Commit**
 
 ```bash
-git add RNV-Transport-App/GraphQLService.swift
+git add Linio/GraphQLService.swift
 git commit -m "feat: quayText aus board.point.ref im Hub-Fallback-Abfahrts-Pfad"
 ```
 
@@ -245,7 +245,7 @@ git commit -m "feat: quayText aus board.point.ref im Hub-Fallback-Abfahrts-Pfad"
 ### Task 4: `getStationQuays()` in `GraphQLService`
 
 **Files:**
-- Modify: `RNV-Transport-App/GraphQLService.swift` — neue Methode
+- Modify: `Linio/GraphQLService.swift` — neue Methode
 
 - [ ] **Schritt 1: Methode `getStationQuays` einfügen**
 
@@ -304,7 +304,7 @@ func getStationQuays(hafasID: String, accessToken: String) async -> [StationQuay
 - [ ] **Schritt 3: Commit**
 
 ```bash
-git add RNV-Transport-App/GraphQLService.swift
+git add Linio/GraphQLService.swift
 git commit -m "feat: getStationQuays() lädt Steig-Koordinaten per Station"
 ```
 
@@ -313,7 +313,7 @@ git commit -m "feat: getStationQuays() lädt Steig-Koordinaten per Station"
 ### Task 5: Steig-Badge in `DepartureRowView` + Sheet-Trigger in `DepartureBoardView`
 
 **Files:**
-- Modify: `RNV-Transport-App/Content/DepartureBoardView.swift`
+- Modify: `Linio/Content/DepartureBoardView.swift`
 
 - [ ] **Schritt 1: `onSteigTap`-Callback zu `DepartureRowView` hinzufügen**
 
@@ -421,13 +421,13 @@ Button {
 ### Task 6: `SteigSheet.swift` erstellen
 
 **Files:**
-- Create: `RNV-Transport-App/Content/SteigSheet.swift`
+- Create: `Linio/Content/SteigSheet.swift`
 
 - [ ] **Schritt 1: Datei erstellen**
 
 ```swift
 //  SteigSheet.swift
-//  RNV-Transport-App
+//  Linio
 
 import SwiftUI
 import MapKit
@@ -640,7 +640,7 @@ private struct PlatformPin: View {
 
 - [ ] **Schritt 2: Datei zum Xcode-Projekt hinzufügen**
 
-In Xcode: `RNV-Transport-App/Content`-Gruppe → Rechtsklick → „Add Files" → `SteigSheet.swift` auswählen (falls nicht automatisch erkannt).
+In Xcode: `Linio/Content`-Gruppe → Rechtsklick → „Add Files" → `SteigSheet.swift` auswählen (falls nicht automatisch erkannt).
 
 - [ ] **Schritt 3: Bauen (⌘B) — muss fehlerfrei sein**
 
@@ -663,7 +663,7 @@ Manueller Test-Ablauf:
 - [ ] **Schritt 5: Commit**
 
 ```bash
-git add RNV-Transport-App/Content/SteigSheet.swift RNV-Transport-App/Content/DepartureBoardView.swift
+git add Linio/Content/SteigSheet.swift Linio/Content/DepartureBoardView.swift
 git commit -m "feat: SteigSheet mit MapKit-Karte und gefilterter Abfahrtsliste"
 ```
 

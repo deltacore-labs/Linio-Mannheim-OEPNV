@@ -37,7 +37,7 @@ Das Widget-Extension-Target ruft die GraphQL-API selbst auf. Der Auth-Token wird
 | `DepartureBoardView.swift` oder `StationPickerView.swift` | Gewählte Station in `AppGroup["recentWidgetStations"]` speichern (max. 10) |
 | `LiveActivityState.swift` | `WidgetCenter.reloadTimelines("StationDepartureWidget")` bei App-Öffnung |
 | `RNVLiveActivityBundle.swift` | `StationDepartureWidget()` zum Bundle hinzufügen |
-| `Mannheim ÖPNV.xcodeproj` | Neue Datei zum Widget-Target hinzufügen |
+| `Linio.xcodeproj` | Neue Datei zum Widget-Target hinzufügen |
 
 ---
 

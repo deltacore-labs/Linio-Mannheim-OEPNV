@@ -414,9 +414,6 @@ struct StationDepartureSmallView: View {
                             .font(.system(size: 16, weight: .bold, design: .rounded))
                             .foregroundColor(.orange)
                     }
-                } else {
-                    Text(WidgetDataProvider.formatTime(dep.effectiveTimeISO))
-                        .font(.system(size: 18, weight: .bold, design: .rounded))
                 }
                 Spacer()
                 Text("\(max(0, mins))'")

@@ -120,10 +120,10 @@ DepartureBoardView
 
 ## Geänderte Dateien
 
-- `RNV-Transport-App/Content/DepartureBoardView.swift`
+- `Linio/Content/DepartureBoardView.swift`
   - Aufruf von `DepartureTripDetailView` um `station` und `allDepartures` erweitern
   - `DepartureTripDetailView`: zwei neue Parameter, drei neue States, `loadQuays()`-Funktion, `quayMapSection`-View, `.sheet`-Modifier für `SteigSheet`
-- `RNV-Transport-App/Content/SteigSheet.swift`
+- `Linio/Content/SteigSheet.swift`
   - `PlatformPin` von `private` auf `internal` heben (oder in eigene Datei verschieben)
 
 ## Akzeptanzkriterien

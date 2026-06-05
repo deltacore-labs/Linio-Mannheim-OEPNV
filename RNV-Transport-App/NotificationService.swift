@@ -1,6 +1,6 @@
 //
 //  NotificationService.swift
-//  RNV-Transport-App
+//  Linio
 //
 
 import Foundation

@@ -15,7 +15,7 @@ Feature gilt für **alle Stationen** (vollständig dynamisch, kein statischer St
 
 ### Neue Dateien
 
-- `RNV-Transport-App/Content/SteigSheet.swift` — Bottom Sheet mit MapKit + Abfahrtsliste
+- `Linio/Content/SteigSheet.swift` — Bottom Sheet mit MapKit + Abfahrtsliste
 - Model `StationQuay` wird in `GraphQLService.swift` als eigenständiges Struct definiert
 
 ### Geänderte Dateien

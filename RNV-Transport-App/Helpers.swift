@@ -1,6 +1,6 @@
 //
 //  Helpers.swift
-//  RNV-Transport-App
+//  Linio
 //
 //  Zusammengeführt aus DateFormattingHelper.swift + TransportIconHelper.swift
 //

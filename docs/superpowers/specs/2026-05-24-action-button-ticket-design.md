@@ -17,7 +17,7 @@ Der User konfiguriert dies einmalig in:
 
 ## Architektur
 
-### Neues File: `RNV-Transport-App/ShowTicketIntent.swift`
+### Neues File: `Linio/ShowTicketIntent.swift`
 
 Enthält zwei Typen:
 

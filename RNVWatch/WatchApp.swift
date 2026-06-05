@@ -1,4 +1,4 @@
-// RNVWatch – Apple Watch App für Mannheim ÖPNV
+// RNVWatch – Apple Watch App für Linio
 
 import SwiftUI
 

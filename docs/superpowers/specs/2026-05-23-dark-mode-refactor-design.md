@@ -125,7 +125,7 @@ Buttons verwenden heute `.foregroundColor(.white)` hartkodiert. Das funktioniert
 ## Betroffene Dateien
 
 ### AppTheme (Definition)
-- `RNV-Transport-App/Content/ContentView.swift` — AppTheme-Struct komplett umschreiben
+- `Linio/Content/ContentView.swift` — AppTheme-Struct komplett umschreiben
 
 ### Views (Boilerplate entfernen + Callsites aktualisieren)
 - `Content/DepartureBoardView.swift`

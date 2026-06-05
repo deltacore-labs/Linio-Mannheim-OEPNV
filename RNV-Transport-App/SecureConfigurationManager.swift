@@ -1,6 +1,6 @@
 //
 //  SecureConfigurationManager.swift
-//  RNV-Transport-App
+//  Linio
 //
 //  Verwaltet verschlüsselte Konfigurationswerte
 //

@@ -1,6 +1,6 @@
 //
 //  SharedModels.swift
-//  RNV-Transport-App
+//  Linio
 //
 //  Zusammengeführt aus SharedModels.swift + LiveActivityState.swift
 //

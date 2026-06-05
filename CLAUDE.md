@@ -1,4 +1,4 @@
-# CLAUDE.md — RNV Transport App
+# CLAUDE.md — Linio
 
 ## Git
 

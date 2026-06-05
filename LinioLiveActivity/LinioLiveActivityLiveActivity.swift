@@ -1,6 +1,6 @@
 //
-//  RNVLiveActivityLiveActivity.swift
-//  RNVLiveActivity
+//  LinioLiveActivityLiveActivity.swift
+//  LinioLiveActivity
 //
 //
 
@@ -8,7 +8,7 @@ import ActivityKit
 import WidgetKit
 import SwiftUI
 
-struct RNVLiveActivityLiveActivity: Widget {
+struct LinioLiveActivityLiveActivity: Widget {
     var body: some WidgetConfiguration {
         ActivityConfiguration(for: TripLiveActivityAttributes.self) { context in
 
@@ -100,19 +100,19 @@ struct RNVLiveActivityLiveActivity: Widget {
 // MARK: - Previews
 
 #Preview("1. Vor Abfahrt (Pünktlich)", as: .content, using: TripLiveActivityAttributes.previewBeforeDeparture) {
-    RNVLiveActivityLiveActivity()
+    LinioLiveActivityLiveActivity()
 } contentStates: {
     TripLiveActivityAttributes.ContentState.onTime
 }
 
 #Preview("2. Vor Abfahrt (Verspätet)", as: .content, using: TripLiveActivityAttributes.previewBeforeDeparture) {
-    RNVLiveActivityLiveActivity()
+    LinioLiveActivityLiveActivity()
 } contentStates: {
     TripLiveActivityAttributes.ContentState.delayed
 }
 
 #Preview("3. Während Fahrt", as: .dynamicIsland(.expanded), using: TripLiveActivityAttributes.previewDuringJourney) {
-    RNVLiveActivityLiveActivity()
+    LinioLiveActivityLiveActivity()
 } contentStates: {
     TripLiveActivityAttributes.ContentState.duringJourney
     TripLiveActivityAttributes.ContentState.duringJourneyWithTransfer
@@ -120,24 +120,24 @@ struct RNVLiveActivityLiveActivity: Widget {
 }
 
 #Preview("4. Compact (Pünktlich)", as: .dynamicIsland(.compact), using: TripLiveActivityAttributes.previewBeforeDeparture) {
-    RNVLiveActivityLiveActivity()
+    LinioLiveActivityLiveActivity()
 } contentStates: {
     TripLiveActivityAttributes.ContentState.onTime
 }
 
 #Preview("5. Compact (Verspätet)", as: .dynamicIsland(.compact), using: TripLiveActivityAttributes.previewDuringJourney) {
-    RNVLiveActivityLiveActivity()
+    LinioLiveActivityLiveActivity()
 } contentStates: {
     TripLiveActivityAttributes.ContentState.duringJourneyDelayed
 }
 
 #Preview("6. Angekommen", as: .dynamicIsland(.expanded), using: TripLiveActivityAttributes.previewArrived) {
-    RNVLiveActivityLiveActivity()
+    LinioLiveActivityLiveActivity()
 } contentStates: {
     TripLiveActivityAttributes.ContentState.arrived
 }
 #Preview("7. Minimal", as: .dynamicIsland(.minimal), using: TripLiveActivityAttributes.previewBeforeDeparture) {
-    RNVLiveActivityLiveActivity()
+    LinioLiveActivityLiveActivity()
 } contentStates: {
     TripLiveActivityAttributes.ContentState.onTime
     TripLiveActivityAttributes.ContentState.delayed

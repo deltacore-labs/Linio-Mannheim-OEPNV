@@ -1,6 +1,6 @@
 //
-//  RNVLiveActivityBundle.swift
-//  RNVLiveActivity
+//  LinioLiveActivityBundle.swift
+//  LinioLiveActivity
 //
 //
 
@@ -8,9 +8,9 @@ import WidgetKit
 import SwiftUI
 
 @main
-struct RNVLiveActivityBundle: WidgetBundle {
+struct LinioLiveActivityBundle: WidgetBundle {
     var body: some Widget {
-        RNVLiveActivityLiveActivity()
+        LinioLiveActivityLiveActivity()
         NextDepartureWidget()
         ActiveTripsWidget()
         QuickSearchWidget()

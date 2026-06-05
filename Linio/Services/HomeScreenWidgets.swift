@@ -1,6 +1,6 @@
 //
 //  HomeScreenWidgets.swift
-//  RNVLiveActivity
+//  LinioLiveActivity
 //
 //  Homescreen-Widgets für ÖPNV Mannheim & Umgebung
 //
@@ -58,7 +58,7 @@ struct WidgetDataProvider {
         return f
     }()
 
-    static let timeFormatter: DateFormatter = {
+    private static let timeFormatter: DateFormatter = {
         let f = DateFormatter()
         f.dateFormat = "HH:mm"
         f.locale = Locale(identifier: "de_DE")

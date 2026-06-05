@@ -1,5 +1,5 @@
 //
-//  RNV_Transport_AppApp.swift
+//  LinioApp.swift
 //  Linio
 //
 
@@ -56,7 +56,7 @@ class AppDelegate: NSObject, UIApplicationDelegate {
 // MARK: - App Entry Point
 
 @main
-struct RNV_Transport_AppApp: App {
+struct LinioApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
     @StateObject private var liveActivityManager = LiveActivityManager()
     @AppStorage("hasSeenOnboarding") private var hasSeenOnboarding = false

@@ -1,6 +1,6 @@
 //
 //  StationDepartureWidget.swift
-//  RNVLiveActivity
+//  LinioLiveActivity
 //
 //  Konfigurierbares Abfahrtstafel-Widget für eine frei wählbare Haltestelle.
 //

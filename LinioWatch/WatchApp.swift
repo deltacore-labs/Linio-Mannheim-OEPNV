@@ -1,9 +1,9 @@
-// RNVWatch – Apple Watch App für Linio
+// LinioWatch – Apple Watch App für Linio
 
 import SwiftUI
 
 @main
-struct RNVWatchApp: App {
+struct LinioWatchApp: App {
     @StateObject private var dataManager = WatchDataManager()
     @StateObject private var connectivity = WatchConnectivityManager.shared
     @Environment(\.scenePhase) private var scenePhase

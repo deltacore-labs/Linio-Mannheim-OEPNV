@@ -1,6 +1,6 @@
 //
 //  LiveActivityHelpers.swift
-//  RNVLiveActivity
+//  LinioLiveActivity
 //
 //
 

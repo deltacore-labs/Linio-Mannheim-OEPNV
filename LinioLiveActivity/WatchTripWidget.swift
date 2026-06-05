@@ -1,6 +1,6 @@
 //
 //  WatchTripWidget.swift
-//  RNVLiveActivity
+//  LinioLiveActivity
 //
 //  Apple Watch Komplikationen für ÖPNV Mannheim & Umgebung
 //

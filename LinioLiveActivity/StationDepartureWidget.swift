@@ -39,61 +39,6 @@ enum StationWidgetError: Equatable {
 }
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// MARK: - AppEntity: Station
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-struct StationEntity: AppEntity, Codable {
-    // Muss dieselben CodingKeys haben wie `Station` in der Haupt-App,
-    // damit die in App Group gespeicherten [Station]-JSON-Daten decodiert werden.
-    let globalID: String
-    let longName: String
-    let hafasID: String
-
-    // AppEntity-Pflichtfelder
-    var id: String { globalID }
-
-    static var typeDisplayRepresentation: TypeDisplayRepresentation {
-        TypeDisplayRepresentation(name: "Haltestelle")
-    }
-    static var defaultQuery = StationEntityQuery()
-
-    var displayRepresentation: DisplayRepresentation {
-        DisplayRepresentation(title: "\(longName)")
-    }
-}
-
-struct StationEntityQuery: EntityQuery {
-    func entities(for identifiers: [String]) async throws -> [StationEntity] {
-        loadSaved().filter { identifiers.contains($0.id) }
-    }
-
-    func suggestedEntities() async throws -> [StationEntity] {
-        loadSaved()
-    }
-
-    private func loadSaved() -> [StationEntity] {
-        guard let defaults = UserDefaults(suiteName: "group.com.stefanfriedrich.rnvapp"),
-              let data = defaults.data(forKey: "widgetRecentStations"),
-              let stations = try? JSONDecoder().decode([StationEntity].self, from: data) else {
-            return []
-        }
-        return stations
-    }
-}
-
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// MARK: - Widget Configuration Intent
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-struct StationSelectionIntent: WidgetConfigurationIntent {
-    static var title: LocalizedStringResource = "Station wählen"
-    static var description = IntentDescription("Wähle eine Haltestelle für die Abfahrtstafel.")
-
-    @Parameter(title: "Haltestelle")
-    var station: StationEntity?
-}
-
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 // MARK: - Timeline Entry
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -104,6 +49,7 @@ struct StationDepartureEntry: TimelineEntry {
     let departures: [WidgetDeparture]
     let errorState: StationWidgetError?
     let isPlaceholder: Bool
+    var relevance: TimelineEntryRelevance? = nil
 }
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -238,8 +184,19 @@ struct StationDepartureProvider: AppIntentTimelineProvider {
     }
 
     func timeline(for configuration: StationSelectionIntent, in context: Context) async -> Timeline<StationDepartureEntry> {
+        if context.isPreview {
+            let placeholder = StationDepartureEntry(
+                date: Date(),
+                configuration: configuration,
+                stationName: configuration.station?.longName ?? "Mannheim Hbf",
+                departures: StationWidgetPreviewData.sampleDepartures,
+                errorState: nil,
+                isPlaceholder: false
+            )
+            return Timeline(entries: [placeholder], policy: .never)
+        }
         let entry = await buildEntry(for: configuration)
-        let nextRefresh = Date().addingTimeInterval(15 * 60)
+        let nextRefresh = Date().addingTimeInterval(10 * 60)
         return Timeline(entries: [entry], policy: .after(nextRefresh))
     }
 
@@ -269,13 +226,23 @@ struct StationDepartureProvider: AppIntentTimelineProvider {
             graphqlURL: graphqlURL
         )
 
+        let relevanceScore: Float = {
+            guard let firstDep = result?.first,
+                  let depDate = WidgetDataProvider.parseISO8601(firstDep.effectiveTimeISO) else { return 1.0 }
+            let mins = depDate.timeIntervalSince(Date()) / 60
+            if mins < 5 { return 10.0 }
+            if mins < 20 { return 5.0 }
+            return 1.0
+        }()
+
         return StationDepartureEntry(
             date: Date(),
             configuration: configuration,
             stationName: station.longName,
             departures: result ?? [],
             errorState: result == nil ? .networkError : nil,
-            isPlaceholder: false
+            isPlaceholder: false,
+            relevance: TimelineEntryRelevance(score: relevanceScore, duration: 5 * 60)
         )
     }
 }
@@ -707,8 +674,8 @@ struct StationDepartureWidget: Widget {
                     .background()
             }
         }
-        .configurationDisplayName("Abfahrtstafel")
-        .description("Zeigt aktuelle Abfahrten einer Haltestelle.")
+        .configurationDisplayName("widget.stationDeparture.name")
+        .description("widget.stationDeparture.description")
         .supportedFamilies([.systemSmall, .systemMedium, .systemLarge])
     }
 }

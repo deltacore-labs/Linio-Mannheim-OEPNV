@@ -169,9 +169,6 @@ class LiveActivityManager: ObservableObject {
                 #endif
             }
 
-            // Nur das Abfahrts-Widget neu laden, nicht alle
-            WidgetCenter.shared.reloadTimelines(ofKind: "StationDepartureWidget")
-
             // Beende Activity wenn angekommen
             if isArrived {
                 // Nach 1 Stunde automatisch archivieren und beenden
@@ -187,8 +184,11 @@ class LiveActivityManager: ObservableObject {
                 }
             }
         }
+
+        // Nur das Abfahrts-Widget neu laden, nicht alle (einmal nach allen Activity-Updates)
+        WidgetCenter.shared.reloadTimelines(ofKind: "StationDepartureWidget")
     }
-    
+
     // MARK: - Live Activity starten
 
     func startActivity(for trip: DetailedTrip, accessToken: String) async {
@@ -501,6 +501,7 @@ class LiveActivityManager: ObservableObject {
               let destination = currentLeg.destinationLabel else {
             let tripId = trip.id.uuidString
             updateTimers[tripId]?.invalidate()
+            guard !isInBackground else { return }
             let retryTimer = Timer.scheduledTimer(withTimeInterval: 30, repeats: false) { [weak self] _ in
                 Task { @MainActor in
                     await self?.fetchAndUpdateLiveActivity(trip: trip)
@@ -744,13 +745,13 @@ class LiveActivityManager: ObservableObject {
             if timeUntilDeparture > 600 { return 60 }
             else if timeUntilDeparture > 120 { return 30 }
             else if timeUntilDeparture > 30 { return 10 }
-            // Ganz kurz vor Abfahrt: genau zur Abfahrt updaten
+            // Ganz kurz vor Abfahrt: mindestens 5s Intervall
             else { return max(5, timeUntilDeparture) }
         } else if timeUntilArrival > 0 {
             // Während der Fahrt
             if timeUntilArrival > 600 { return 30 }
             else if timeUntilArrival > 120 { return 15 }
-            // Kurz vor Ankunft: genau zur Ankunft updaten
+            // Kurz vor Ankunft: mindestens 5s Intervall
             else { return max(5, timeUntilArrival) }
         }
 

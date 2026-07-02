@@ -184,17 +184,6 @@ struct StationDepartureProvider: AppIntentTimelineProvider {
     }
 
     func timeline(for configuration: StationSelectionIntent, in context: Context) async -> Timeline<StationDepartureEntry> {
-        if context.isPreview {
-            let placeholder = StationDepartureEntry(
-                date: Date(),
-                configuration: configuration,
-                stationName: configuration.station?.longName ?? "Mannheim Hbf",
-                departures: StationWidgetPreviewData.sampleDepartures,
-                errorState: nil,
-                isPlaceholder: false
-            )
-            return Timeline(entries: [placeholder], policy: .never)
-        }
         let entry = await buildEntry(for: configuration)
         let nextRefresh = Date().addingTimeInterval(10 * 60)
         return Timeline(entries: [entry], policy: .after(nextRefresh))
@@ -226,13 +215,13 @@ struct StationDepartureProvider: AppIntentTimelineProvider {
             graphqlURL: graphqlURL
         )
 
-        let relevanceScore: Float = {
+        let relevance: TimelineEntryRelevance? = {
             guard let firstDep = result?.first,
-                  let depDate = WidgetDataProvider.parseISO8601(firstDep.effectiveTimeISO) else { return 1.0 }
+                  let depDate = WidgetDataProvider.parseISO8601(firstDep.effectiveTimeISO) else { return nil }
             let mins = depDate.timeIntervalSince(Date()) / 60
-            if mins < 5 { return 10.0 }
-            if mins < 20 { return 5.0 }
-            return 1.0
+            if mins < 5 { return TimelineEntryRelevance(score: 10.0, duration: 5 * 60) }
+            if mins < 20 { return TimelineEntryRelevance(score: 5.0, duration: 5 * 60) }
+            return TimelineEntryRelevance(score: 1.0, duration: 5 * 60)
         }()
 
         return StationDepartureEntry(
@@ -242,7 +231,7 @@ struct StationDepartureProvider: AppIntentTimelineProvider {
             departures: result ?? [],
             errorState: result == nil ? .networkError : nil,
             isPlaceholder: false,
-            relevance: TimelineEntryRelevance(score: relevanceScore, duration: 5 * 60)
+            relevance: relevance
         )
     }
 }

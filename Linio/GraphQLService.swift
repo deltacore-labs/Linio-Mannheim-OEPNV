@@ -14,16 +14,11 @@ struct Station: Identifiable, Codable, Equatable {
     let hafasID: String
     let globalID: String
     let longName: String
+    let latitude: Double?
+    let longitude: Double?
 
     /// Stabile ID basierend auf globalID – verhindert doppelte SwiftUI-Redraws nach Decode
     var id: String { globalID }
-}
-
-struct Trip: Identifiable, Codable {
-    var id = UUID()
-    let startTime: String
-    let endTime: String
-    let interchanges: Int
 }
 
 // MARK: - Leg Type Enum (replaces raw strings)
@@ -315,7 +310,6 @@ class GraphQLService: ObservableObject {
     static let shared = GraphQLService()
 
     @Published var stations: [Station] = []
-    @Published var trips: [Trip] = []
     @Published var detailedTrips: [DetailedTrip] = []
     @Published var isLoading = false
     @Published var lastError: GraphQLError?
@@ -386,8 +380,7 @@ class GraphQLService: ObservableObject {
     
     // MARK: - Query Execution
     
-    /// Base implementation of query execution. Subclasses (e.g. SecureGraphQLService)
-    /// can override this to add SSL pinning, request signing, etc.
+    /// Executes a GraphQL query and returns the raw response data.
     internal func executeQuery(query: String, accessToken: String) async throws -> Data {
         guard let url = URL(string: baseURL) else {
             throw GraphQLError(message: "Ungültige URL: \(baseURL)")
@@ -423,19 +416,11 @@ class GraphQLService: ObservableObject {
                 if httpResponse.statusCode == 401 {
                     plog("executeQuery: HTTP 401 – Token erneuern und erneut versuchen")
                     await AuthService.shared.autoAuthenticate()
-                    guard let newToken = AuthService.shared.accessToken else {
+                    guard AuthService.shared.isAuthenticated,
+                          let newToken = AuthService.shared.accessToken else {
                         throw GraphQLError(message: "HTTP-Fehler: 401")
                     }
-                    var retryRequest = request
-                    retryRequest.setValue("Bearer \(newToken)", forHTTPHeaderField: "Authorization")
-                    let (retryData, retryResponse) = try await URLSession.shared.data(for: retryRequest)
-                    if let retryHTTP = retryResponse as? HTTPURLResponse,
-                       !(200...299).contains(retryHTTP.statusCode) {
-                        let retryBody = String(data: retryData.prefix(500), encoding: .utf8) ?? "?"
-                        plog("executeQuery: Retry HTTP \(retryHTTP.statusCode) – \(retryBody)")
-                        throw GraphQLError(message: "HTTP-Fehler: \(retryHTTP.statusCode)")
-                    }
-                    return retryData
+                    return try await executeQuery(query: query, accessToken: newToken)
                 }
                 throw GraphQLError(message: "HTTP-Fehler: \(httpResponse.statusCode)")
             }
@@ -464,30 +449,36 @@ class GraphQLService: ObservableObject {
                 hafasID
                 globalID
                 longName
+                location {
+                  lat
+                  long
+                }
               }
             }
           }
         }
         """
-        
+
         do {
             let data = try await executeQuery(query: query, accessToken: accessToken)
-            
+
             if let gqlError = extractGraphQLErrors(from: data) {
                 lastError = gqlError
             }
-            
+
             if let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
                let responseData = json["data"] as? [String: Any],
                let stations = responseData["stations"] as? [String: Any],
                let elements = stations["elements"] as? [[String: Any]] {
-                
+
                 self.stations = elements.compactMap { element -> Station? in
                     guard let hafasID = element["hafasID"] as? String,
                           let globalID = element["globalID"] as? String,
                           let longName = element["longName"] as? String else { return nil }
-                    return Station(hafasID: hafasID, globalID: globalID, longName: longName)
-                    
+                    let locationObj = element["location"] as? [String: Any]
+                    let lat = locationObj?["lat"] as? Double
+                    let lon = locationObj?["long"] as? Double
+                    return Station(hafasID: hafasID, globalID: globalID, longName: longName, latitude: lat, longitude: lon)
                 }
             }
         } catch {
@@ -513,6 +504,10 @@ class GraphQLService: ObservableObject {
                 hafasID
                 globalID
                 longName
+                location {
+                  lat
+                  long
+                }
               }
             }
           }
@@ -535,7 +530,10 @@ class GraphQLService: ObservableObject {
                     guard let hafasID = element["hafasID"] as? String,
                           let globalID = element["globalID"] as? String,
                           let longName = element["longName"] as? String else { return nil }
-                    return Station(hafasID: hafasID, globalID: globalID, longName: longName)
+                    let locationObj = element["location"] as? [String: Any]
+                    let lat = locationObj?["lat"] as? Double
+                    let lon = locationObj?["long"] as? Double
+                    return Station(hafasID: hafasID, globalID: globalID, longName: longName, latitude: lat, longitude: lon)
                 }
             }
         } catch {
@@ -606,7 +604,7 @@ class GraphQLService: ObservableObject {
         if let arrival = arrivalTime {
             timeArgument = "arrivalTime: \"\(sanitize(arrival))\""
         } else {
-            let t = departureTime ?? ISO8601DateFormatter().string(from: Date())
+            let t = departureTime ?? DateFormattingHelper.shared.formatISO8601(Date())
             timeArgument = "departureTime: \"\(sanitize(t))\""
         }
 
@@ -644,6 +642,12 @@ class GraphQLService: ObservableObject {
                     ... on StopPoint {
                       ref
                       stopPointName
+                      station {
+                        location {
+                          lat
+                          long
+                        }
+                      }
                     }
                   }
                   estimatedTime {
@@ -658,6 +662,12 @@ class GraphQLService: ObservableObject {
                     ... on StopPoint {
                       ref
                       stopPointName
+                      station {
+                        location {
+                          lat
+                          long
+                        }
+                      }
                     }
                   }
                   estimatedTime {
@@ -671,6 +681,12 @@ class GraphQLService: ObservableObject {
                   point {
                     ... on StopPoint {
                       stopPointName
+                      station {
+                        location {
+                          lat
+                          long
+                        }
+                      }
                     }
                   }
                 }
@@ -725,6 +741,12 @@ class GraphQLService: ObservableObject {
 
                             let boardPoint = board["point"] as? [String: Any]
                             let alightPoint = alight["point"] as? [String: Any]
+                            let boardLocationObj = (boardPoint?["station"] as? [String: Any])?["location"] as? [String: Any]
+                            let boardLat = boardLocationObj?["lat"] as? Double
+                            let boardLon = boardLocationObj?["long"] as? Double
+                            let alightLocationObj = (alightPoint?["station"] as? [String: Any])?["location"] as? [String: Any]
+                            let alightLat = alightLocationObj?["lat"] as? Double
+                            let alightLon = alightLocationObj?["long"] as? Double
                             let boardTimetabled = board["timetabledTime"] as? [String: Any]
                             let boardEstimated = board["estimatedTime"] as? [String: Any]
                             let alightTimetabled = alight["timetabledTime"] as? [String: Any]
@@ -735,13 +757,15 @@ class GraphQLService: ObservableObject {
                                 guard let point = intermediate["point"] as? [String: Any],
                                       let name = point["stopPointName"] as? String
                                 else { return nil }
+                                let stationObj = point["station"] as? [String: Any]
+                                let locObj = stationObj?["location"] as? [String: Any]
                                 return IntermediateStop(
                                     name: name,
                                     scheduledTime: "",
                                     estimatedTime: nil,
                                     occupancy: nil,
-                                    latitude: nil,
-                                    longitude: nil
+                                    latitude: locObj?["lat"] as? Double,
+                                    longitude: locObj?["long"] as? Double
                                 )
                             }
 
@@ -759,7 +783,11 @@ class GraphQLService: ObservableObject {
                                 serviceDescription: service["description"] as? String,
                                 destinationLabel: service["destinationLabel"] as? String,
                                 intermediateStops: parsedIntermediates,
-                                boardRef: boardPoint?["ref"] as? String
+                                boardRef: boardPoint?["ref"] as? String,
+                                boardLatitude: boardLat,
+                                boardLongitude: boardLon,
+                                alightLatitude: alightLat,
+                                alightLongitude: alightLon
                             )
                         } else if let legMode = leg["mode"] as? String {
                             return TripLeg(
@@ -808,7 +836,7 @@ class GraphQLService: ObservableObject {
     private static let hubIDsCacheTTL: TimeInterval = 86400 // 24h
 
     func getDepartures(station: Station, accessToken: String, time: String? = nil) async -> DeparturesResult {
-        let searchTime = time ?? ISO8601DateFormatter().string(from: Date())
+        let searchTime = time ?? DateFormattingHelper.shared.formatISO8601(Date())
 
         // Primär: native journeys-API mit Auslastung (erfordert hafasID)
         if !station.hafasID.isEmpty {
@@ -859,7 +887,7 @@ class GraphQLService: ObservableObject {
 
     /// Kompatibilitäts-Überladung für Watch-Connectivity (hat nur globalID, kein hafasID)
     func getDepartures(globalID: String, accessToken: String, time: String? = nil) async -> DeparturesResult {
-        let station = Station(hafasID: "", globalID: globalID, longName: "")
+        let station = Station(hafasID: "", globalID: globalID, longName: "", latitude: nil, longitude: nil)
         return await getDepartures(station: station, accessToken: accessToken, time: time)
     }
 
@@ -885,6 +913,10 @@ class GraphQLService: ObservableObject {
                 hafasID
                 globalID
                 longName
+                location {
+                  lat
+                  long
+                }
               }
             }
           }
@@ -900,7 +932,10 @@ class GraphQLService: ObservableObject {
               let globalID = first["globalID"] as? String,
               let longName = first["longName"] as? String
         else { return nil }
-        return Station(hafasID: hafasID, globalID: globalID, longName: longName)
+        let locationObj = first["location"] as? [String: Any]
+        let lat = locationObj?["lat"] as? Double
+        let lon = locationObj?["long"] as? Double
+        return Station(hafasID: hafasID, globalID: globalID, longName: longName, latitude: lat, longitude: lon)
     }
 
     /// Sucht eine Station anhand des Namens und gibt die zurück deren globalID übereinstimmt.
@@ -943,7 +978,7 @@ class GraphQLService: ObservableObject {
                   let longName = element["longName"] as? String,
                   gID == globalID else { continue }
             plog("resolveStation: exakter Match – hafasID=\(hafasID)")
-            return Station(hafasID: hafasID, globalID: gID, longName: longName)
+            return Station(hafasID: hafasID, globalID: gID, longName: longName, latitude: nil, longitude: nil)
         }
 
         // Fallback: erstes Ergebnis nutzen (hafasID übernehmen, Watch-globalID behalten)
@@ -951,7 +986,7 @@ class GraphQLService: ObservableObject {
            let hafasID = first["hafasID"] as? String,
            !hafasID.isEmpty {
             plog("resolveStation: kein exakter Match für '\(globalID)', nutze erstes Ergebnis hafasID=\(hafasID)")
-            return Station(hafasID: hafasID, globalID: globalID, longName: name)
+            return Station(hafasID: hafasID, globalID: globalID, longName: name, latitude: nil, longitude: nil)
         }
 
         plog("resolveStation: kein verwendbares Ergebnis gefunden")
@@ -973,6 +1008,12 @@ class GraphQLService: ObservableObject {
                     ... on StopPoint {
                       stopPointName
                       ref
+                      station {
+                        location {
+                          lat
+                          long
+                        }
+                      }
                     }
                   }
                   timetabledTime { isoString }
@@ -982,6 +1023,12 @@ class GraphQLService: ObservableObject {
                   point {
                     ... on StopPoint {
                       stopPointName
+                      station {
+                        location {
+                          lat
+                          long
+                        }
+                      }
                     }
                   }
                   timetabledTime { isoString }
@@ -991,6 +1038,12 @@ class GraphQLService: ObservableObject {
                   point {
                     ... on StopPoint {
                       stopPointName
+                      station {
+                        location {
+                          lat
+                          long
+                        }
+                      }
                     }
                   }
                 }
@@ -1098,16 +1151,6 @@ class GraphQLService: ObservableObject {
         return (match.intermediateStops, match.finalStop)
     }
 
-    // MARK: - Live Updates
-
-    func getLiveTripUpdates(tripId: String, accessToken: String) async -> DetailedTrip? {
-        #if DEBUG
-        print("🔄 [GraphQL] Rufe Live-Updates ab für Trip: \(tripId)")
-        print("⚠️ [GraphQL] Live-Update API noch nicht implementiert")
-        #endif
-        return nil
-    }
-
     // MARK: - Departures via station(id).journeys (native API mit Auslastung)
 
     func getDeparturesViaJourneys(hafasID: String, accessToken: String, time: String) async -> DeparturesResult {
@@ -1144,6 +1187,12 @@ class GraphQLService: ObservableObject {
                   allStops: stops {
                     station {
                       longName
+                    }
+                    plannedDeparture {
+                      isoString
+                    }
+                    realtimeDeparture {
+                      isoString
                     }
                   }
                 }
@@ -1244,12 +1293,49 @@ class GraphQLService: ObservableObject {
             let quayText = platformLabel.map { "Steig \($0)" }
             plog("getDeparturesViaJourneys: Linie \(lineName) platform.label=\(platformLabel ?? "–") quayText=\(quayText ?? "–")")
 
+            // allStops → boardStopName + intermediateStops + finalStop
+            // Der Stop mit gleicher plannedDeparture wie die boardStop-Zeit ist der Einsteige-Halt.
+            // Alle Stops danach sind Folgehalte; letzter Stop ist finalStop.
+            let boardTime = planned
+            var seenBoard = false
+            var boardStopName: String? = nil
+            var intermediateStops: [DepartureStop] = []
+            var finalStop: DepartureStop? = nil
+
+            for stop in allStops {
+                guard let stationObj = stop["station"] as? [String: Any],
+                      let name = stationObj["longName"] as? String,
+                      !name.isEmpty, name != "null" else { continue }
+
+                let rawPlanned = (stop["plannedDeparture"] as? [String: Any])?["isoString"] as? String
+                let stopPlanned: String? = (rawPlanned == "null" || rawPlanned?.isEmpty == true) ? nil : rawPlanned
+                let rawRealtime = (stop["realtimeDeparture"] as? [String: Any])?["isoString"] as? String
+                let stopRealtime: String? = (rawRealtime == "null" || rawRealtime?.isEmpty == true) ? nil : rawRealtime
+
+                if !seenBoard {
+                    if stopPlanned == boardTime {
+                        seenBoard = true
+                        boardStopName = name
+                    }
+                    continue
+                }
+                intermediateStops.append(DepartureStop(name: name, scheduledTime: stopPlanned, estimatedTime: stopRealtime))
+            }
+
+            // Letzten Stop als Endhaltestelle herausnehmen
+            if !intermediateStops.isEmpty {
+                finalStop = intermediateStops.removeLast()
+            }
+
             var departure = Departure(
                 scheduledDeparture: planned,
                 estimatedDeparture: effectiveRealtime,
                 lineName: lineName,
                 direction: destinationName,
                 serviceType: serviceType,
+                boardStopName: boardStopName,
+                intermediateStops: intermediateStops,
+                finalStop: finalStop,
                 occupancy: occupancy
             )
             departure.quayText = quayText

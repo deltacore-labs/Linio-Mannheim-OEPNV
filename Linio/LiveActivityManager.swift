@@ -8,6 +8,7 @@ import ActivityKit
 import Combine
 import BackgroundTasks
 import UIKit
+import WidgetKit
 
 @available(iOS 16.2, *)
 @MainActor
@@ -27,6 +28,7 @@ class LiveActivityManager: ObservableObject {
     private var accessToken: String = ""
     private let formatter = DateFormattingHelper.shared
     private var notificationObservers: [Any] = []
+    private var isInBackground = false
 
     /// BGTask Identifier – muss auch in Info.plist unter BGTaskSchedulerPermittedIdentifiers stehen
     nonisolated static let backgroundTaskIdentifier = "com.stefanfriedrich.rnvapp.liveactivity.refresh"
@@ -166,6 +168,9 @@ class LiveActivityManager: ObservableObject {
                 print("✅ [BG] Activity aktualisiert: Phase → \(newPhase)")
                 #endif
             }
+
+            // Nur das Abfahrts-Widget neu laden, nicht alle
+            WidgetCenter.shared.reloadTimelines(ofKind: "StationDepartureWidget")
 
             // Beende Activity wenn angekommen
             if isArrived {
@@ -567,7 +572,12 @@ class LiveActivityManager: ObservableObject {
         
         let tripId = trip.id.uuidString
         updateTimers[tripId]?.invalidate()
-        
+
+        guard !isInBackground else {
+            updateTimers.removeValue(forKey: tripId)
+            return
+        }
+
         let nextTimer = Timer.scheduledTimer(withTimeInterval: nextInterval, repeats: false) { [weak self] _ in
             Task { @MainActor in
                 await self?.fetchAndUpdateLiveActivity(trip: trip)
@@ -600,6 +610,7 @@ class LiveActivityManager: ObservableObject {
     // MARK: - App Lifecycle
 
     private func handleDidEnterBackground() {
+        isInBackground = true
         #if DEBUG
         print("📱 [LIFECYCLE] App geht in den Hintergrund")
         #endif
@@ -616,6 +627,7 @@ class LiveActivityManager: ObservableObject {
     }
 
     private func handleWillEnterForeground() {
+        isInBackground = false
         #if DEBUG
         print("📱 [LIFECYCLE] App kommt in den Vordergrund")
         #endif
@@ -733,13 +745,13 @@ class LiveActivityManager: ObservableObject {
             else if timeUntilDeparture > 120 { return 30 }
             else if timeUntilDeparture > 30 { return 10 }
             // Ganz kurz vor Abfahrt: genau zur Abfahrt updaten
-            else { return max(1, timeUntilDeparture) }
+            else { return max(5, timeUntilDeparture) }
         } else if timeUntilArrival > 0 {
             // Während der Fahrt
             if timeUntilArrival > 600 { return 30 }
             else if timeUntilArrival > 120 { return 15 }
             // Kurz vor Ankunft: genau zur Ankunft updaten
-            else { return max(1, timeUntilArrival) }
+            else { return max(5, timeUntilArrival) }
         }
 
         return 60

@@ -389,12 +389,15 @@ struct StationPickerView: View {
         let (city, stopName) = extractCityAndStop(station.longName)
 
         HStack(spacing: 14) {
-            Image(systemName: "tram.fill")
-                .font(.system(size: 14, weight: .medium))
-                .foregroundStyle(AppTheme.primary)
-                .accessibilityHidden(true)
-                .frame(width: 38, height: 38)
-                .background(Circle().fill(AppTheme.primary.opacity(0.07)))
+            ZStack {
+                Circle()
+                    .fill(AppTheme.primary.opacity(0.07))
+                    .frame(width: 38, height: 38)
+                Image(systemName: "tram.fill")
+                    .font(.system(size: 14, weight: .medium))
+                    .foregroundStyle(AppTheme.primary)
+                    .accessibilityHidden(true)
+            }
 
             VStack(alignment: .leading, spacing: 2) {
                 Text(city != nil ? stopName : station.longName)

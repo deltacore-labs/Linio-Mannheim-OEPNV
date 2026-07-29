@@ -151,3 +151,8 @@ tmp/
 # ========================================
 Generated/
 Scripts/output/
+
+# ========================================
+# Superpowers (lokale Planung, kein Git)
+# ========================================
+docs/superpowers/

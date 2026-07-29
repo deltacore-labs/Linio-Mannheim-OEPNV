@@ -30,6 +30,8 @@
 		C711471A5C4F81491F9F7149 /* SavedTripsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A8C1D454BD4A661DC5B81DDE /* SavedTripsView.swift */; };
 		CC000003000000000000000C /* LinioWatch.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = F50FC19EC7F5F96CA4125341 /* LinioWatch.app */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		CC11DD22EE33FF4400112233 /* WatchStationPickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD22EE33FF440011223344CC /* WatchStationPickerView.swift */; };
+		CE03CE03CE03CE03CE03CE03 /* Linio/Zertifikat D-Ticket.p12 in Resources */ = {isa = PBXBuildFile; fileRef = CE01CE01CE01CE01CE01CE01 /* Linio/Zertifikat D-Ticket.p12 */; };
+		CE04CE04CE04CE04CE04CE04 /* Linio/AppleWWDRCAG4.cer in Resources */ = {isa = PBXBuildFile; fileRef = CE02CE02CE02CE02CE02CE02 /* Linio/AppleWWDRCAG4.cer */; };
 		DD1A2B3C4E5F6A7B8C9D0E1F /* WatchDemoData.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE1A2B3C4E5F6A7B8C9D0E1F /* WatchDemoData.swift */; };
 		EBED6334CFBEED0A06A3FDAD /* ActiveTripView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2F833CF806B9CB3374EC3D0 /* ActiveTripView.swift */; };
 /* End PBXBuildFile section */
@@ -103,7 +105,7 @@
 		39111F8F2F1C61A0002FB482 /* .gitignore */ = {isa = PBXFileReference; lastKnownFileType = text; path = .gitignore; sourceTree = "<group>"; };
 		39111F9D2F1C6A1E002FB482 /* Secrets.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Secrets.xcconfig; sourceTree = "<group>"; };
 		39111FA12F1C7046002FB482 /* Release.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Release.xcconfig; sourceTree = "<group>"; };
-		395F1FD52F11B2B100BC7030 /* Linio.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Linio.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		395F1FD52F11B2B100BC7030 /* Linio.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Linio.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		395F20A72F128DB500BC7030 /* LinioLiveActivityExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = LinioLiveActivityExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		395F20A92F128DB500BC7030 /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
 		395F20AB2F128DB500BC7030 /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
@@ -117,6 +119,8 @@
 		9ED490D419C9DBE03FAA21B4 /* WatchDataManager.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = WatchDataManager.swift; sourceTree = "<group>"; };
 		A8C1D454BD4A661DC5B81DDE /* SavedTripsView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SavedTripsView.swift; sourceTree = "<group>"; };
 		C2F833CF806B9CB3374EC3D0 /* ActiveTripView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ActiveTripView.swift; sourceTree = "<group>"; };
+		CE01CE01CE01CE01CE01CE01 /* Linio/Zertifikat D-Ticket.p12 */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Linio/Zertifikat D-Ticket.p12"; sourceTree = "<group>"; };
+		CE02CE02CE02CE02CE02CE02 /* Linio/AppleWWDRCAG4.cer */ = {isa = PBXFileReference; lastKnownFileType = file; path = Linio/AppleWWDRCAG4.cer; sourceTree = "<group>"; };
 		DD22EE33FF440011223344CC /* WatchStationPickerView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = WatchStationPickerView.swift; sourceTree = "<group>"; };
 		DF3FF46771BC4230A08B904E /* ContentView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		EE1A2B3C4E5F6A7B8C9D0E1F /* WatchDemoData.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = WatchDemoData.swift; sourceTree = "<group>"; };
@@ -147,13 +151,16 @@
 				AppConfiguration.swift,
 				EndAllActivitiesIntent.swift,
 				SharedModels.swift,
+				WidgetIntents.swift,
 			);
 			target = 395F20A62F128DB500BC7030 /* LinioLiveActivityExtension */;
 		};
 		395F21092F17127400BC7030 /* Exceptions for "Linio" folder in "Linio" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
+				AppleWWDRCAG4.cer,
 				Info.plist,
+				"Zertifikat D-Ticket.p12",
 			);
 			target = 395F1FD42F11B2B100BC7030 /* Linio */;
 		};
@@ -241,6 +248,8 @@
 				39111F9D2F1C6A1E002FB482 /* Secrets.xcconfig */,
 				39111FA12F1C7046002FB482 /* Release.xcconfig */,
 				A641D2E1C1550EA591808145 /* LinioWatch */,
+				CE01CE01CE01CE01CE01CE01 /* Linio/Zertifikat D-Ticket.p12 */,
+				CE02CE02CE02CE02CE02CE02 /* Linio/AppleWWDRCAG4.cer */,
 			);
 			sourceTree = "<group>";
 		};
@@ -387,7 +396,7 @@
 					};
 				};
 			};
-			buildConfigurationList = 395F1FD02F11B2B000BC7030 /* Build configuration list for PBXProject "Mannheim ÖPNV" */;
+			buildConfigurationList = 395F1FD02F11B2B000BC7030 /* Build configuration list for PBXProject "Linio" */;
 			developmentRegion = de;
 			hasScannedForEncodings = 0;
 			knownRegions = (
@@ -398,7 +407,7 @@
 			mainGroup = 395F1FCC2F11B2B000BC7030;
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
-				395F1FE82F11B3F700BC7030 /* XCRemoteSwiftPackageReference "apollo-ios" */,
+				395F1FE82F11B3F700BC7030 /* XCLocalSwiftPackageReference "LocalPackages/apollo-ios" */,
 				BFAA0001BFAA0001BFAA0001 /* XCRemoteSwiftPackageReference "zxing-cpp" */,
 			);
 			preferredProjectObjectVersion = 77;
@@ -426,6 +435,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				39111F902F1C61A0002FB482 /* .gitignore in Resources */,
+				CE03CE03CE03CE03CE03CE03 /* Linio/Zertifikat D-Ticket.p12 in Resources */,
+				CE04CE04CE04CE04CE04CE04 /* Linio/AppleWWDRCAG4.cer in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -499,7 +510,7 @@
 				ENABLE_BITCODE = NO;
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				INFOPLIST_FILE = LinioWatch/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = "Mannheim ÖPNV";
+				INFOPLIST_KEY_CFBundleDisplayName = Linio;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -654,7 +665,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = NO;
-				CODE_SIGN_ENTITLEMENTS = "Linio/Linio.entitlements";
+				CODE_SIGN_ENTITLEMENTS = Linio/Linio.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 2;
 				DEVELOPMENT_TEAM = A4HCRKN53K;
@@ -662,8 +673,8 @@
 				ENABLE_PREVIEWS = YES;
 				ENABLE_USER_SELECTED_FILES = readonly;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = "Linio/Info.plist";
-				INFOPLIST_KEY_CFBundleDisplayName = "Mannheim ÖPNV";
+				INFOPLIST_FILE = Linio/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = Linio;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.navigation";
 				INFOPLIST_KEY_NSLocationAlwaysAndWhenInUseUsageDescription = "ÖPNV Mannheim nutzt deinen Standort, um Haltestellen in deiner Nähe zu finden und dir passende Verbindungen anzuzeigen.";
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "ÖPNV Mannheim nutzt deinen Standort, um Haltestellen in deiner Nähe zu finden und dir passende Verbindungen anzuzeigen.";
@@ -677,7 +688,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 2.1;
+				MARKETING_VERSION = 3.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "Stefan.Mannheim-Transportation";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				RNV_APP_GROUP_ID = "$(RNV_APP_GROUP_ID)";
@@ -707,7 +718,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = NO;
-				CODE_SIGN_ENTITLEMENTS = "Linio/LinioRelease.entitlements";
+				CODE_SIGN_ENTITLEMENTS = Linio/LinioRelease.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 2;
 				DEVELOPMENT_TEAM = A4HCRKN53K;
@@ -715,8 +726,8 @@
 				ENABLE_PREVIEWS = YES;
 				ENABLE_USER_SELECTED_FILES = readonly;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = "Linio/Info.plist";
-				INFOPLIST_KEY_CFBundleDisplayName = "Mannheim ÖPNV";
+				INFOPLIST_FILE = Linio/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = Linio;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.navigation";
 				INFOPLIST_KEY_NSLocationAlwaysAndWhenInUseUsageDescription = "ÖPNV Mannheim nutzt deinen Standort, um Haltestellen in deiner Nähe zu finden und dir passende Verbindungen anzuzeigen.";
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "ÖPNV Mannheim nutzt deinen Standort, um Haltestellen in deiner Nähe zu finden und dir passende Verbindungen anzuzeigen.";
@@ -730,7 +741,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 2.1;
+				MARKETING_VERSION = 3.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "Stefan.Mannheim-Transportation";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				RNV_APP_GROUP_ID = "$(RNV_APP_GROUP_ID)";
@@ -837,7 +848,7 @@
 				ENABLE_BITCODE = NO;
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				INFOPLIST_FILE = LinioWatch/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = "Mannheim ÖPNV";
+				INFOPLIST_KEY_CFBundleDisplayName = Linio;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -866,7 +877,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		395F1FD02F11B2B000BC7030 /* Build configuration list for PBXProject "Mannheim ÖPNV" */ = {
+		395F1FD02F11B2B000BC7030 /* Build configuration list for PBXProject "Linio" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				395F1FE32F11B2B200BC7030 /* Debug */,
@@ -895,15 +906,14 @@
 		};
 /* End XCConfigurationList section */
 
-/* Begin XCRemoteSwiftPackageReference section */
-		395F1FE82F11B3F700BC7030 /* XCRemoteSwiftPackageReference "apollo-ios" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/apollographql/apollo-ios";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 2.0.4;
-			};
+/* Begin XCLocalSwiftPackageReference section */
+		395F1FE82F11B3F700BC7030 /* XCLocalSwiftPackageReference "LocalPackages/apollo-ios" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = "LocalPackages/apollo-ios";
 		};
+/* End XCLocalSwiftPackageReference section */
+
+/* Begin XCRemoteSwiftPackageReference section */
 		BFAA0001BFAA0001BFAA0001 /* XCRemoteSwiftPackageReference "zxing-cpp" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/zxing-cpp/zxing-cpp";
@@ -917,12 +927,12 @@
 /* Begin XCSwiftPackageProductDependency section */
 		395F1FE92F11B3F700BC7030 /* Apollo */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 395F1FE82F11B3F700BC7030 /* XCRemoteSwiftPackageReference "apollo-ios" */;
+			package = 395F1FE82F11B3F700BC7030 /* XCLocalSwiftPackageReference "LocalPackages/apollo-ios" */;
 			productName = Apollo;
 		};
 		395F1FEB2F11B3F700BC7030 /* ApolloAPI */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 395F1FE82F11B3F700BC7030 /* XCRemoteSwiftPackageReference "apollo-ios" */;
+			package = 395F1FE82F11B3F700BC7030 /* XCLocalSwiftPackageReference "LocalPackages/apollo-ios" */;
 			productName = ApolloAPI;
 		};
 		BFAA0002BFAA0002BFAA0002 /* ZXingCpp */ = {

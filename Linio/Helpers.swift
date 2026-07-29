@@ -32,14 +32,6 @@ final class DateFormattingHelper: @unchecked Sendable {
         return formatter
     }()
 
-    private let fullDateTimeFormatter: DateFormatter = {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "dd.MM.yyyy HH:mm"
-        formatter.timeZone = .current
-        formatter.locale = Locale(identifier: "de_DE")
-        return formatter
-    }()
-
     private static let iso8601WithFractionalSeconds: ISO8601DateFormatter = {
         let formatter = ISO8601DateFormatter()
         formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
@@ -51,6 +43,14 @@ final class DateFormattingHelper: @unchecked Sendable {
         formatter.formatOptions = [.withInternetDateTime]
         return formatter
     }()
+
+    // MARK: - Formatting
+
+    func formatISO8601(_ date: Date) -> String {
+        lock.lock()
+        defer { lock.unlock() }
+        return Self.iso8601WithoutFractionalSeconds.string(from: date)
+    }
 
     // MARK: - Parsing
 
@@ -83,13 +83,6 @@ final class DateFormattingHelper: @unchecked Sendable {
         lock.lock()
         defer { lock.unlock() }
         return dateFormatter.string(from: date)
-    }
-
-    func formatDateTime(_ isoString: String) -> String {
-        guard let date = parseISO8601(isoString) else { return isoString }
-        lock.lock()
-        defer { lock.unlock() }
-        return fullDateTimeFormatter.string(from: date)
     }
 
     private static let shortDateFormatter: DateFormatter = {
@@ -128,13 +121,6 @@ final class DateFormattingHelper: @unchecked Sendable {
         }
         fullDateFormatter.dateFormat = "dd.MM.yyyy"
         return nil
-    }
-
-    func formatTimeRemaining(_ timeInterval: TimeInterval) -> String {
-        let totalSeconds = max(0, Int(timeInterval))
-        let minutes = totalSeconds / 60
-        let seconds = totalSeconds % 60
-        return minutes > 0 ? String(format: "%d:%02d", minutes, seconds) : String(format: "0:%02d", seconds)
     }
 
     // MARK: - Delay Calculation
@@ -330,11 +316,6 @@ struct HapticHelper {
     static func impact(_ style: UIImpactFeedbackGenerator.FeedbackStyle = .medium) {
         let generator = UIImpactFeedbackGenerator(style: style)
         generator.impactOccurred()
-    }
-
-    static func notification(_ type: UINotificationFeedbackGenerator.FeedbackType) {
-        let generator = UINotificationFeedbackGenerator()
-        generator.notificationOccurred(type)
     }
 
     static func selection() {

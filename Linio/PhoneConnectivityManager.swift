@@ -204,7 +204,7 @@ extension PhoneConnectivityManager: WCSessionDelegate {
             station = resolved
             plog("fetchAndReply: Station aufgelöst – hafasID=\(resolved.hafasID)")
         } else {
-            station = Station(hafasID: "", globalID: stationID, longName: stationName)
+            station = Station(hafasID: "", globalID: stationID, longName: stationName, latitude: nil, longitude: nil)
             plog("fetchAndReply: Station nicht auflösbar, nutze globalID direkt")
         }
 

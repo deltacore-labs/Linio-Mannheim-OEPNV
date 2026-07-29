@@ -424,3 +424,58 @@ struct PlannedTripDetailSheet: View {
         )
     }
 }
+
+#Preview {
+    let legs: [TripLegData] = [
+        TripLegData(
+            legType: "TimedLeg",
+            boardStopName: "Paradeplatz",
+            alightStopName: "Hauptbahnhof",
+            departureTime: "2026-06-07T16:05:00.000Z",
+            arrivalTime: "2026-06-07T16:18:00.000Z",
+            serviceName: "3",
+            serviceType: "STRASSENBAHN",
+            destinationLabel: "Sandhofen",
+            intermediateStopNames: ["Wasserturm", "Tattersall", "Alte Feuerwache"]
+        ),
+        TripLegData(
+            legType: "continuousLeg",
+            boardStopName: nil,
+            alightStopName: nil,
+            departureTime: "2026-06-07T16:18:00.000Z",
+            arrivalTime: "2026-06-07T16:22:00.000Z",
+            serviceName: "Fußweg",
+            serviceType: nil,
+            destinationLabel: nil,
+            intermediateStopNames: nil
+        ),
+        TripLegData(
+            legType: "TimedLeg",
+            boardStopName: "Hauptbahnhof",
+            alightStopName: "Heidelberg Hbf",
+            departureTime: "2026-06-07T16:22:00.000Z",
+            arrivalTime: "2026-06-07T16:48:00.000Z",
+            serviceName: "S3",
+            serviceType: "S_BAHN",
+            destinationLabel: "Heidelberg",
+            intermediateStopNames: nil
+        ),
+    ]
+
+    let tripData = TripData(
+        id: "preview-trip",
+        startTime: "2026-06-07T16:05:00.000Z",
+        endTime: "2026-06-07T16:48:00.000Z",
+        interchanges: 1,
+        startStation: "Paradeplatz",
+        endStation: "Heidelberg Hbf",
+        legs: legs
+    )
+
+    PlannedTripDetailSheet(
+        tripId: "preview-trip",
+        tripData: tripData,
+        onEnd: {}
+    )
+    .environmentObject(LiveActivityManager())
+}

@@ -198,6 +198,8 @@ class AuthService: ObservableObject {
         self.authError = message
         self.isAuthenticating = false
         self.isAuthenticated = false
+        self.accessToken = nil
+        self.tokenExpiryDate = nil
     }
 
     func logout() {

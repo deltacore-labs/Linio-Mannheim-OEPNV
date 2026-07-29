@@ -15,8 +15,8 @@ struct LinioWatchApp: App {
                 .environmentObject(connectivity)
                 .onAppear {
                     dataManager.refresh()
-                    connectivity.onContextUpdated = { [weak dataManager] in
-                        dataManager?.refresh()
+                    connectivity.onContextUpdated = {
+                        dataManager.refresh()
                     }
                     connectivity.requestInitialData()
                 }

@@ -292,12 +292,21 @@ struct NextDepartureProvider: TimelineProvider {
         let trip = WidgetDataProvider.loadNextTrip()
         let now = Date()
         var entries: [NextDepartureEntry] = []
-        for i in 0..<15 {
-            let entryDate = now.addingTimeInterval(Double(i) * 60)
-            entries.append(NextDepartureEntry(date: entryDate, trip: trip, isPlaceholder: false))
+
+        if let trip = trip, let endDate = WidgetDataProvider.parseISO8601(trip.endTime), endDate > now {
+            // Minütliche Einträge bis Trip-Ende
+            var t = now
+            while t < endDate {
+                entries.append(NextDepartureEntry(date: t, trip: trip, isPlaceholder: false))
+                t = t.addingTimeInterval(60)
+            }
+            // Leerer Eintrag direkt nach Trip-Ende → Widget zeigt sofort "kein Trip"
+            entries.append(NextDepartureEntry(date: endDate, trip: nil, isPlaceholder: false))
+            completion(Timeline(entries: entries, policy: .after(endDate)))
+        } else {
+            entries.append(NextDepartureEntry(date: now, trip: nil, isPlaceholder: false))
+            completion(Timeline(entries: entries, policy: .after(now.addingTimeInterval(15 * 60))))
         }
-        let nextRefresh = now.addingTimeInterval(15 * 60)
-        completion(Timeline(entries: entries, policy: .after(nextRefresh)))
     }
 }
 
@@ -537,8 +546,8 @@ struct NextDepartureWidget: Widget {
                     .background()
             }
         }
-        .configurationDisplayName("Nächste Abfahrt")
-        .description("Zeigt deine nächste geplante Fahrt.")
+        .configurationDisplayName("widget.nextDeparture.name")
+        .description("widget.nextDeparture.description")
         .supportedFamilies([.systemSmall, .systemMedium])
     }
 }
@@ -586,12 +595,27 @@ struct ActiveTripsProvider: TimelineProvider {
         let activeTrips = allTrips.filter { activeIds.contains($0.id) }
         let now = Date()
         var entries: [ActiveTripsEntry] = []
-        for i in 0..<15 {
-            let entryDate = now.addingTimeInterval(Double(i) * 60)
-            entries.append(ActiveTripsEntry(date: entryDate, trips: activeTrips, activeCount: activeIds.count))
+
+        // Frühestes Trip-Ende bestimmen
+        let nextEnd = activeTrips
+            .compactMap { WidgetDataProvider.parseISO8601($0.endTime) }
+            .filter { $0 > now }
+            .min()
+
+        if let nextEnd = nextEnd {
+            // Minütliche Einträge bis zum frühesten Trip-Ende
+            var t = now
+            while t < nextEnd {
+                entries.append(ActiveTripsEntry(date: t, trips: activeTrips, activeCount: activeIds.count))
+                t = t.addingTimeInterval(60)
+            }
+            // Leerer Eintrag nach Trip-Ende
+            entries.append(ActiveTripsEntry(date: nextEnd, trips: [], activeCount: 0))
+            completion(Timeline(entries: entries, policy: .after(nextEnd)))
+        } else {
+            entries.append(ActiveTripsEntry(date: now, trips: activeTrips, activeCount: activeIds.count))
+            completion(Timeline(entries: entries, policy: .after(now.addingTimeInterval(15 * 60))))
         }
-        let nextRefresh = now.addingTimeInterval(15 * 60)
-        completion(Timeline(entries: entries, policy: .after(nextRefresh)))
     }
 }
 
@@ -862,8 +886,8 @@ struct ActiveTripsWidget: Widget {
                     .background()
             }
         }
-        .configurationDisplayName("Aktive Fahrten")
-        .description("Übersicht aller aktuell verfolgten Fahrten.")
+        .configurationDisplayName("widget.activeTrips.name")
+        .description("widget.activeTrips.description")
         .supportedFamilies([.systemMedium, .systemLarge])
     }
 }
@@ -997,8 +1021,8 @@ struct QuickSearchWidget: Widget {
                 QuickSearchWidgetView(entry: entry)
             }
         }
-        .configurationDisplayName("Schnellsuche")
-        .description("Öffne die App direkt zur Verbindungssuche.")
+        .configurationDisplayName("widget.quickSearch.name")
+        .description("widget.quickSearch.description")
         .supportedFamilies([.systemSmall])
     }
 }

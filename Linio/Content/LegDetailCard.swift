@@ -642,3 +642,65 @@ struct LegDetailCard: View {
         }
     }
 }
+
+#Preview {
+    let tram = TripLeg(
+        type: .timedLeg,
+        mode: nil,
+        boardStopName: "Paradeplatz",
+        alightStopName: "Hauptbahnhof",
+        departureTime: "2026-06-07T16:05:00.000Z",
+        arrivalTime: "2026-06-07T16:18:00.000Z",
+        estimatedDepartureTime: "2026-06-07T16:07:00.000Z",
+        estimatedArrivalTime: nil,
+        serviceType: "STRASSENBAHN",
+        serviceName: "3",
+        serviceDescription: nil,
+        destinationLabel: "Sandhofen",
+        intermediateStops: [
+            IntermediateStop(name: "Wasserturm", scheduledTime: "2026-06-07T16:08:00.000Z", estimatedTime: nil, occupancy: nil, latitude: nil, longitude: nil),
+            IntermediateStop(name: "Tattersall", scheduledTime: "2026-06-07T16:11:00.000Z", estimatedTime: "2026-06-07T16:13:00.000Z", occupancy: nil, latitude: nil, longitude: nil),
+        ],
+        occupancy: .medium
+    )
+
+    let walk = TripLeg(
+        type: .continuousLeg,
+        mode: "WALK",
+        boardStopName: nil,
+        alightStopName: nil,
+        departureTime: nil,
+        arrivalTime: nil,
+        estimatedDepartureTime: nil,
+        estimatedArrivalTime: nil,
+        serviceType: nil,
+        serviceName: "Fußweg",
+        serviceDescription: nil,
+        destinationLabel: nil
+    )
+
+    let sbahn = TripLeg(
+        type: .timedLeg,
+        mode: nil,
+        boardStopName: "Hauptbahnhof",
+        alightStopName: "Heidelberg Hbf",
+        departureTime: "2026-06-07T16:22:00.000Z",
+        arrivalTime: "2026-06-07T16:48:00.000Z",
+        estimatedDepartureTime: nil,
+        estimatedArrivalTime: nil,
+        serviceType: "S_BAHN",
+        serviceName: "S3",
+        serviceDescription: nil,
+        destinationLabel: "Heidelberg",
+        intermediateStops: [],
+        occupancy: .low
+    )
+
+    ScrollView {
+        VStack(spacing: 12) {
+            TripJourneyView(legs: [tram, walk, sbahn])
+        }
+        .padding()
+    }
+    .background(AppTheme.canvas)
+}

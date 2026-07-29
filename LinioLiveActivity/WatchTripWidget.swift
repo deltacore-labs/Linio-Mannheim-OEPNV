@@ -32,12 +32,19 @@ struct WatchTripProvider: TimelineProvider {
         let trip = WidgetDataProvider.loadNextTrip()
         let now = Date()
         var entries: [WatchTripEntry] = []
-        for i in 0..<15 {
-            let entryDate = now.addingTimeInterval(Double(i) * 60)
-            entries.append(WatchTripEntry(date: entryDate, trip: trip, isPlaceholder: false))
+
+        if let trip = trip, let endDate = WidgetDataProvider.parseISO8601(trip.endTime), endDate > now {
+            var t = now
+            while t < endDate {
+                entries.append(WatchTripEntry(date: t, trip: trip, isPlaceholder: false))
+                t = t.addingTimeInterval(60)
+            }
+            entries.append(WatchTripEntry(date: endDate, trip: nil, isPlaceholder: false))
+            completion(Timeline(entries: entries, policy: .after(endDate)))
+        } else {
+            entries.append(WatchTripEntry(date: now, trip: nil, isPlaceholder: false))
+            completion(Timeline(entries: entries, policy: .after(now.addingTimeInterval(15 * 60))))
         }
-        let nextRefresh = now.addingTimeInterval(15 * 60)
-        completion(Timeline(entries: entries, policy: .after(nextRefresh)))
     }
 }
 
@@ -51,8 +58,8 @@ struct WatchTripWidget: Widget {
             WatchTripWidgetEntryView(entry: entry)
                 .widgetURL(URL(string: "rnv://watch/active-trip"))
         }
-        .configurationDisplayName("Nächste Fahrt")
-        .description("Zeigt deine nächste ÖPNV-Verbindung.")
+        .configurationDisplayName("widget.watchTrip.name")
+        .description("widget.watchTrip.description")
         .supportedFamilies([
             .accessoryRectangular,
             .accessoryCircular,

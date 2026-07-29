@@ -10,10 +10,10 @@ import MapKit
 struct DepartureBoardView: View {
     @ObservedObject var authService: AuthService
     @ObservedObject var locationManager: LocationManager
-
-    @StateObject private var service = GraphQLService()
+    @ObservedObject var service: GraphQLService
     @EnvironmentObject var liveActivityManager: LiveActivityManager
     @ObservedObject private var network = NetworkMonitor.shared
+    @Environment(\.scenePhase) private var scenePhase
 
     @State private var selectedStation: Station?
     @State private var departures: [Departure] = []
@@ -137,6 +137,18 @@ struct DepartureBoardView: View {
             }
             .onChange(of: departureDate) {
                 Task { await loadDepartures() }
+            }
+            .onChange(of: scenePhase) { _, newPhase in
+                switch newPhase {
+                case .active:
+                    guard selectedStation != nil else { return }
+                    Task { await loadDepartures() }
+                    startAutoRefresh()
+                case .background, .inactive:
+                    refreshTask?.cancel()
+                @unknown default:
+                    break
+                }
             }
             .onAppear {
                 loadNearbyStationIfNeeded()
@@ -632,6 +644,7 @@ struct DepartureTripDetailView: View {
     @State private var fullIntermediates: [DepartureStop]?
     @State private var fullFinalStop: DepartureStop?
     @State private var isLoadingFullRoute = false
+    @State private var isRouteExpanded = false
 
     @State private var quays: [StationQuay] = []
     @State private var showSteigSheet = false
@@ -690,6 +703,8 @@ struct DepartureTripDetailView: View {
     }
 
     private func loadFullRoute() async {
+        // Stops already loaded from getDeparturesViaJourneys — no second request needed
+        guard departure.intermediateStops.isEmpty && departure.finalStop == nil else { return }
         guard !departure.originGlobalID.isEmpty,
               let token = authService.accessToken else { return }
         isLoadingFullRoute = true
@@ -909,33 +924,127 @@ struct DepartureTripDetailView: View {
     // MARK: Stop Timeline
 
     private var stopTimelineSection: some View {
-        VStack(alignment: .leading, spacing: 0) {
-            HStack {
-                Text("Streckenverlauf")
-                    .font(.system(size: 11, weight: .semibold))
-                    .foregroundStyle(AppTheme.muted)
-                    .tracking(0.5)
-                    .accessibilityAddTraits(.isHeader)
-                if isLoadingFullRoute {
-                    ProgressView()
-                        .scaleEffect(0.7)
-                        .padding(.leading, 4)
+        let allStops = buildStopList()
+        return VStack(alignment: .leading, spacing: 0) {
+
+            // Tappable header row
+            Button {
+                withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
+                    isRouteExpanded.toggle()
+                }
+                HapticHelper.selection()
+            } label: {
+                HStack {
+                    Text("Streckenverlauf")
+                        .font(.system(size: 11, weight: .semibold))
+                        .foregroundStyle(AppTheme.muted)
+                        .tracking(0.5)
+                    if isLoadingFullRoute {
+                        ProgressView()
+                            .scaleEffect(0.7)
+                            .padding(.leading, 4)
+                    }
+                    Spacer()
+                    if allStops.count > 2 {
+                        HStack(spacing: 4) {
+                            Text(isRouteExpanded ? "Weniger" : "\(allStops.count - 2) Halte")
+                                .font(.system(size: 11, weight: .medium))
+                                .foregroundStyle(AppTheme.muted)
+                            Image(systemName: "chevron.down")
+                                .font(.system(size: 10, weight: .semibold))
+                                .foregroundStyle(AppTheme.muted)
+                                .rotationEffect(.degrees(isRouteExpanded ? 180 : 0))
+                        }
+                    }
+                }
+                .padding(.horizontal, 20)
+                .padding(.top, 20)
+                .padding(.bottom, 16)
+                .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel(isRouteExpanded ? "Streckenverlauf einklappen" : "Streckenverlauf ausklappen, \(allStops.count - 2) Zwischenhalte")
+
+            // First stop always visible
+            if let first = allStops.first {
+                StopTimelineRow(
+                    name: first.name,
+                    time: first.time,
+                    delay: first.delay,
+                    isFirst: true,
+                    isLast: allStops.count == 1,
+                    lineColor: departure.lineColor,
+                    isFinal: first.isFinal
+                )
+            }
+
+            // Intermediate stops — collapsible
+            if allStops.count > 2 {
+                if isRouteExpanded {
+                    ForEach(Array(allStops.dropFirst().dropLast().enumerated()), id: \.offset) { index, stop in
+                        StopTimelineRow(
+                            name: stop.name,
+                            time: stop.time,
+                            delay: stop.delay,
+                            isFirst: false,
+                            isLast: false,
+                            lineColor: departure.lineColor,
+                            isFinal: stop.isFinal
+                        )
+                        .transition(.opacity.combined(with: .move(edge: .top)))
+                    }
+                } else {
+                    // Collapsed: dotted continuation in the timeline column — tap to expand
+                    Button {
+                        withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
+                            isRouteExpanded = true
+                        }
+                        HapticHelper.selection()
+                    } label: {
+                        HStack(spacing: 0) {
+                            ZStack {
+                                // Line from top
+                                Rectangle()
+                                    .fill(departure.lineColor.opacity(0.35))
+                                    .frame(width: 2)
+                                    .frame(maxHeight: .infinity, alignment: .top)
+                                    .padding(.bottom, 10)
+                                // Line to bottom
+                                Rectangle()
+                                    .fill(departure.lineColor.opacity(0.35))
+                                    .frame(width: 2)
+                                    .frame(maxHeight: .infinity, alignment: .bottom)
+                                    .padding(.top, 10)
+                                // Three dots
+                                VStack(spacing: 5) {
+                                    ForEach(0..<3, id: \.self) { _ in
+                                        Circle()
+                                            .fill(departure.lineColor.opacity(0.5))
+                                            .frame(width: 6, height: 6)
+                                    }
+                                }
+                            }
+                            .frame(width: 56)
+                            Spacer()
+                        }
+                        .frame(height: 36)
+                        .contentShape(Rectangle())
+                    }
+                    .buttonStyle(.plain)
+                    .padding(.leading, 20)
                 }
             }
-            .padding(.horizontal, 20)
-            .padding(.top, 20)
-            .padding(.bottom, 16)
 
-            let allStops = buildStopList()
-            ForEach(Array(allStops.enumerated()), id: \.offset) { index, stop in
+            // Last stop always visible (if more than one stop)
+            if allStops.count > 1, let last = allStops.last {
                 StopTimelineRow(
-                    name: stop.name,
-                    time: stop.time,
-                    delay: stop.delay,
-                    isFirst: index == 0,
-                    isLast: index == allStops.count - 1,
+                    name: last.name,
+                    time: last.time,
+                    delay: last.delay,
+                    isFirst: false,
+                    isLast: true,
                     lineColor: departure.lineColor,
-                    isFinal: stop.isFinal
+                    isFinal: last.isFinal
                 )
             }
 
@@ -1075,7 +1184,40 @@ private struct StopTimelineRow: View {
 #Preview {
     DepartureBoardView(
         authService: AuthService(),
-        locationManager: LocationManager()
+        locationManager: LocationManager(),
+        service: GraphQLService()
     )
     .environmentObject(LiveActivityManager())
+}
+
+#Preview("DepartureTripDetailView") {
+    let dep: Departure = {
+        var d = Departure(
+            scheduledDeparture: "2026-06-07T16:05:00.000Z",
+            estimatedDeparture: "2026-06-07T16:07:00.000Z",
+            lineName: "3",
+            direction: "Sandhofen",
+            serviceType: "STRASSENBAHN"
+        )
+        d.boardStopName = "Paradeplatz"
+        d.quayText = "Steig B"
+        d.occupancy = .medium
+        d.intermediateStops = [
+            DepartureStop(name: "Wasserturm", scheduledTime: "2026-06-07T16:08:00.000Z", estimatedTime: nil),
+            DepartureStop(name: "Tattersall", scheduledTime: "2026-06-07T16:11:00.000Z", estimatedTime: "2026-06-07T16:13:00.000Z"),
+            DepartureStop(name: "Alte Feuerwache", scheduledTime: "2026-06-07T16:14:00.000Z", estimatedTime: nil),
+        ]
+        d.finalStop = DepartureStop(name: "Sandhofen", scheduledTime: "2026-06-07T16:28:00.000Z", estimatedTime: nil)
+        return d
+    }()
+
+    let station = Station(hafasID: "2451", globalID: "de:08222:2451", longName: "Paradeplatz", latitude: nil, longitude: nil)
+
+    DepartureTripDetailView(
+        departure: dep,
+        station: station,
+        allDepartures: [dep],
+        graphQLService: GraphQLService(),
+        authService: AuthService()
+    )
 }

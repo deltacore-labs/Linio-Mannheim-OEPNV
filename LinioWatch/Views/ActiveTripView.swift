@@ -1,4 +1,5 @@
 import SwiftUI
+import Combine
 
 struct ActiveTripView: View {
     @EnvironmentObject var dataManager: WatchDataManager

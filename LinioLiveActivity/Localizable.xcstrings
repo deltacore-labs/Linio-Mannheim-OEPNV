@@ -1,0 +1,730 @@
+{
+  "sourceLanguage" : "de",
+  "strings" : {
+    " %@ → %@ %@" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : " %1$@ → %2$@ %3$@"
+          }
+        }
+      }
+    },
+    " %@ Angekommen" : {
+
+    },
+    " %@ in %lld' · %@" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : " %1$@ in %2$lld' · %3$@"
+          }
+        }
+      }
+    },
+    " %@ Jetzt · %@" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : " %1$@ Jetzt · %2$@"
+          }
+        }
+      }
+    },
+    " → " : {
+
+    },
+    " Keine Fahrt" : {
+
+    },
+    "--:--" : {
+
+    },
+    "·" : {
+
+    },
+    "%@" : {
+
+    },
+    "%@ → %@" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$@ → %2$@"
+          }
+        }
+      }
+    },
+    "%lld" : {
+
+    },
+    "%lld aktiv" : {
+
+    },
+    "%lld Umstieg%@" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$lld Umstieg%2$@"
+          }
+        }
+      }
+    },
+    "%lld'" : {
+
+    },
+    "+ %lld weitere" : {
+
+    },
+    "+ %lld weitere Fahrten" : {
+
+    },
+    "+%lld'" : {
+
+    },
+    "+%lldmin" : {
+
+    },
+    "ABFAHRT IN" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "DEPARTS IN"
+          }
+        }
+      }
+    },
+    "Abfahrten" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Departures"
+          }
+        }
+      }
+    },
+    "Abfahrtstafel" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Departure Board"
+          }
+        }
+      }
+    },
+    "Aktive Fahrten" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Active Trips"
+          }
+        }
+      }
+    },
+    "Aktiviere die Live-Verfolgung für eine Verbindung" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Activate live tracking for a connection"
+          }
+        }
+      }
+    },
+    "Alle Live Activities beenden" : {
+
+    },
+    "Angekommen" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Arrived"
+          }
+        }
+      }
+    },
+    "Angekommen!" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Arrived!"
+          }
+        }
+      }
+    },
+    "ANK" : {
+
+    },
+    "Ank." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Arr."
+          }
+        }
+      }
+    },
+    "Ank. %@" : {
+
+    },
+    "ANKUNFT IN" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ARRIVES IN"
+          }
+        }
+      }
+    },
+    "Beenden" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "End"
+          }
+        }
+      }
+    },
+    "Beendet alle aktiven Verbindungs-Verfolgungen" : {
+
+    },
+    "Beendet die aktive Verbindungs-Verfolgung" : {
+
+    },
+    "Bitte App öffnen\nund anmelden" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Please open app\nand sign in"
+          }
+        }
+      }
+    },
+    "Da" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Arrived"
+          }
+        }
+      }
+    },
+    "Da!" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Arrived!"
+          }
+        }
+      }
+    },
+    "Direkt" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Direct"
+          }
+        }
+      }
+    },
+    "Fährt" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Departs"
+          }
+        }
+      }
+    },
+    "Haltestelle" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Station"
+          }
+        }
+      }
+    },
+    "in" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "in"
+          }
+        }
+      }
+    },
+    "in %lld Min" : {
+
+    },
+    "in %lld'" : {
+
+    },
+    "Jetzt" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Now"
+          }
+        }
+      }
+    },
+    "Keine\nAbfahrten" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No\nDepartures"
+          }
+        }
+      }
+    },
+    "Keine Abfahrten in den\nnächsten 60 min" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No departures in the\nnext 60 min"
+          }
+        }
+      }
+    },
+    "Keine Abfahrten in den nächsten 60 min" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No departures in the next 60 min"
+          }
+        }
+      }
+    },
+    "Keine aktive Fahrt" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No Active Trip"
+          }
+        }
+      }
+    },
+    "Keine aktiven Fahrten" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No Active Trips"
+          }
+        }
+      }
+    },
+    "Keine Fahrt" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No Trip"
+          }
+        }
+      }
+    },
+    "Keine Fahrten" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No Trips"
+          }
+        }
+      }
+    },
+    "Keine Verbindung" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No Connection"
+          }
+        }
+      }
+    },
+    "Live" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Live"
+          }
+        }
+      }
+    },
+    "Live Activity beenden" : {
+
+    },
+    "Mannheim" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mannheim"
+          }
+        }
+      }
+    },
+    "Min" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Min"
+          }
+        }
+      }
+    },
+    "NACH" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "TO"
+          }
+        }
+      }
+    },
+    "Nächste Abfahrt" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Next Departure"
+          }
+        }
+      }
+    },
+    "Nächste Fahrt" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Next Trip"
+          }
+        }
+      }
+    },
+    "NÄCHSTER HALT" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "NEXT STOP"
+          }
+        }
+      }
+    },
+    "noch" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "left"
+          }
+        }
+      }
+    },
+    "Öffne die App, suche eine Verbindung\nund starte die Live-Verfolgung" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Open the app, search a connection\nand start live tracking"
+          }
+        }
+      }
+    },
+    "ÖPNV" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Transit"
+          }
+        }
+      }
+    },
+    "ÖPNV Mannheim" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Public Transit"
+          }
+        }
+      }
+    },
+    "Pünktlich" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "On Time"
+          }
+        }
+      }
+    },
+    "Schließt automatisch" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Closes automatically"
+          }
+        }
+      }
+    },
+    "Schnellsuche" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Quick Search"
+          }
+        }
+      }
+    },
+    "Starte eine\nLive-Verfolgung" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Start a\nLive Tracking"
+          }
+        }
+      }
+    },
+    "Starte Verfolgung in der App" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Start tracking in the app"
+          }
+        }
+      }
+    },
+    "Station konfigurieren\n(Widget lange drücken)" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Configure station\n(long press widget)"
+          }
+        }
+      }
+    },
+    "Station wählen" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Select Station"
+          }
+        }
+      }
+    },
+    "Suche eine Verbindung und starte die Live-Verfolgung" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Search a connection and start live tracking"
+          }
+        }
+      }
+    },
+    "Trip ID" : {
+
+    },
+    "Umstieg" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Transfer"
+          }
+        }
+      }
+    },
+    "Unterwegs" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "En Route"
+          }
+        }
+      }
+    },
+    "Verbindung suchen" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Search Connection"
+          }
+        }
+      }
+    },
+    "VON" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "FROM"
+          }
+        }
+      }
+    },
+    "Wähle eine Haltestelle für die Abfahrtstafel." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Choose a station for the departure board."
+          }
+        }
+      }
+    },
+    "widget.activeTrips.description" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Overview of all currently tracked trips."
+          }
+        }
+      }
+    },
+    "widget.activeTrips.name" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Active Trips"
+          }
+        }
+      }
+    },
+    "widget.nextDeparture.description" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Shows your next planned trip."
+          }
+        }
+      }
+    },
+    "widget.nextDeparture.name" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Next Departure"
+          }
+        }
+      }
+    },
+    "widget.quickSearch.description" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Opens the app directly to connection search."
+          }
+        }
+      }
+    },
+    "widget.quickSearch.name" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Quick Search"
+          }
+        }
+      }
+    },
+    "widget.stationDeparture.description" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Shows current departures for a stop."
+          }
+        }
+      }
+    },
+    "widget.stationDeparture.name" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Departure Board"
+          }
+        }
+      }
+    },
+    "widget.watchTrip.description" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Shows your next public transit connection."
+          }
+        }
+      }
+    },
+    "widget.watchTrip.name" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Next Trip"
+          }
+        }
+      }
+    }
+  },
+  "version" : "1.0"
+}

@@ -7,10 +7,6 @@ import SwiftUI
 import CoreLocation
 import MapKit
 
-private enum GeocodeError: LocalizedError {
-    case noResultsFound
-    var errorDescription: String? { "Keine Ergebnisse für diese Haltestelle gefunden." }
-}
 
 struct StationPickerView: View {
     @ObservedObject var authService: AuthService
@@ -393,15 +389,12 @@ struct StationPickerView: View {
         let (city, stopName) = extractCityAndStop(station.longName)
 
         HStack(spacing: 14) {
-            ZStack {
-                Circle()
-                    .fill(AppTheme.primary.opacity(0.07))
-                    .frame(width: 38, height: 38)
-                Image(systemName: "tram.fill")
-                    .font(.system(size: 14, weight: .medium))
-                    .foregroundStyle(AppTheme.primary)
-                    .accessibilityHidden(true)
-            }
+            Image(systemName: "tram.fill")
+                .font(.system(size: 14, weight: .medium))
+                .foregroundStyle(AppTheme.primary)
+                .accessibilityHidden(true)
+                .frame(width: 38, height: 38)
+                .background(Circle().fill(AppTheme.primary.opacity(0.07)))
 
             VStack(alignment: .leading, spacing: 2) {
                 Text(city != nil ? stopName : station.longName)
@@ -630,25 +623,29 @@ struct NearbyStationMapSheet: View {
     let onSelect: (Station) -> Void
 
     @Environment(\.dismiss) private var dismiss
-    @State private var geocoded: [String: CLLocationCoordinate2D] = [:]
     @State private var selected: Station?
+    @State private var mapCenter: CLLocationCoordinate2D
+    @State private var allStations: [Station] = []
+    @State private var isLoadingMore = false
 
-    private let nearbySearchRadiusMeters: Double = 80_000
-
-    private static let rnvRegion = MKCoordinateRegion(
-        center: CLLocationCoordinate2D(latitude: 49.4875, longitude: 8.4660),
-        latitudinalMeters: 80_000,
-        longitudinalMeters: 80_000
-    )
+    init(graphQLService: GraphQLService, userLocation: CLLocationCoordinate2D, accessToken: String, onSelect: @escaping (Station) -> Void) {
+        self.graphQLService = graphQLService
+        self.userLocation = userLocation
+        self.accessToken = accessToken
+        self.onSelect = onSelect
+        self._mapCenter = State(initialValue: userLocation)
+    }
 
     var body: some View {
         ZStack(alignment: .bottom) {
             Map(initialPosition: .region(
                 MKCoordinateRegion(center: userLocation, latitudinalMeters: 900, longitudinalMeters: 900)
             )) {
+
                 UserAnnotation()
-                ForEach(graphQLService.stations) { station in
-                    if let coord = geocoded[station.globalID] {
+                ForEach(allStations) { station in
+                    if let lat = station.latitude, let lon = station.longitude {
+                        let coord = CLLocationCoordinate2D(latitude: lat, longitude: lon)
                         let isSelected = selected?.globalID == station.globalID
                         Annotation("", coordinate: coord, anchor: .bottom) {
                             Button {
@@ -670,10 +667,13 @@ struct NearbyStationMapSheet: View {
                 MapUserLocationButton()
                 MapCompass()
             }
+            .onMapCameraChange(frequency: .onEnd) { context in
+                mapCenter = context.camera.centerCoordinate
+            }
             .ignoresSafeArea()
             .safeAreaPadding(.bottom, selected != nil ? 140 : 0)
 
-            if graphQLService.isLoading || (geocoded.isEmpty && !graphQLService.stations.isEmpty) {
+            if graphQLService.isLoading {
                 VStack(spacing: 8) {
                     ProgressView().tint(.white)
                     Text("Haltestellen laden…")
@@ -687,14 +687,48 @@ struct NearbyStationMapSheet: View {
                 .padding(.bottom, 160)
             }
 
+            loadMoreButton
+                .padding(.bottom, selected != nil ? 156 : 16)
+
             if let station = selected {
                 selectionCard(station: station)
                     .transition(.move(edge: .bottom).combined(with: .opacity))
             }
         }
-        .task(id: graphQLService.stations.map(\.globalID).joined()) {
-            await geocodeAll()
+        .overlay(alignment: .topLeading) {
+            Button {
+                dismiss()
+            } label: {
+                Image(systemName: "xmark")
+                    .font(.system(size: 13, weight: .semibold))
+                    .foregroundStyle(.primary)
+                    .padding(10)
+                    .background(.ultraThinMaterial, in: Circle())
+                    .shadow(color: .black.opacity(0.12), radius: 4, x: 0, y: 2)
+            }
+            .padding(.top, 16)
+            .padding(.leading, 16)
+            .accessibilityLabel("Abbrechen")
         }
+        .onAppear {
+            let fresh = graphQLService.stations.filter { s in
+                !allStations.contains(where: { $0.globalID == s.globalID })
+            }
+            allStations.append(contentsOf: fresh)
+        }
+        .onChange(of: graphQLService.stations) { _, newStations in
+            let fresh = newStations.filter { s in
+                !allStations.contains(where: { $0.globalID == s.globalID })
+            }
+            allStations.append(contentsOf: fresh)
+        }
+    }
+
+    private func loadMoreStations() async {
+        guard !isLoadingMore else { return }
+        isLoadingMore = true
+        await graphQLService.searchStations(lat: mapCenter.latitude, lon: mapCenter.longitude, accessToken: accessToken)
+        isLoadingMore = false
     }
 
     @ViewBuilder
@@ -780,49 +814,33 @@ struct NearbyStationMapSheet: View {
         .padding(.bottom, 4)
     }
 
-    private func geocodeAll() async {
-        let stations = graphQLService.stations
-        await withTaskGroup(of: (String, CLLocationCoordinate2D?).self) { group in
-            for station in stations {
-                let id = station.globalID
-                let name = station.longName
-                group.addTask { (id, try? await Self.geocode(name)) }
-            }
-            for await (id, coord) in group {
-                if let coord {
-                    await MainActor.run { geocoded[id] = coord }
+    private var loadMoreButton: some View {
+        Button {
+            Task { await loadMoreStations() }
+        } label: {
+            HStack(spacing: 8) {
+                if isLoadingMore {
+                    ProgressView()
+                        .tint(AppTheme.primaryColor)
+                        .scaleEffect(0.85)
+                    Text("Wird geladen…")
+                        .font(.system(size: 14, weight: .semibold))
+                        .foregroundStyle(AppTheme.primaryColor)
+                } else {
+                    Image(systemName: "arrow.clockwise")
+                        .font(.system(size: 13, weight: .semibold))
+                        .foregroundStyle(AppTheme.primaryColor)
+                    Text("Weitere laden")
+                        .font(.system(size: 14, weight: .semibold))
+                        .foregroundStyle(AppTheme.primaryColor)
                 }
             }
+            .padding(.horizontal, 16)
+            .padding(.vertical, 10)
+            .background(.ultraThinMaterial, in: Capsule())
+            .shadow(color: .black.opacity(0.12), radius: 6, x: 0, y: 3)
         }
-    }
-
-    private static func geocode(_ name: String) async throws -> CLLocationCoordinate2D {
-        let knownCities = [
-            "Mannheim", "Heidelberg", "Ludwigshafen", "Weinheim",
-            "Schwetzingen", "Viernheim", "Lampertheim", "Speyer",
-            "Leimen", "Sandhausen", "Walldorf", "Wiesloch",
-            "Hockenheim", "Schriesheim", "Heddesheim", "Eppelheim"
-        ]
-        let query = knownCities.contains(where: { name.hasPrefix($0) }) ? name : "Mannheim \(name)"
-
-        let transitReq = MKLocalSearch.Request()
-        transitReq.naturalLanguageQuery = query
-        transitReq.region = rnvRegion
-        transitReq.resultTypes = .pointOfInterest
-        transitReq.pointOfInterestFilter = MKPointOfInterestFilter(including: [.publicTransport])
-        if let resp = try? await MKLocalSearch(request: transitReq).start(),
-           let item = resp.mapItems.first {
-            return item.placemark.coordinate
-        }
-
-        let req = MKLocalSearch.Request()
-        req.naturalLanguageQuery = query
-        req.region = rnvRegion
-        let resp = try await MKLocalSearch(request: req).start()
-        guard let item = resp.mapItems.first else {
-            throw GeocodeError.noResultsFound
-        }
-        return item.placemark.coordinate
+        .disabled(graphQLService.isLoading || isLoadingMore)
     }
 }
 

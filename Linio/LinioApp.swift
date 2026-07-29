@@ -18,7 +18,6 @@ class AppDelegate: NSObject, UIApplicationDelegate {
             LiveActivityManager.registerBackgroundTask()
         }
 
-        NotificationService.shared.requestAuthorizationIfNeeded()
         scheduleRenewalNotificationIfNeeded()
 
         // Konfiguration in DEBUG prüfen
@@ -40,7 +39,7 @@ class AppDelegate: NSObject, UIApplicationDelegate {
         let dec = JSONDecoder()
         dec.dateDecodingStrategy = .iso8601
         guard let ticket = try? dec.decode(DeutschlandTicket.self, from: data) else { return }
-        TicketRenewalService.shared.scheduleRenewalNotification(for: ticket)
+        Task { await TicketRenewalService.shared.scheduleRenewalNotification(for: ticket) }
     }
 
     // MARK: - Orientierung auf Portrait beschränken

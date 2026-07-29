@@ -51,7 +51,8 @@ struct ContentView: View {
             // MARK: - Departure Board Tab
             DepartureBoardView(
                 authService: authService,
-                locationManager: locationManager
+                locationManager: locationManager,
+                service: graphQLService
             )
             .tabItem {
                 Label("Abfahrten", systemImage: "clock.fill")

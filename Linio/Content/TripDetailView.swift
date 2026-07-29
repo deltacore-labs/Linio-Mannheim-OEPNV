@@ -103,7 +103,7 @@ struct TripDetailView: View {
             }
 
             // Times
-            HStack(alignment: .firstTextBaseline, spacing: 10) {
+            HStack(alignment: .lastTextBaseline, spacing: 10) {
                 timeDisplay(
                     scheduled: trip.startTime,
                     estimated: trip.legs.first(where: { $0.isTimedLeg })?.estimatedDepartureTime,
@@ -112,6 +112,7 @@ struct TripDetailView: View {
                 Image(systemName: "arrow.right")
                     .font(.system(size: 16, weight: .light))
                     .foregroundColor(AppTheme.mutedSoft)
+                    .alignmentGuide(.lastTextBaseline) { d in d[VerticalAlignment.center] + 12 }
                 timeDisplay(
                     scheduled: trip.endTime,
                     estimated: trip.legs.last(where: { $0.isTimedLeg })?.estimatedArrivalTime,

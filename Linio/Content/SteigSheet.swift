@@ -247,7 +247,9 @@ struct PlatformPin: View {
     let station = Station(
         hafasID: "2264",
         globalID: "de:08222:2264",
-        longName: "Mannheim Hauptbahnhof"
+        longName: "Mannheim Hauptbahnhof",
+        latitude: nil,
+        longitude: nil
     )
 
     SteigSheet(

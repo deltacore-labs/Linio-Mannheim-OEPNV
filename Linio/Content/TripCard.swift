@@ -3,6 +3,7 @@
 //  Linio
 //
 
+import Combine
 import SwiftUI
 
 struct TripCard: View {

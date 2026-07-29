@@ -27,8 +27,3 @@ func plog(_ msg: String) {
         }
     }
 }
-
-func plogClear() {
-    guard let url = _logFile else { return }
-    try? FileManager.default.removeItem(at: url)
-}

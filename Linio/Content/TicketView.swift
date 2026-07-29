@@ -428,6 +428,7 @@ struct TicketView: View {
     @State private var walletError: String? = nil
     @State private var showWalletError = false
     @State private var showRenewalSheet = false
+    @State private var showRenewalWalletHint = false
 
     private let scanner = TicketScanService()
 
@@ -496,6 +497,14 @@ struct TicketView: View {
         } message: {
             Text(walletError ?? "Unbekannter Fehler")
         }
+        .alert("Wallet-Pass aktualisieren", isPresented: $showRenewalWalletHint) {
+            Button("Jetzt hinzufügen") {
+                Task { await addToWallet() }
+            }
+            Button("Später", role: .cancel) { }
+        } message: {
+            Text("Dein Ticket wurde verlängert. Bitte füge den aktualisierten Pass erneut zu Apple Wallet hinzu.")
+        }
         .sheet(isPresented: $showRenewalSheet) {
             if let ticket {
                 TicketRenewalSheet(
@@ -504,7 +513,7 @@ struct TicketView: View {
                         let renewed = TicketRenewalService.shared.advanceToNextMonth(ticket)
                         TicketRenewalService.shared.clearSnooze()
                         applyTicket(renewed, barcode: barcodeImage)
-                        TicketRenewalService.shared.scheduleRenewalNotification(for: renewed)
+                        Task { await TicketRenewalService.shared.scheduleRenewalNotification(for: renewed) }
                         Task { await silentlyRenewWalletPass(for: renewed) }
                     },
                     onSnoozed: {
@@ -607,6 +616,13 @@ struct TicketView: View {
             VStack(spacing: 20) {
                 TicketCardView(ticket: t, barcodeImage: barcodeImage)
                     .padding(.horizontal, 20)
+                    .overlay(alignment: .bottom) {
+                        if let badgeState = TicketRenewalService.shared.expiryBadgeState(for: t) {
+                            ExpiryBadgeView(state: badgeState) {
+                                showRenewalSheet = true
+                            }
+                        }
+                    }
 
                 HStack(spacing: 12) {
                     Button { showFullscreen = true } label: {
@@ -682,8 +698,7 @@ struct TicketView: View {
 
     // MARK: - Apple Wallet
 
-    /// Ersetzt den bestehenden Wallet-Pass still via PKPassLibrary.replacePass — kein UI, kein Sheet.
-    /// Fallback auf addToWallet() wenn der Pass noch nicht in Wallet war.
+    @MainActor
     private func silentlyRenewWalletPass(for ticket: DeutschlandTicket) async {
         guard PKAddPassesViewController.canAddPasses() else { return }
         do {
@@ -691,15 +706,20 @@ struct TicketView: View {
             let passData  = try generator.generatePass(for: ticket, barcodeImage: barcodeImage)
             let newPass   = try PKPass(data: passData)
             let library   = PKPassLibrary()
-            let serial    = newPass.serialNumber
-            let typeID    = newPass.passTypeIdentifier
-            if library.passes().contains(where: { $0.serialNumber == serial && $0.passTypeIdentifier == typeID }) {
-                library.replacePass(with: newPass)
-                #if DEBUG
-                print("✅ [WALLET] Pass still ersetzt: \(serial)")
-                #endif
+            let allPasses = library.passes()
+
+            if allPasses.isEmpty {
+                showRenewalWalletHint = true
+                return
             }
-            // Kein Fallback auf addToWallet: wer den Pass nie hinzugefügt hat, bekommt kein unerwartetes Sheet
+
+            let serial = newPass.serialNumber
+            let typeID = newPass.passTypeIdentifier
+            if allPasses.contains(where: { $0.serialNumber == serial && $0.passTypeIdentifier == typeID }) {
+                library.replacePass(with: newPass)
+            } else {
+                showRenewalWalletHint = true
+            }
         } catch {
             #if DEBUG
             print("❌ [WALLET] Renewal-Fehler: \(error)")
@@ -724,12 +744,9 @@ struct TicketView: View {
                 showWalletSheet = true
             }
         } catch {
-            #if DEBUG
-            print("❌ [WALLET] Fehler: \(error)")
-            #endif
             await MainActor.run {
-                walletError      = error.localizedDescription
-                showWalletError  = true
+                walletError     = error.localizedDescription
+                showWalletError = true
             }
         }
     }
@@ -767,7 +784,7 @@ struct TicketView: View {
         barcodeImage = barcode
         persist(t)
         if let img = barcode { BarcodeStorage.save(img) } else { BarcodeStorage.delete() }
-        TicketRenewalService.shared.scheduleRenewalNotification(for: t)
+        Task { await TicketRenewalService.shared.scheduleRenewalNotification(for: t) }
     }
 
     private func persist(_ t: DeutschlandTicket) {
@@ -789,6 +806,7 @@ struct TicketView: View {
         barcodeImage = nil
         storedJSON = ""
         BarcodeStorage.delete()
+        TicketRenewalService.shared.cancelRenewalNotification()
     }
 
     #if DEBUG
@@ -1335,6 +1353,70 @@ struct TicketRenewalSheet: View {
         .presentationDetents([.medium])
         .presentationDragIndicator(.hidden)
         .interactiveDismissDisabled(true)
+    }
+}
+
+// MARK: - Expiry Badge
+
+private struct ExpiryBadgeView: View {
+    let state: ExpiryBadgeState
+    let onTap: () -> Void
+
+    var body: some View {
+        Button(action: onTap) {
+            HStack(spacing: 8) {
+                Image(systemName: iconName)
+                    .font(.footnote.weight(.semibold))
+                Text(label)
+                    .font(.footnote.weight(.semibold))
+                Spacer()
+                Image(systemName: "chevron.right")
+                    .font(.caption2.weight(.semibold))
+                    .opacity(0.7)
+                    .accessibilityHidden(true)
+            }
+            .foregroundStyle(.white)
+            .padding(.horizontal, 16)
+            .padding(.vertical, 10)
+            .background(badgeColor.opacity(0.92))
+            .clipShape(RoundedRectangle(cornerRadius: 12))
+            .padding(.horizontal, 12)
+            .padding(.bottom, 10)
+        }
+        .accessibilityLabel(label)
+        .accessibilityHint(String(localized: "Verlängerung öffnen"))
+        .buttonStyle(.plain)
+    }
+
+    private var label: String {
+        switch state {
+        case .expired:
+            return String(localized: "Abgelaufen · Neu einscannen")
+        case .urgent:
+            return String(localized: "Läuft heute ab · Aktualisieren")
+        case .warning(let days):
+            if days == 1 {
+                return String(localized: "Läuft morgen ab · Aktualisieren")
+            }
+            return String(format: NSLocalizedString("Läuft in %lld Tagen ab · Aktualisieren", comment: ""), days)
+        }
+    }
+
+    private var iconName: String {
+        switch state {
+        case .expired:  return "exclamationmark.circle.fill"
+        case .urgent:   return "clock.badge.exclamationmark.fill"
+        case .warning:  return "clock.badge.fill"
+        }
+    }
+
+    private var badgeColor: Color {
+        switch state {
+        case .expired:          return Color(hex: "#CC2200")
+        case .urgent:           return Color(hex: "#E05000")
+        case .warning(let days):
+            return days <= 1 ? Color(hex: "#E05000") : Color(hex: "#C07800")
+        }
     }
 }
 

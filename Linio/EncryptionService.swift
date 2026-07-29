@@ -24,15 +24,16 @@ class EncryptionService {
     
     /// Generiert oder lädt den Master-Verschlüsselungsschlüssel aus dem Keychain
     func getMasterKey() throws -> SymmetricKey {
-        // Versuche, existierenden Key zu laden
-        if let existingKey = try? loadKeyFromKeychain() {
-            return existingKey
+        do {
+            return try loadKeyFromKeychain()
+        } catch EncryptionError.keychainError(let status) where status == errSecItemNotFound {
+            // Kein Key vorhanden — erstmalig generieren
+            let newKey = SymmetricKey(size: .bits256)
+            try saveKeyToKeychain(newKey)
+            return newKey
         }
-        
-        // Wenn kein Key existiert, generiere neuen
-        let newKey = SymmetricKey(size: .bits256)
-        try saveKeyToKeychain(newKey)
-        return newKey
+        // Alle anderen Keychain-Fehler (z.B. errSecInteractionNotAllowed) werden nach oben weitergegeben,
+        // damit kein neuer Key den vorhandenen überschreibt.
     }
     
     /// Speichert einen Schlüssel sicher im Keychain (Apple's native Verschlüsselung)
@@ -143,7 +144,6 @@ class EncryptionService {
 enum EncryptionError: LocalizedError {
     case keychainError(status: OSStatus)
     case encryptionFailed
-    case decryptionFailed
     case invalidCiphertext
     case decodingFailed
     
@@ -153,8 +153,6 @@ enum EncryptionError: LocalizedError {
             return "Keychain Fehler: \(status)"
         case .encryptionFailed:
             return "Verschlüsselung fehlgeschlagen"
-        case .decryptionFailed:
-            return "Entschlüsselung fehlgeschlagen"
         case .invalidCiphertext:
             return "Ungültiger verschlüsselter Text"
         case .decodingFailed:

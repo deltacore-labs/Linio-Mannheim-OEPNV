@@ -3,9 +3,9 @@
 //  Linio
 //
 
+import Combine
 import SwiftUI
 import MapKit
-import Combine
 
 private enum TransitMapError: LocalizedError {
     case stopNotFound
@@ -401,12 +401,6 @@ struct FullMapView: View {
 
             RouteStopsPanel(legs: legs, panelHeight: $panelHeight, selectedStopName: selectedStopName)
         }
-        .simultaneousGesture(TapGesture().onEnded {
-            guard selectedStopName != nil else { return }
-            withAnimation(.spring(response: 0.3, dampingFraction: 0.72)) {
-                selectedStopName = nil
-            }
-        })
         .mapScope(mapScope)
         .ignoresSafeArea()
     }

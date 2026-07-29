@@ -62,7 +62,7 @@ enum WalletPassError: LocalizedError {
 
 final class WalletPassGenerator {
 
-    private let df: DateFormatter = {
+    private static let df: DateFormatter = {
         let f = DateFormatter()
         f.dateFormat = "dd.MM.yyyy"
         f.locale = Locale(identifier: "de_DE")
@@ -126,8 +126,20 @@ final class WalletPassGenerator {
 
     // MARK: - pass.json
 
+    private func stableSerial(for ticket: DeutschlandTicket) -> String {
+        let cal = Calendar(identifier: .gregorian)
+        let comps = cal.dateComponents([.year, .month], from: ticket.validFrom)
+        let key = "\(ticket.holderName)-\(comps.year ?? 0)-\(comps.month ?? 0)"
+        var digest = [UInt8](repeating: 0, count: Int(CC_SHA1_DIGEST_LENGTH))
+        key.withCString { ptr in
+            _ = CC_SHA1(ptr, CC_LONG(key.utf8.count), &digest)
+        }
+        let hex = digest.prefix(8).map { String(format: "%02x", $0) }.joined()
+        return "DT-\(hex)"
+    }
+
     private func makePassJSON(ticket: DeutschlandTicket, barcodeInfo: (message: String, pkFormat: String, encoding: String)?) -> [String: Any] {
-        let serial = "DT-\(ticket.customerNumber.isEmpty ? "dt" : ticket.customerNumber)"
+        let serial = stableSerial(for: ticket)
 
         var dict: [String: Any] = [
             "formatVersion":      1,
@@ -148,8 +160,8 @@ final class WalletPassGenerator {
         }
 
         var secondaryFields: [[String: Any]] = [
-            ["key": "validFrom",  "label": "GÜLTIG AB",  "value": df.string(from: ticket.validFrom)],
-            ["key": "validUntil", "label": "GÜLTIG BIS", "value": df.string(from: ticket.validUntil)],
+            ["key": "validFrom",  "label": "GÜLTIG AB",  "value": Self.df.string(from: ticket.validFrom)],
+            ["key": "validUntil", "label": "GÜLTIG BIS", "value": Self.df.string(from: ticket.validUntil)],
         ]
         if !ticket.issuer.isEmpty {
             secondaryFields.append(["key": "issuer", "label": "ANBIETER", "value": ticket.issuer])
@@ -167,7 +179,7 @@ final class WalletPassGenerator {
 
         var backFields: [[String: Any]] = [
             ["key": "backScope",    "label": "Geltungsbereich", "value": "Bundesweit im Nahverkehr (2. Klasse)"],
-            ["key": "backValidity", "label": "Gültigkeit",      "value": "\(df.string(from: ticket.validFrom)) – \(df.string(from: ticket.validUntil))"],
+            ["key": "backValidity", "label": "Gültigkeit",      "value": "\(Self.df.string(from: ticket.validFrom)) – \(Self.df.string(from: ticket.validUntil))"],
         ]
         if !ticket.holderName.isEmpty {
             backFields.append(["key": "backHolder", "label": "Inhaber", "value": ticket.holderName])
@@ -227,15 +239,18 @@ final class WalletPassGenerator {
         let oidData          = asnOID([1,2,840,113549,1,7,1])
         let signingTime      = asnUTCTime(Date())
         let attrsBody = asnSeq([oidContentType,   asnSet([oidData])]) +
-                        asnSeq([oidSigningTime,   asnSet([signingTime])]) +
-                        asnSeq([oidMessageDigest, asnSet([asnOctetString(manifestDigest)])])
+                        asnSeq([oidMessageDigest, asnSet([asnOctetString(manifestDigest)])]) +
+                        asnSeq([oidSigningTime,   asnSet([signingTime])])
         let attrsForSigning = asnTLV(0x31, attrsBody)
         let attrsField      = asnTLV(0xa0, attrsBody)
 
         var cfErr: Unmanaged<CFError>?
         guard let sigBytes = SecKeyCreateSignature(
             privateKey, .rsaSignatureMessagePKCS1v15SHA1, attrsForSigning as CFData, &cfErr
-        ) as Data? else { throw WalletPassError.signingFailed }
+        ) as Data? else {
+            cfErr?.release()
+            throw WalletPassError.signingFailed
+        }
 
         let leafDER   = SecCertificateCopyData(leafCert) as Data
         let chainDERs = chain.map { SecCertificateCopyData($0) as Data }
@@ -245,6 +260,7 @@ final class WalletPassGenerator {
         }
         var cfErr2: Unmanaged<CFError>?
         guard let serialBytes = SecCertificateCopySerialNumberData(leafCert, &cfErr2) as Data? else {
+            cfErr2?.release()
             throw WalletPassError.signingFailed
         }
 
@@ -280,7 +296,8 @@ final class WalletPassGenerator {
         }
         guard let itemArray = items as? [[String: Any]],
               let first = itemArray.first,
-              let rawIdentity = first[kSecImportItemIdentity as String] else {
+              let rawIdentity = first[kSecImportItemIdentity as String],
+              CFGetTypeID(rawIdentity as CFTypeRef) == SecIdentityGetTypeID() else {
             throw WalletPassError.importFailed(-1)
         }
         let identity = rawIdentity as! SecIdentity

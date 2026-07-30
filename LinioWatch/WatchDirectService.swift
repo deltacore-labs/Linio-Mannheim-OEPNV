@@ -2,12 +2,14 @@
 // Credentials werden vom iPhone via ApplicationContext übertragen und lokal gecacht.
 
 import Foundation
+import Security
 
 class WatchDirectService {
     static let shared = WatchDirectService()
 
     private var cachedHubIDs: [String]? = nil
     private let credentialsKey = "watchCachedCredentials"
+    private let keychainService = "com.stefanfriedrich.rnvapp.watch"
 
     struct Credentials: Codable {
         let clientID: String
@@ -20,16 +22,53 @@ class WatchDirectService {
 
     private init() {}
 
+    // MARK: - Keychain helpers
+
+    private func keychainSave(_ data: Data) {
+        let query: [String: Any] = [
+            kSecClass as String: kSecClassGenericPassword,
+            kSecAttrService as String: keychainService,
+            kSecAttrAccount as String: credentialsKey,
+            kSecValueData as String: data,
+            kSecAttrAccessible as String: kSecAttrAccessibleWhenUnlockedThisDeviceOnly
+        ]
+        SecItemDelete(query as CFDictionary)
+        SecItemAdd(query as CFDictionary, nil)
+    }
+
+    private func keychainLoad() -> Data? {
+        let query: [String: Any] = [
+            kSecClass as String: kSecClassGenericPassword,
+            kSecAttrService as String: keychainService,
+            kSecAttrAccount as String: credentialsKey,
+            kSecReturnData as String: true,
+            kSecMatchLimit as String: kSecMatchLimitOne
+        ]
+        var result: AnyObject?
+        let status = SecItemCopyMatching(query as CFDictionary, &result)
+        guard status == errSecSuccess, let data = result as? Data else { return nil }
+        return data
+    }
+
     // MARK: - Credentials
 
     func saveCredentials(_ creds: Credentials) {
         guard let data = try? JSONEncoder().encode(creds) else { return }
-        UserDefaults.standard.set(data, forKey: credentialsKey)
+        keychainSave(data)
+        UserDefaults.standard.removeObject(forKey: credentialsKey)
     }
 
     func loadCredentials() -> Credentials? {
-        guard let data = UserDefaults.standard.data(forKey: credentialsKey) else { return nil }
-        return try? JSONDecoder().decode(Credentials.self, from: data)
+        if let data = keychainLoad() {
+            return try? JSONDecoder().decode(Credentials.self, from: data)
+        }
+        // Einmalige Migration aus UserDefaults (Altdaten)
+        if let data = UserDefaults.standard.data(forKey: credentialsKey),
+           let creds = try? JSONDecoder().decode(Credentials.self, from: data) {
+            saveCredentials(creds)
+            return creds
+        }
+        return nil
     }
 
     var hasCredentials: Bool { loadCredentials() != nil }

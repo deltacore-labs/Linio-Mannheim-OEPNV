@@ -156,3 +156,8 @@ Scripts/output/
 # Superpowers (lokale Planung, kein Git)
 # ========================================
 docs/superpowers/
+
+# ========================================
+# Local Packages (von Xcode/SPM verwaltet)
+# ========================================
+LocalPackages/

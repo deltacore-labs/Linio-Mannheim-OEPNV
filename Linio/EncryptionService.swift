@@ -45,7 +45,7 @@ class EncryptionService {
             kSecAttrService as String: keychainService,
             kSecAttrAccount as String: masterKeyTag,
             kSecValueData as String: keyData,
-            kSecAttrAccessible as String: kSecAttrAccessibleAfterFirstUnlock
+            kSecAttrAccessible as String: kSecAttrAccessibleWhenUnlockedThisDeviceOnly
         ]
         
         // Lösche alten Key falls vorhanden

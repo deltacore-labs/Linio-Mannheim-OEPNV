@@ -34,10 +34,10 @@ struct WatchTripProvider: TimelineProvider {
         var entries: [WatchTripEntry] = []
 
         if let trip = trip, let endDate = WidgetDataProvider.parseISO8601(trip.endTime), endDate > now {
-            var t = now
-            while t < endDate {
-                entries.append(WatchTripEntry(date: t, trip: trip, isPlaceholder: false))
-                t = t.addingTimeInterval(60)
+            let mid = now.addingTimeInterval(endDate.timeIntervalSince(now) / 2)
+            entries.append(WatchTripEntry(date: now, trip: trip, isPlaceholder: false))
+            if mid > now.addingTimeInterval(60) {
+                entries.append(WatchTripEntry(date: mid, trip: trip, isPlaceholder: false))
             }
             entries.append(WatchTripEntry(date: endDate, trip: nil, isPlaceholder: false))
             completion(Timeline(entries: entries, policy: .after(endDate)))

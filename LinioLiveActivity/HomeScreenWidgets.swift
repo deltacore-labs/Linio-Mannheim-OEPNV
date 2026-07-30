@@ -294,13 +294,12 @@ struct NextDepartureProvider: TimelineProvider {
         var entries: [NextDepartureEntry] = []
 
         if let trip = trip, let endDate = WidgetDataProvider.parseISO8601(trip.endTime), endDate > now {
-            // Minütliche Einträge bis Trip-Ende
-            var t = now
-            while t < endDate {
-                entries.append(NextDepartureEntry(date: t, trip: trip, isPlaceholder: false))
-                t = t.addingTimeInterval(60)
+            // 3 Entries: jetzt, Halbzeit, Trip-Ende — Countdown-Text nutzt .timer/.relative
+            let mid = now.addingTimeInterval(endDate.timeIntervalSince(now) / 2)
+            entries.append(NextDepartureEntry(date: now, trip: trip, isPlaceholder: false))
+            if mid > now.addingTimeInterval(60) {
+                entries.append(NextDepartureEntry(date: mid, trip: trip, isPlaceholder: false))
             }
-            // Leerer Eintrag direkt nach Trip-Ende → Widget zeigt sofort "kein Trip"
             entries.append(NextDepartureEntry(date: endDate, trip: nil, isPlaceholder: false))
             completion(Timeline(entries: entries, policy: .after(endDate)))
         } else {
@@ -603,11 +602,10 @@ struct ActiveTripsProvider: TimelineProvider {
             .min()
 
         if let nextEnd = nextEnd {
-            // Minütliche Einträge bis zum frühesten Trip-Ende
-            var t = now
-            while t < nextEnd {
-                entries.append(ActiveTripsEntry(date: t, trips: activeTrips, activeCount: activeIds.count))
-                t = t.addingTimeInterval(60)
+            let mid = now.addingTimeInterval(nextEnd.timeIntervalSince(now) / 2)
+            entries.append(ActiveTripsEntry(date: now, trips: activeTrips, activeCount: activeIds.count))
+            if mid > now.addingTimeInterval(60) {
+                entries.append(ActiveTripsEntry(date: mid, trips: activeTrips, activeCount: activeIds.count))
             }
             // Leerer Eintrag nach Trip-Ende
             entries.append(ActiveTripsEntry(date: nextEnd, trips: [], activeCount: 0))

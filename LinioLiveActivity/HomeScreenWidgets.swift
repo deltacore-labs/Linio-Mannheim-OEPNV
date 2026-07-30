@@ -999,11 +999,15 @@ struct QuickSearchWidgetView: View {
         }
     }
 
+    private static let timeFormatter: DateFormatter = {
+        let f = DateFormatter()
+        f.dateFormat = "HH:mm"
+        f.locale = Locale(identifier: "de_DE")
+        return f
+    }()
+
     private func currentTimeString() -> String {
-        let fmt = DateFormatter()
-        fmt.dateFormat = "HH:mm"
-        fmt.locale = Locale(identifier: "de_DE")
-        return fmt.string(from: entry.date)
+        Self.timeFormatter.string(from: entry.date)
     }
 }
 

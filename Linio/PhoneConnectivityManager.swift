@@ -151,11 +151,11 @@ extension PhoneConnectivityManager: WCSessionDelegate {
         let auth = authService
 
         let token: String
-        if let existing = auth.accessToken {
+        if auth.isTokenValid, let existing = auth.accessToken {
             token = existing
         } else {
-            await auth.authenticate()
-            guard let fresh = auth.accessToken else { replyHandler([:]); return }
+            await auth.autoAuthenticate()
+            guard let fresh = auth.accessToken, auth.isTokenValid else { replyHandler([:]); return }
             token = fresh
         }
 
@@ -181,13 +181,13 @@ extension PhoneConnectivityManager: WCSessionDelegate {
         plog("fetchAndReply: stationID=\(stationID) name=\(stationName)")
 
         let token: String
-        if let existing = auth.accessToken {
+        if auth.isTokenValid, let existing = auth.accessToken {
             token = existing
             plog("fetchAndReply: nutze vorhandenen Token")
         } else {
-            plog("fetchAndReply: kein Token – authentifiziere…")
-            await auth.authenticate()
-            guard let fresh = auth.accessToken else {
+            plog("fetchAndReply: kein gültiger Token – authentifiziere…")
+            await auth.autoAuthenticate()
+            guard let fresh = auth.accessToken, auth.isTokenValid else {
                 plog("fetchAndReply: Authentifizierung fehlgeschlagen")
                 replyHandler([:]); return
             }
@@ -236,11 +236,11 @@ extension PhoneConnectivityManager: WCSessionDelegate {
         let auth = authService
 
         let token: String
-        if let existing = auth.accessToken {
+        if auth.isTokenValid, let existing = auth.accessToken {
             token = existing
         } else {
-            await auth.authenticate()
-            guard let fresh = auth.accessToken else { replyHandler([:]); return }
+            await auth.autoAuthenticate()
+            guard let fresh = auth.accessToken, auth.isTokenValid else { replyHandler([:]); return }
             token = fresh
         }
 

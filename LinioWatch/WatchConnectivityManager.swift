@@ -331,13 +331,11 @@ extension WatchConnectivityManager: WCSessionDelegate {
 
         if let creds = applicationContext["watchCredentials"] as? [String: Any],
            let clientID = creds["clientID"] as? String,
-           let clientSecret = creds["clientSecret"] as? String,
            let tenantID = creds["tenantID"] as? String,
            let resource = creds["resource"] as? String,
            let graphQLURL = creds["graphQLURL"] as? String {
             let credentials = WatchDirectService.Credentials(
                 clientID: clientID,
-                clientSecret: clientSecret,
                 tenantID: tenantID,
                 resource: resource,
                 graphQLURL: graphQLURL,

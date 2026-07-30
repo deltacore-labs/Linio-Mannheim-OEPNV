@@ -43,7 +43,6 @@ final class PhoneConnectivityManager: NSObject {
 
         let config = SecureConfigurationManager.shared
         guard let clientID = config.clientID, !clientID.isEmpty, !clientID.hasPrefix("$("),
-              let clientSecret = config.clientSecret, !clientSecret.isEmpty, !clientSecret.hasPrefix("$("),
               let tenantID = config.tenantID, !tenantID.isEmpty, !tenantID.hasPrefix("$("),
               let resource = config.resource, !resource.isEmpty, !resource.hasPrefix("$("),
               let graphQLURL = config.graphQLURL, !graphQLURL.isEmpty, !graphQLURL.hasPrefix("$(")
@@ -52,7 +51,6 @@ final class PhoneConnectivityManager: NSObject {
         let context: [String: Any] = [
             "watchCredentials": [
                 "clientID": clientID,
-                "clientSecret": clientSecret,
                 "tenantID": tenantID,
                 "resource": resource,
                 "graphQLURL": graphQLURL,

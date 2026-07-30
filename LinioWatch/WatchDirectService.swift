@@ -11,7 +11,6 @@ class WatchDirectService {
 
     struct Credentials: Codable {
         let clientID: String
-        let clientSecret: String
         let tenantID: String
         let resource: String
         let graphQLURL: String
@@ -107,26 +106,9 @@ class WatchDirectService {
     // MARK: - Netzwerk (static – kein self-Capture in TaskGroup nötig)
 
     private static func authenticate(creds: Credentials) async -> String? {
-        let urlString = "https://login.microsoftonline.com/\(creds.tenantID)/oauth2/token"
-        guard let url = URL(string: urlString),
-              let encodedID     = creds.clientID.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed),
-              let encodedSecret = creds.clientSecret.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed),
-              let encodedRes    = creds.resource.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)
-        else { return nil }
-
-        var request = URLRequest(url: url)
-        request.httpMethod = "POST"
-        request.setValue("application/x-www-form-urlencoded", forHTTPHeaderField: "Content-Type")
-        request.httpBody = "grant_type=client_credentials&client_id=\(encodedID)&client_secret=\(encodedSecret)&resource=\(encodedRes)"
-            .data(using: .utf8)
-        request.timeoutInterval = 8
-
-        guard let (data, _) = try? await URLSession.shared.data(for: request),
-              let json  = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
-              let token = json["access_token"] as? String
-        else { return nil }
-
-        return token
+        // Watch kann ohne clientSecret nicht selbst authentifizieren.
+        // accessToken muss vom iPhone per WatchConnectivity kommen.
+        return nil
     }
 
     private static func resolveStationID(name: String, token: String, graphQLURL: String) async -> String? {

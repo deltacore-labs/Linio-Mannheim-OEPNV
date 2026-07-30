@@ -15,10 +15,13 @@ struct LinioWatchApp: App {
                 .environmentObject(connectivity)
                 .onAppear {
                     dataManager.refresh()
-                    connectivity.onContextUpdated = {
-                        dataManager.refresh()
+                    connectivity.onContextUpdated = { [weak dataManager] in
+                        dataManager?.refresh()
                     }
                     connectivity.requestInitialData()
+                }
+                .onDisappear {
+                    connectivity.onContextUpdated = nil
                 }
         }
         .onChange(of: scenePhase) { _, phase in

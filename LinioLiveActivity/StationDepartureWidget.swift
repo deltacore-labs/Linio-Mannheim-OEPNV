@@ -199,6 +199,14 @@ struct StationDepartureProvider: AppIntentTimelineProvider {
             )
         }
 
+        let tokenExpiry = defaults?.double(forKey: "widgetAccessTokenExpiry") ?? 0
+        guard tokenExpiry > Date().timeIntervalSince1970 + 60 else {
+            return StationDepartureEntry(
+                date: Date(), configuration: configuration,
+                stationName: "—", departures: [], errorState: .noToken, isPlaceholder: false
+            )
+        }
+
         guard let station = configuration.station else {
             return StationDepartureEntry(
                 date: Date(), configuration: configuration,

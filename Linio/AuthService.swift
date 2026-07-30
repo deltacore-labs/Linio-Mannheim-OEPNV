@@ -162,6 +162,7 @@ class AuthService: ObservableObject {
                     // Token + URL für Widget in App Group speichern
                     let appGroupDefaults = UserDefaults(suiteName: AppConfiguration.appGroupID)
                     appGroupDefaults?.set(token, forKey: "widgetAccessToken")
+                    appGroupDefaults?.set(expiry.timeIntervalSince1970, forKey: "widgetAccessTokenExpiry")
                     let rawGraphQLURL = Bundle.main.object(forInfoDictionaryKey: "RNV_GRAPHQL_URL") as? String
                     let graphqlURL: String
                     if let raw = rawGraphQLURL, !raw.isEmpty, !raw.contains("$(") {
@@ -211,6 +212,7 @@ class AuthService: ObservableObject {
         // Token aus App Group löschen
         let appGroupDefaults = UserDefaults(suiteName: AppConfiguration.appGroupID)
         appGroupDefaults?.removeObject(forKey: "widgetAccessToken")
+        appGroupDefaults?.removeObject(forKey: "widgetAccessTokenExpiry")
         appGroupDefaults?.removeObject(forKey: "widgetGraphQLURL")
 
         #if DEBUG

@@ -51,8 +51,6 @@ extension Notification.Name {
     static let showTicketFullscreen = Notification.Name("de.rnv.showTicketFullscreen")
 }
 
-// MARK: - Show Ticket Intent
-
 struct ShowTicketIntent: AppIntent {
     static let title: LocalizedStringResource = "Ticket vorzeigen"
     static let description = IntentDescription("Zeigt dein Deutschlandticket sofort im Vollbild.")
@@ -106,5 +104,63 @@ struct RNVAppShortcuts: AppShortcutsProvider {
             shortTitle: "Ticket vorzeigen",
             systemImageName: "qrcode"
         )
+        AppShortcut(
+            intent: NextDepartureForLineIntent(),
+            phrases: [
+                "Nächste Abfahrt in \(.applicationName)",
+                "Wann fährt meine Linie in \(.applicationName)"
+            ],
+            shortTitle: "Nächste Abfahrt",
+            systemImageName: "tram.fill"
+        )
+    }
+}
+
+// MARK: - Next Departure For Line Intent (Siri)
+
+struct NextDepartureForLineIntent: AppIntent {
+    static let title: LocalizedStringResource = "Nächste Abfahrt für Linie"
+    static let description = IntentDescription("Zeigt die nächste Abfahrtszeit für eine bestimmte Linie.")
+
+    static let openAppWhenRun: Bool = true
+
+    @Parameter(title: "Linie", description: "Liniennummer, z.B. 5, 33 oder S1")
+    var lineName: String
+
+    @MainActor
+    func perform() async throws -> some IntentResult & ProvidesDialog {
+        let trips = WidgetDataProvider.loadSavedTrips()
+        let activeIds = Set(WidgetDataProvider.loadActiveTrips())
+
+        let query = lineName
+            .replacingOccurrences(of: "er$", with: "", options: .regularExpression)
+            .replacingOccurrences(of: "te$", with: "", options: .regularExpression)
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+            .uppercased()
+
+        let now = Date()
+        let match = trips
+            .filter { activeIds.contains($0.id) }
+            .filter { (WidgetDataProvider.parseISO8601($0.endTime) ?? .distantPast) > now }
+            .first { trip in
+                trip.legs.contains { leg in
+                    guard leg.isTimedLeg, let svc = leg.serviceName else { return false }
+                    let name = svc
+                        .replacingOccurrences(of: "RNV ", with: "")
+                        .replacingOccurrences(of: "Linie ", with: "")
+                        .uppercased()
+                    return name == query || name.hasPrefix(query)
+                }
+            }
+
+        if let trip = match {
+            let depTime = WidgetDataProvider.formatTime(trip.startTime)
+            let mins = WidgetDataProvider.parseISO8601(trip.startTime)
+                .map { max(0, Int($0.timeIntervalSinceNow / 60)) } ?? 0
+            let minsText = mins == 0 ? "jetzt" : "in \(mins) Minuten"
+            return .result(dialog: "Linie \(lineName) fährt um \(depTime) Uhr \(minsText) nach \(trip.endStation).")
+        } else {
+            return .result(dialog: "Gerade keine aktive Fahrt mit Linie \(lineName) gefunden. Bitte in der App eine Verbindung starten.")
+        }
     }
 }

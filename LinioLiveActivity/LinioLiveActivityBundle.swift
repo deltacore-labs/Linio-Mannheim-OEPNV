@@ -12,6 +12,7 @@ struct LinioLiveActivityBundle: WidgetBundle {
     var body: some Widget {
         LinioLiveActivityLiveActivity()
         NextDepartureWidget()
+        StandByDepartureWidget()
         ActiveTripsWidget()
         QuickSearchWidget()
         StationDepartureWidget()

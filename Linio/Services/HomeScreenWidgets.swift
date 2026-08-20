@@ -7,6 +7,7 @@
 
 import WidgetKit
 import SwiftUI
+import AppIntents
 
 // MARK: - Shared Widget Data Provider
 
@@ -269,6 +270,166 @@ struct WidgetRouteRow: View {
 
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// MARK: - Lock Screen Accessory Views (iOS 16+)
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+struct NextDepartureAccessoryInlineView: View {
+    let entry: NextDepartureEntry
+
+    var body: some View {
+        if let trip = entry.trip, let leg = trip.legs.first(where: { $0.isTimedLeg }) {
+            let mins = WidgetDataProvider.parseISO8601(trip.startTime)
+                .map { max(0, Int($0.timeIntervalSince(entry.date) / 60)) } ?? 0
+            Label(
+                "\(WidgetTheme.shortLineName(from: leg.serviceName)) → \(trip.endStation) · \(mins)'",
+                systemImage: WidgetTheme.lineIcon(for: leg.serviceType, serviceName: leg.serviceName)
+            )
+        } else {
+            Label("Keine Fahrten", systemImage: "tram.fill")
+        }
+    }
+}
+
+struct NextDepartureAccessoryCircularView: View {
+    let entry: NextDepartureEntry
+
+    var body: some View {
+        ZStack {
+            AccessoryWidgetBackground()
+            if let trip = entry.trip {
+                let mins = WidgetDataProvider.parseISO8601(trip.startTime)
+                    .map { max(0, Int($0.timeIntervalSince(entry.date) / 60)) } ?? 0
+                VStack(spacing: 0) {
+                    Text("\(mins)")
+                        .font(.system(size: 20, weight: .heavy, design: .rounded))
+                        .minimumScaleFactor(0.5)
+                    Text("min")
+                        .font(.system(size: 8, weight: .medium))
+                        .foregroundStyle(.secondary)
+                }
+            } else {
+                Image(systemName: "tram.fill")
+                    .font(.system(size: 18))
+                    .foregroundStyle(.secondary)
+            }
+        }
+    }
+}
+
+struct NextDepartureAccessoryRectangularView: View {
+    let entry: NextDepartureEntry
+
+    var body: some View {
+        if let trip = entry.trip, let leg = trip.legs.first(where: { $0.isTimedLeg }) {
+            let mins = WidgetDataProvider.parseISO8601(trip.startTime)
+                .map { max(0, Int($0.timeIntervalSince(entry.date) / 60)) } ?? 0
+            VStack(alignment: .leading, spacing: 2) {
+                HStack {
+                    Image(systemName: WidgetTheme.lineIcon(for: leg.serviceType, serviceName: leg.serviceName))
+                        .font(.system(size: 10, weight: .bold))
+                    Text(WidgetTheme.shortLineName(from: leg.serviceName))
+                        .font(.system(size: 13, weight: .heavy, design: .rounded))
+                    Spacer()
+                    Text("\(mins)'")
+                        .font(.system(size: 15, weight: .heavy, design: .rounded))
+                }
+                Text(trip.startStation)
+                    .font(.system(size: 10, weight: .medium))
+                    .foregroundStyle(.secondary)
+                    .lineLimit(1)
+                Text("→ " + trip.endStation)
+                    .font(.system(size: 11, weight: .semibold))
+                    .lineLimit(1)
+            }
+        } else {
+            VStack(alignment: .leading, spacing: 3) {
+                Image(systemName: "tram.fill")
+                    .font(.system(size: 14))
+                    .foregroundStyle(.secondary)
+                Text("Keine Fahrten")
+                    .font(.system(size: 11, weight: .semibold))
+                    .foregroundStyle(.secondary)
+            }
+        }
+    }
+}
+
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// MARK: - StandBy Widget View
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+struct StandByDepartureView: View {
+    let entry: NextDepartureEntry
+    @Environment(\.showsWidgetContainerBackground) var showsBackground
+
+    var body: some View {
+        if let trip = entry.trip {
+            tripView(trip)
+        } else {
+            emptyView
+        }
+    }
+
+    private func tripView(_ trip: WidgetTripData) -> some View {
+        let firstLeg = trip.legs.first(where: { $0.isTimedLeg })
+        let depDate = WidgetDataProvider.parseISO8601(trip.startTime)
+        let mins = depDate.map { max(0, Int($0.timeIntervalSince(entry.date) / 60)) } ?? 0
+        let isActive = depDate.map { $0 <= entry.date } ?? false
+
+        return VStack(spacing: 8) {
+            if let leg = firstLeg {
+                WidgetLineBadge(serviceType: leg.serviceType, serviceName: leg.serviceName)
+            }
+            Text(WidgetDataProvider.formatTime(trip.startTime))
+                .font(.system(size: 48, weight: .bold, design: .rounded))
+                .foregroundStyle(.white)
+                .minimumScaleFactor(0.7)
+                .lineLimit(1)
+            Text(isActive ? "Unterwegs" : "in \(mins) Min")
+                .font(.system(size: 13, weight: .semibold, design: .rounded))
+                .foregroundStyle(mins < 3 && !isActive ? Color.orange : Color.white.opacity(0.6))
+            Text("→ " + trip.endStation)
+                .font(.system(size: 12, weight: .medium))
+                .foregroundStyle(.white.opacity(0.5))
+                .lineLimit(1)
+        }
+        .padding(14)
+    }
+
+    private var emptyView: some View {
+        VStack(spacing: 8) {
+            Image(systemName: "tram.fill")
+                .font(.system(size: 28))
+                .foregroundStyle(.white.opacity(0.25))
+            Text("Keine Fahrten")
+                .font(.system(size: 12, weight: .medium))
+                .foregroundStyle(.white.opacity(0.35))
+        }
+    }
+}
+
+struct StandByDepartureWidget: Widget {
+    let kind = "StandByDepartureWidget"
+
+    var body: some WidgetConfiguration {
+        StaticConfiguration(kind: kind, provider: NextDepartureProvider()) { entry in
+            if #available(iOS 17.0, *) {
+                StandByDepartureView(entry: entry)
+                    .containerBackground(Color.black, for: .widget)
+            } else {
+                StandByDepartureView(entry: entry)
+                    .background(Color.black)
+            }
+        }
+        .configurationDisplayName("StandBy Abfahrt")
+        .description("Große Abfahrtsanzeige für den Ladebildschirm.")
+        .supportedFamilies([.systemSmall])
+    }
+}
+
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 // MARK: - 1. Nächste Abfahrt Widget (Small + Medium)
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -372,7 +533,7 @@ struct NextDepartureWidgetSmallView: View {
 
             Spacer()
 
-            // Bottom: Times
+            // Bottom: Times + Live-Button
             HStack(spacing: 0) {
                 Text(WidgetDataProvider.formatTime(trip.startTime))
                     .font(.system(size: 18, weight: .bold, design: .rounded))
@@ -383,9 +544,14 @@ struct NextDepartureWidgetSmallView: View {
                     .font(.system(size: 14, weight: .semibold, design: .rounded))
                     .foregroundColor(.secondary)
                 Spacer()
-                Text(WidgetDataProvider.calculateDuration(start: trip.startTime, end: trip.endTime))
-                    .font(.system(size: 10, weight: .medium))
-                    .foregroundColor(.secondary)
+                Button(intent: StartNextTripLiveActivityIntent()) {
+                    Image(systemName: "dot.radiowaves.left.and.right")
+                        .font(.system(size: 10, weight: .bold))
+                        .foregroundStyle(.white)
+                        .padding(5)
+                        .background(Circle().fill(WidgetTheme.primaryColor))
+                }
+                .buttonStyle(.plain)
             }
         }
         .padding(14)
@@ -539,7 +705,7 @@ struct NextDepartureWidget: Widget {
         }
         .configurationDisplayName("Nächste Abfahrt")
         .description("Zeigt deine nächste geplante Fahrt.")
-        .supportedFamilies([.systemSmall, .systemMedium])
+        .supportedFamilies([.systemSmall, .systemMedium, .accessoryCircular, .accessoryRectangular, .accessoryInline])
     }
 }
 
@@ -551,6 +717,12 @@ struct NextDepartureWidgetContainerView: View {
         switch family {
         case .systemMedium:
             NextDepartureWidgetMediumView(entry: entry)
+        case .accessoryCircular:
+            NextDepartureAccessoryCircularView(entry: entry)
+        case .accessoryRectangular:
+            NextDepartureAccessoryRectangularView(entry: entry)
+        case .accessoryInline:
+            NextDepartureAccessoryInlineView(entry: entry)
         default:
             NextDepartureWidgetSmallView(entry: entry)
         }

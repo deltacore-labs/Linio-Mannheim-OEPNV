@@ -734,7 +734,7 @@ class LiveActivityManager: ObservableObject {
     ) -> TimeInterval {
         guard let departureDate = formatter.parseISO8601(departureTimeISO),
               let arrivalDate = formatter.parseISO8601(arrivalTimeISO) else {
-            return 30
+            return 60
         }
 
         let timeUntilDeparture = departureDate.timeIntervalSince(currentTime)
@@ -742,17 +742,17 @@ class LiveActivityManager: ObservableObject {
 
         if timeUntilDeparture > 0 {
             // Vor Abfahrt: Je näher desto häufiger
-            if timeUntilDeparture > 600 { return 60 }
-            else if timeUntilDeparture > 120 { return 30 }
-            else if timeUntilDeparture > 30 { return 10 }
-            // Ganz kurz vor Abfahrt: mindestens 5s Intervall
-            else { return max(5, timeUntilDeparture) }
+            if timeUntilDeparture > 600 { return 90 }
+            else if timeUntilDeparture > 120 { return 60 }
+            else if timeUntilDeparture > 30 { return 30 }
+            // Ganz kurz vor Abfahrt: mindestens 15s Intervall
+            else { return min(15, timeUntilDeparture) }
         } else if timeUntilArrival > 0 {
             // Während der Fahrt
-            if timeUntilArrival > 600 { return 30 }
-            else if timeUntilArrival > 120 { return 15 }
-            // Kurz vor Ankunft: mindestens 5s Intervall
-            else { return max(5, timeUntilArrival) }
+            if timeUntilArrival > 600 { return 60 }
+            else if timeUntilArrival > 120 { return 30 }
+            // Kurz vor Ankunft: mindestens 15s Intervall
+            else { return min(15, timeUntilArrival) }
         }
 
         return 60

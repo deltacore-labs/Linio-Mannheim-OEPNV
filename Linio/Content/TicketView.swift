@@ -429,6 +429,7 @@ struct TicketView: View {
     @State private var showWalletError = false
     @State private var showRenewalSheet = false
     @State private var showRenewalWalletHint = false
+    @State private var showWalletUpdatedBanner = false
 
     private let scanner = TicketScanService()
 
@@ -443,6 +444,9 @@ struct TicketView: View {
                 } else {
                     emptyState
                 }
+            }
+            .overlay(alignment: .top) {
+                if showWalletUpdatedBanner { walletUpdatedBanner }
             }
             .navigationTitle("Tickets")
             .navigationBarTitleDisplayMode(.large)
@@ -698,6 +702,50 @@ struct TicketView: View {
 
     // MARK: - Apple Wallet
 
+    private var walletUpdatedBanner: some View {
+        HStack(spacing: 8) {
+            Image(systemName: "checkmark.circle.fill")
+            Text("Wallet-Pass aktualisiert")
+                .font(.subheadline.weight(.medium))
+        }
+        .foregroundStyle(.white)
+        .padding(.horizontal, 16)
+        .padding(.vertical, 10)
+        .background(Color(hex: "#1e7e34").opacity(0.95))
+        .clipShape(Capsule())
+        .shadow(color: .black.opacity(0.2), radius: 6, y: 3)
+        .padding(.top, 8)
+        .transition(.move(edge: .top).combined(with: .opacity))
+        .onAppear {
+            Task { @MainActor in
+                try? await Task.sleep(nanoseconds: 2_500_000_000)
+                withAnimation(.easeInOut(duration: 0.3)) { showWalletUpdatedBanner = false }
+            }
+        }
+    }
+
+    @MainActor
+    private func autoRenewWalletPassIfPresent(for ticket: DeutschlandTicket) async {
+        guard PKAddPassesViewController.canAddPasses() else { return }
+        do {
+            let generator = WalletPassGenerator()
+            let passData  = try generator.generatePass(for: ticket, barcodeImage: barcodeImage)
+            let newPass   = try PKPass(data: passData)
+            let library   = PKPassLibrary()
+            guard library.passes().contains(where: {
+                $0.serialNumber == newPass.serialNumber &&
+                $0.passTypeIdentifier == newPass.passTypeIdentifier
+            }) else { return }
+            library.replacePass(with: newPass)
+            try? await generator.uploadPass(passData, passTypeIdentifier: newPass.passTypeIdentifier, serialNumber: newPass.serialNumber)
+            withAnimation(.easeInOut(duration: 0.3)) { showWalletUpdatedBanner = true }
+        } catch {
+            #if DEBUG
+            print("❌ [WALLET] Auto-Renewal-Fehler: \(error)")
+            #endif
+        }
+    }
+
     @MainActor
     private func silentlyRenewWalletPass(for ticket: DeutschlandTicket) async {
         guard PKAddPassesViewController.canAddPasses() else { return }
@@ -717,6 +765,8 @@ struct TicketView: View {
             let typeID = newPass.passTypeIdentifier
             if allPasses.contains(where: { $0.serialNumber == serial && $0.passTypeIdentifier == typeID }) {
                 library.replacePass(with: newPass)
+                try? await generator.uploadPass(passData, passTypeIdentifier: typeID, serialNumber: serial)
+                withAnimation(.easeInOut(duration: 0.3)) { showWalletUpdatedBanner = true }
             } else {
                 showRenewalWalletHint = true
             }
@@ -738,10 +788,24 @@ struct TicketView: View {
             try? passData.write(to: tmpURL)
             print("💾 [WALLET] Debug-Pass geschrieben: \(tmpURL.path)")
             #endif
-            let pass = try PKPass(data: passData)
-            await MainActor.run {
-                walletPass      = pass
-                showWalletSheet = true
+            let newPass = try PKPass(data: passData)
+            let library = PKPassLibrary()
+
+            if library.passes().contains(where: {
+                $0.serialNumber == newPass.serialNumber &&
+                $0.passTypeIdentifier == newPass.passTypeIdentifier
+            }) {
+                // Pass ist bereits in Wallet — lautlos ersetzen, kein Sheet nötig
+                library.replacePass(with: newPass)
+                try? await generator.uploadPass(passData, passTypeIdentifier: newPass.passTypeIdentifier, serialNumber: newPass.serialNumber)
+                withAnimation(.easeInOut(duration: 0.3)) { showWalletUpdatedBanner = true }
+            } else {
+                // Erster Hinzufüge-Vorgang — Add-Sheet anzeigen
+                try? await generator.uploadPass(passData, passTypeIdentifier: newPass.passTypeIdentifier, serialNumber: newPass.serialNumber)
+                await MainActor.run {
+                    walletPass      = newPass
+                    showWalletSheet = true
+                }
             }
         } catch {
             await MainActor.run {
@@ -785,6 +849,7 @@ struct TicketView: View {
         persist(t)
         if let img = barcode { BarcodeStorage.save(img) } else { BarcodeStorage.delete() }
         Task { await TicketRenewalService.shared.scheduleRenewalNotification(for: t) }
+        Task { await autoRenewWalletPassIfPresent(for: t) }
     }
 
     private func persist(_ t: DeutschlandTicket) {
@@ -1362,6 +1427,8 @@ private struct ExpiryBadgeView: View {
     let state: ExpiryBadgeState
     let onTap: () -> Void
 
+    @Environment(\.colorScheme) private var colorScheme
+
     var body: some View {
         Button(action: onTap) {
             HStack(spacing: 8) {
@@ -1375,10 +1442,10 @@ private struct ExpiryBadgeView: View {
                     .opacity(0.7)
                     .accessibilityHidden(true)
             }
-            .foregroundStyle(.white)
+            .foregroundStyle(colorScheme == .dark ? badgeColor : .white)
             .padding(.horizontal, 16)
             .padding(.vertical, 10)
-            .background(badgeColor.opacity(0.92))
+            .background(colorScheme == .dark ? Color(.systemBackground) : badgeColor.opacity(0.92))
             .clipShape(RoundedRectangle(cornerRadius: 12))
             .padding(.horizontal, 12)
             .padding(.bottom, 10)

@@ -30,10 +30,14 @@ enum WalletConfig {
     static var certFileName: String {
         Bundle.main.object(forInfoDictionaryKey: "WalletCertName") as? String ?? "Zertifikat D-Ticket"
     }
+    static var authToken: String {
+        Bundle.main.object(forInfoDictionaryKey: "WalletAuthToken") as? String ?? ""
+    }
     // Password used when exporting the .p12 (empty string if none)
     static let certPassword       = ""
     // Apple WWDR intermediate certificate (required in the CMS signature chain)
     static let wwdrCertFileName   = "AppleWWDRCAG4"
+    static let webServiceURL      = "https://linio-wallet-api.mysicloud.workers.dev/v1"
 }
 
 // MARK: - Error
@@ -43,6 +47,7 @@ enum WalletPassError: LocalizedError {
     case importFailed(OSStatus)
     case signingFailed
     case packagingFailed
+    case uploadFailed(Int)
 
     var errorDescription: String? {
         switch self {
@@ -54,6 +59,8 @@ enum WalletPassError: LocalizedError {
             return "Pass konnte nicht signiert werden. Zertifikat und Team-ID prüfen."
         case .packagingFailed:
             return "Pass konnte nicht erstellt werden."
+        case .uploadFailed(let status):
+            return "Pass konnte nicht hochgeladen werden (HTTP \(status))."
         }
     }
 }
@@ -124,12 +131,31 @@ final class WalletPassGenerator {
         return try packageAsZip(files)
     }
 
+    /// Uploads the signed .pkpass to the Linio Wallet API so Wallet can fetch updates.
+    /// Best-effort — errors are silently ignored by callers.
+    func uploadPass(_ data: Data, passTypeIdentifier: String, serialNumber: String) async throws {
+        guard !WalletConfig.authToken.isEmpty else { return }
+        let urlString = "\(WalletConfig.webServiceURL)/passes/\(passTypeIdentifier)/\(serialNumber)"
+        guard let url = URL(string: urlString) else { return }
+        var request = URLRequest(url: url)
+        request.httpMethod = "PUT"
+        request.setValue("ApplePass \(WalletConfig.authToken)", forHTTPHeaderField: "Authorization")
+        request.setValue("application/vnd.apple.pkpass", forHTTPHeaderField: "Content-Type")
+        request.httpBody = data
+        let (_, response) = try await URLSession.shared.data(for: request)
+        let status = (response as? HTTPURLResponse)?.statusCode ?? 0
+        guard status == 200 else { throw WalletPassError.uploadFailed(status) }
+        #if DEBUG
+        print("☁️ [WALLET] Pass hochgeladen: \(passTypeIdentifier)/\(serialNumber)")
+        #endif
+    }
+
     // MARK: - pass.json
 
     private func stableSerial(for ticket: DeutschlandTicket) -> String {
-        let cal = Calendar(identifier: .gregorian)
-        let comps = cal.dateComponents([.year, .month], from: ticket.validFrom)
-        let key = "\(ticket.holderName)-\(comps.year ?? 0)-\(comps.month ?? 0)"
+        // Nur nach Inhabitername hashen — bleibt über alle Monate gleich,
+        // sodass PKPassLibrary.replacePass(with:) beim nächsten Ticketwechsel greift.
+        let key = ticket.holderName.trimmingCharacters(in: .whitespaces)
         var digest = [UInt8](repeating: 0, count: Int(CC_SHA1_DIGEST_LENGTH))
         key.withCString { ptr in
             _ = CC_SHA1(ptr, CC_LONG(key.utf8.count), &digest)
@@ -152,6 +178,8 @@ final class WalletPassGenerator {
             "foregroundColor":    "rgb(255, 255, 255)",
             "backgroundColor":    "rgb(44, 44, 44)",
             "labelColor":         "rgb(170, 170, 170)",
+            "webServiceURL":      WalletConfig.webServiceURL,
+            "authenticationToken": WalletConfig.authToken,
         ]
 
         var primaryFields: [[String: Any]] = []
@@ -160,8 +188,8 @@ final class WalletPassGenerator {
         }
 
         var secondaryFields: [[String: Any]] = [
-            ["key": "validFrom",  "label": "GÜLTIG AB",  "value": Self.df.string(from: ticket.validFrom)],
-            ["key": "validUntil", "label": "GÜLTIG BIS", "value": Self.df.string(from: ticket.validUntil)],
+            ["key": "validFrom",  "label": "GÜLTIG AB",  "value": Self.df.string(from: ticket.validFrom),  "changeMessage": "Gültig ab: %@"],
+            ["key": "validUntil", "label": "GÜLTIG BIS", "value": Self.df.string(from: ticket.validUntil), "changeMessage": "Gültig bis: %@"],
         ]
         if !ticket.issuer.isEmpty {
             secondaryFields.append(["key": "issuer", "label": "ANBIETER", "value": ticket.issuer])
@@ -179,10 +207,10 @@ final class WalletPassGenerator {
 
         var backFields: [[String: Any]] = [
             ["key": "backScope",    "label": "Geltungsbereich", "value": "Bundesweit im Nahverkehr (2. Klasse)"],
-            ["key": "backValidity", "label": "Gültigkeit",      "value": "\(Self.df.string(from: ticket.validFrom)) – \(Self.df.string(from: ticket.validUntil))"],
+            ["key": "backValidity", "label": "Gültigkeit",      "value": "\(Self.df.string(from: ticket.validFrom)) – \(Self.df.string(from: ticket.validUntil))", "changeMessage": "Gültigkeit aktualisiert: %@"],
         ]
         if !ticket.holderName.isEmpty {
-            backFields.append(["key": "backHolder", "label": "Inhaber", "value": ticket.holderName])
+            backFields.append(["key": "backHolder", "label": "Inhaber", "value": ticket.holderName, "changeMessage": "Inhaber: %@"])
         }
         if !ticket.customerNumber.isEmpty {
             backFields.append(["key": "backCustomer", "label": "Kundennummer", "value": ticket.customerNumber])

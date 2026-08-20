@@ -17,7 +17,7 @@ class LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
     override init() {
         super.init()
         locationManager.delegate = self
-        locationManager.desiredAccuracy = kCLLocationAccuracyBest
+        locationManager.desiredAccuracy = kCLLocationAccuracyHundredMeters
     }
     
     // MARK: - Location Requests
@@ -36,7 +36,7 @@ class LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
         // Synchron setzen – wird immer vom Main-Thread aufgerufen
         // (entweder direkt oder via DispatchQueue.main.async in locationManagerDidChangeAuthorization)
         isLocating = true
-        locationManager.startUpdatingLocation()
+        locationManager.requestLocation()
     }
     
     // MARK: - CLLocationManagerDelegate
@@ -51,10 +51,8 @@ class LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
             print("📍 [LOCATION] Standort aktualisiert: \(location.coordinate.latitude), \(location.coordinate.longitude)")
             #endif
         }
-        
-        locationManager.stopUpdatingLocation()
     }
-    
+
     func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) {
         let status = manager.authorizationStatus
         DispatchQueue.main.async {

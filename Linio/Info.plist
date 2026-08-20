@@ -22,6 +22,8 @@
 	</dict>
 	<key>RNV_APP_GROUP_ID</key>
 	<string>$(RNV_APP_GROUP_ID)</string>
+	<key>WalletAuthToken</key>
+	<string>$(WALLET_AUTH_TOKEN)</string>
 	<key>WalletCertName</key>
 	<string>$(WALLET_CERT_NAME)</string>
 	<key>WalletPassTypeID</key>

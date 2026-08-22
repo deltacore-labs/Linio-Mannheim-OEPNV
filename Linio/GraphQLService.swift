@@ -142,7 +142,7 @@ struct StationQuay: Identifiable {
 
 import SwiftUI
 
-struct DetailedTrip: Identifiable {
+struct DetailedTrip: Identifiable, Equatable {
     let id: UUID
     let startTime: String
     let endTime: String
@@ -201,7 +201,7 @@ struct DetailedTrip: Identifiable {
     }
 }
 
-struct IntermediateStop {
+struct IntermediateStop: Equatable {
     let name: String
     let scheduledTime: String
     let estimatedTime: String?
@@ -210,8 +210,21 @@ struct IntermediateStop {
     let longitude: Double?
 }
 
-struct TripLeg: Identifiable {
+struct TripLeg: Identifiable, Equatable {
     let id = UUID()
+    
+    // Performance: Equatable-Vergleich ignoriert id (da UUID bei jedem Init neu)
+    static func == (lhs: TripLeg, rhs: TripLeg) -> Bool {
+        lhs.type == rhs.type &&
+        lhs.boardStopName == rhs.boardStopName &&
+        lhs.alightStopName == rhs.alightStopName &&
+        lhs.departureTime == rhs.departureTime &&
+        lhs.arrivalTime == rhs.arrivalTime &&
+        lhs.estimatedDepartureTime == rhs.estimatedDepartureTime &&
+        lhs.estimatedArrivalTime == rhs.estimatedArrivalTime &&
+        lhs.serviceName == rhs.serviceName &&
+        lhs.occupancy == rhs.occupancy
+    }
     let type: LegType
     let mode: String?
 

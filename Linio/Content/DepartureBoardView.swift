@@ -12,7 +12,8 @@ struct DepartureBoardView: View {
     @ObservedObject var locationManager: LocationManager
     @ObservedObject var service: GraphQLService
     @EnvironmentObject var liveActivityManager: LiveActivityManager
-    @ObservedObject private var network = NetworkMonitor.shared
+    // Performance: @StateObject für Singleton
+    @StateObject private var network = NetworkMonitor.shared
     @Environment(\.scenePhase) private var scenePhase
 
     @State private var selectedStation: Station?
@@ -246,7 +247,8 @@ struct DepartureBoardView: View {
         let visible = Array(departures.prefix(departureDisplayLimit))
         let hasMore = departures.count > departureDisplayLimit
 
-        return VStack(spacing: 0) {
+        // Performance: LazyVStack für verzögertes Rendering bei vielen Abfahrten
+        return LazyVStack(spacing: 0) {
             ForEach(Array(visible.enumerated()), id: \.element.id) { index, dep in
                 Button {
                     HapticHelper.selection()
@@ -331,14 +333,28 @@ struct DepartureBoardView: View {
                 }
             }
 
-            Button(action: { showStationPicker = true }) {
-                Text("Haltestelle auswählen")
-                    .font(AppTheme.buttonFont)
-                    .foregroundColor(AppTheme.onPrimary)
-                    .padding(.horizontal, 24)
-                    .padding(.vertical, 12)
-                    .background(AppTheme.primary)
-                    .clipShape(Capsule())
+            VStack(spacing: 12) {
+                // "Jetzt in der Nähe"-Button
+                if locationManager.authorizationStatus == .authorizedWhenInUse ||
+                   locationManager.authorizationStatus == .authorizedAlways {
+                    NearbyStationButton(
+                        locationManager: locationManager,
+                        graphQLService: service,
+                        authService: authService
+                    ) { station in
+                        selectedStation = station
+                    }
+                }
+                
+                Button(action: { showStationPicker = true }) {
+                    Text("Haltestelle auswählen")
+                        .font(AppTheme.buttonFont)
+                        .foregroundColor(AppTheme.onPrimary)
+                        .padding(.horizontal, 24)
+                        .padding(.vertical, 12)
+                        .background(AppTheme.primary)
+                        .clipShape(Capsule())
+                }
             }
 
             Spacer()

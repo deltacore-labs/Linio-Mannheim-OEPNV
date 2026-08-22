@@ -10,8 +10,8 @@ struct AppConfiguration {
     // ✅ ZENTRALE APP GROUP ID
     static let appGroupID = "group.com.stefanfriedrich.rnvapp"
     
-    // ⚠️ WICHTIG: Diese Werte MÜSSEN vor dem Build gesetzt werden!
-    static let teamID = "YOUR_TEAM_ID" // Ersetze mit deiner Apple Team ID
+    // ✅ Apple Team ID (aus Secrets.xcconfig → WALLET_TEAM_ID)
+    static let teamID = "A4HCRKN53K"
     
     // MARK: - Feature Flags
     static let enableOfflineMode = false

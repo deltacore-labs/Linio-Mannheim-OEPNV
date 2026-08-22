@@ -52,13 +52,30 @@ class SecureConfigurationManager {
         // 1. Versuche verschlüsselte Datei zu laden
         guard let encryptedData = loadEncryptedSecretsFile() else {
             #if DEBUG
-            print("⚠️ [SecureConfig] Keine verschlüsselte Secrets-Datei gefunden - verwende Fallback")
+            print("ℹ️ [SecureConfig] Keine verschlüsselte Secrets-Datei gefunden - verwende Info.plist")
             #endif
             loadFallbackFromInfoPlist()
             return
         }
         
-        // 2. Entschlüssele
+        // 2. Prüfe ob echte verschlüsselte Daten vorhanden sind (nicht Platzhalter)
+        let hasValidEncryptedData = encryptedData.values.allSatisfy { value in
+            // Platzhalter oder leere Werte erkennen
+            !value.isEmpty && 
+            !value.contains("...") && 
+            !value.hasPrefix("AES-verschlüsselter") &&
+            Data(base64Encoded: value) != nil
+        }
+        
+        guard hasValidEncryptedData else {
+            #if DEBUG
+            print("ℹ️ [SecureConfig] EncryptedSecrets.json enthält Platzhalter - verwende Info.plist")
+            #endif
+            loadFallbackFromInfoPlist()
+            return
+        }
+        
+        // 3. Entschlüssele
         do {
             let decrypted = try encryptionService.decryptDictionary(encryptedData)
             self.decryptedSecrets = decrypted
@@ -67,7 +84,7 @@ class SecureConfigurationManager {
             #endif
         } catch {
             #if DEBUG
-            print("❌ [SecureConfig] Entschlüsselung fehlgeschlagen: \(error.localizedDescription)")
+            print("⚠️ [SecureConfig] Entschlüsselung fehlgeschlagen: \(error.localizedDescription) - verwende Info.plist")
             #endif
             loadFallbackFromInfoPlist()
         }
@@ -90,7 +107,7 @@ class SecureConfigurationManager {
     /// Fallback: Lädt Secrets aus Info.plist (für Entwicklung)
     private func loadFallbackFromInfoPlist() {
         #if DEBUG
-        print("🔓 [SecureConfig] Verwende unverschlüsselte Werte aus Info.plist (nur für Entwicklung!)")
+        print("✅ [SecureConfig] Verwende Werte aus Info.plist/xcconfig (Debug-Modus)")
         #endif
         
         decryptedSecrets = [

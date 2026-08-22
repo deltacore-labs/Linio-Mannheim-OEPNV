@@ -59,6 +59,16 @@
         }
       }
     },
+    "%@ → %@ · %lld'" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$@ → %2$@ · %3$lld'"
+          }
+        }
+      }
+    },
     "%lld" : {
 
     },
@@ -388,6 +398,9 @@
     "Live Activity beenden" : {
 
     },
+    "Live-Verfolgung starten" : {
+
+    },
     "Mannheim" : {
       "localizations" : {
         "en" : {
@@ -397,6 +410,9 @@
           }
         }
       }
+    },
+    "min" : {
+
     },
     "Min" : {
       "localizations" : {
@@ -684,6 +700,12 @@
           }
         }
       }
+    },
+    "widget.standBy.description" : {
+
+    },
+    "widget.standBy.name" : {
+
     },
     "widget.stationDeparture.description" : {
       "localizations" : {

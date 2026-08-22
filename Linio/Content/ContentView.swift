@@ -9,8 +9,9 @@ import WidgetKit
 import CoreLocation
 
 struct ContentView: View {
-    @ObservedObject private var authService = AuthService.shared
-    @ObservedObject private var graphQLService = GraphQLService.shared
+    // Performance: @StateObject für Singletons verhindert unnötige Re-Initialisierungen
+    @StateObject private var authService = AuthService.shared
+    @StateObject private var graphQLService = GraphQLService.shared
     @StateObject private var locationManager = LocationManager()
 
     @State private var selectedTab = 0

@@ -379,22 +379,58 @@ struct TripDetailView: View {
     }
 
     private func generateShareText() -> String {
-        var text = "🚆 RNV Verbindung\n"
-        text += "\(formatter.formatTime(trip.startTime)) → \(formatter.formatTime(trip.endTime))"
-        text += " (\(formatter.calculateDuration(start: trip.startTime, end: trip.endTime)))\n\n"
-        for leg in trip.legs {
-            if leg.isTimedLeg {
-                text += "🚏 \(formatter.formatTime(leg.departureTime ?? "")) \(leg.boardStopName ?? "?")\n"
-                text += "   \(leg.serviceName ?? "?") → \(leg.destinationLabel ?? "")\n"
-                text += "🚏 \(formatter.formatTime(leg.arrivalTime ?? "")) \(leg.alightStopName ?? "?")\n\n"
-            } else {
-                text += "🚶 Fußweg (\(formatter.calculateDuration(start: leg.departureTime ?? "", end: leg.arrivalTime ?? "")))\n\n"
+        // Verwende den verbesserten ConnectionShareService
+        return ConnectionShareService.generateShareText(for: trip)
+    }
+}
+
+// MARK: - Share Options Menu
+
+struct TripShareMenu: View {
+    let trip: DetailedTrip
+    @State private var showShareSheet = false
+    @State private var shareItems: [Any] = []
+    
+    var body: some View {
+        Menu {
+            Button {
+                shareItems = [ConnectionShareService.generateShareText(for: trip)]
+                showShareSheet = true
+            } label: {
+                Label("Ausführlich teilen", systemImage: "doc.text")
             }
+            
+            Button {
+                shareItems = [ConnectionShareService.generateCompactShareText(for: trip)]
+                showShareSheet = true
+            } label: {
+                Label("Kompakt teilen", systemImage: "text.bubble")
+            }
+            
+            if let deeplink = ConnectionShareService.generateDeeplink(for: trip) {
+                Button {
+                    shareItems = [deeplink]
+                    showShareSheet = true
+                } label: {
+                    Label("Als Link teilen", systemImage: "link")
+                }
+            }
+            
+            Divider()
+            
+            Button {
+                UIPasteboard.general.string = ConnectionShareService.generateCompactShareText(for: trip)
+                HapticHelper.impact(.light)
+            } label: {
+                Label("In Zwischenablage kopieren", systemImage: "doc.on.doc")
+            }
+        } label: {
+            Image(systemName: "square.and.arrow.up")
+                .foregroundColor(AppTheme.primaryColor)
         }
-        if trip.interchanges > 0 {
-            text += "🔄 \(trip.interchanges) Umstieg\(trip.interchanges == 1 ? "" : "e")\n"
+        .sheet(isPresented: $showShareSheet) {
+            ShareSheet(activityItems: shareItems)
         }
-        return text
     }
 }
 

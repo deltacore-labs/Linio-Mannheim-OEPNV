@@ -313,13 +313,56 @@ struct ShareSheet: UIViewControllerRepresentable {
 // MARK: - HapticHelper
 
 struct HapticHelper {
+    // MARK: - Impact Feedback
+    
     static func impact(_ style: UIImpactFeedbackGenerator.FeedbackStyle = .medium) {
         let generator = UIImpactFeedbackGenerator(style: style)
         generator.impactOccurred()
     }
-
+    
+    // MARK: - Selection Feedback
+    
     static func selection() {
         let generator = UISelectionFeedbackGenerator()
         generator.selectionChanged()
+    }
+    
+    // MARK: - Notification Feedback
+    
+    static func notification(_ type: UINotificationFeedbackGenerator.FeedbackType) {
+        let generator = UINotificationFeedbackGenerator()
+        generator.notificationOccurred(type)
+    }
+    
+    // MARK: - Convenience Methods
+    
+    /// Erfolg-Feedback (z.B. nach erfolgreichem Speichern)
+    static func success() {
+        notification(.success)
+    }
+    
+    /// Fehler-Feedback (z.B. bei Validierungsfehlern)
+    static func error() {
+        notification(.error)
+    }
+    
+    /// Warnung-Feedback (z.B. bei kritischen Aktionen)
+    static func warning() {
+        notification(.warning)
+    }
+    
+    /// Sanftes Antippen (für subtile Interaktionen)
+    static func softTap() {
+        impact(.soft)
+    }
+    
+    /// Starkes Antippen (für wichtige Aktionen)
+    static func heavyTap() {
+        impact(.heavy)
+    }
+    
+    /// Leichtes Antippen (für Buttons)
+    static func lightTap() {
+        impact(.light)
     }
 }

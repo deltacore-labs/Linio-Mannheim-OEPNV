@@ -41,6 +41,9 @@
         }
       }
     },
+    "(%lld)" : {
+
+    },
     "%@" : {
 
     },
@@ -72,6 +75,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "%@ → %@"
+          }
+        }
+      }
+    },
+    "%@ → %@ · %lld'" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$@ → %2$@ · %3$lld'"
           }
         }
       }
@@ -174,6 +187,16 @@
         }
       }
     },
+    "%@: %@" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$@: %2$@"
+          }
+        }
+      }
+    },
     "%@: %@. Tippen zum Ändern." : {
       "localizations" : {
         "de" : {
@@ -220,6 +243,9 @@
         }
       }
     },
+    "%lld Datenpunkte" : {
+
+    },
     "%lld Halte" : {
 
     },
@@ -252,6 +278,9 @@
           }
         }
       }
+    },
+    "%lld Plätze verfügbar" : {
+
     },
     "%lld Stationen" : {
       "localizations" : {
@@ -359,6 +388,9 @@
         }
       }
     },
+    "•" : {
+
+    },
     "→ %@" : {
       "localizations" : {
         "en" : {
@@ -408,6 +440,15 @@
           }
         }
       }
+    },
+    "+%lld weitere Meldungen" : {
+
+    },
+    "🌅" : {
+
+    },
+    "🌆" : {
+
     },
     "Abbrechen" : {
       "localizations" : {
@@ -610,6 +651,9 @@
         }
       }
     },
+    "Aktuell liegen keine Störungsmeldungen vor.\nDer Betrieb läuft planmäßig." : {
+
+    },
     "Aktuell um %@ Uhr" : {
       "localizations" : {
         "en" : {
@@ -619,6 +663,9 @@
           }
         }
       }
+    },
+    "Aktuelle Prognose" : {
+
     },
     "Aktuelle Uhrzeit: %@" : {
       "localizations" : {
@@ -689,6 +736,12 @@
           }
         }
       }
+    },
+    "Als Favorit speichern" : {
+
+    },
+    "Als Link teilen" : {
+
     },
     "Anbieter" : {
       "localizations" : {
@@ -832,6 +885,9 @@
         }
       }
     },
+    "Aus Favoriten entfernen" : {
+
+    },
     "Aus Fotos" : {
       "localizations" : {
         "en" : {
@@ -861,6 +917,12 @@
           }
         }
       }
+    },
+    "Ausführlich teilen" : {
+
+    },
+    "Auslastungs-Trend" : {
+
     },
     "Auswählen" : {
       "localizations" : {
@@ -954,6 +1016,9 @@
           }
         }
       }
+    },
+    "Betroffene Linien:" : {
+
     },
     "Bis" : {
       "localizations" : {
@@ -1149,6 +1214,9 @@
         }
       }
     },
+    "Die Prognose basiert auf deinen bisherigen Fahrten." : {
+
+    },
     "Direkt" : {
       "localizations" : {
         "en" : {
@@ -1178,6 +1246,9 @@
           }
         }
       }
+    },
+    "Eigener Name" : {
+
     },
     "Eingeschränkt" : {
       "localizations" : {
@@ -1341,6 +1412,12 @@
         }
       }
     },
+    "Favorit hinzufügen" : {
+
+    },
+    "Favoriten" : {
+
+    },
     "Fehler: %@" : {
       "localizations" : {
         "en" : {
@@ -1361,6 +1438,9 @@
         }
       }
     },
+    "Filter aktiv: %@" : {
+
+    },
     "Frühere Verbindungen" : {
       "localizations" : {
         "en" : {
@@ -1370,6 +1450,9 @@
           }
         }
       }
+    },
+    "Füge Haltestellen als Favoriten hinzu für schnellen Zugriff" : {
+
     },
     "Für diese Haltestelle sind aktuell\nkeine Abfahrten verfügbar." : {
       "localizations" : {
@@ -1431,6 +1514,12 @@
           }
         }
       }
+    },
+    "Gerade keine aktive Fahrt mit Linie %@ gefunden. Bitte in der App eine Verbindung starten." : {
+
+    },
+    "Große Abfahrtsanzeige für den Ladebildschirm." : {
+
     },
     "Gültigkeit" : {
       "localizations" : {
@@ -1631,6 +1720,9 @@
         }
       }
     },
+    "In Zwischenablage kopieren" : {
+
+    },
     "Inaktiv, Tippen zum Aktivieren" : {
       "localizations" : {
         "en" : {
@@ -1693,6 +1785,12 @@
       }
     },
     "Jetzt hinzufügen" : {
+
+    },
+    "Jetzt in der Nähe" : {
+
+    },
+    "Kategorie wählen" : {
 
     },
     "Kein Barcode" : {
@@ -1795,6 +1893,9 @@
         }
       }
     },
+    "Keine Favoriten" : {
+
+    },
     "Keine Haltestelle" : {
       "localizations" : {
         "en" : {
@@ -1805,6 +1906,9 @@
         }
       }
     },
+    "Keine Störungen" : {
+
+    },
     "Keine verspäteten Verbindungen." : {
       "localizations" : {
         "en" : {
@@ -1814,6 +1918,9 @@
           }
         }
       }
+    },
+    "Kompakt teilen" : {
+
     },
     "Koordinaten: %@ nördlich, %@ östlich" : {
       "localizations" : {
@@ -1872,6 +1979,9 @@
         }
       }
     },
+    "Lade Störungsmeldungen..." : {
+
+    },
     "Lädt Verbindungen eine Stunde früher" : {
       "localizations" : {
         "en" : {
@@ -1921,6 +2031,22 @@
           }
         }
       }
+    },
+    "Linie" : {
+
+    },
+    "Linie %@ fährt um %@ Uhr %@ nach %@." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Linie %1$@ fährt um %2$@ Uhr %3$@ nach %4$@."
+          }
+        }
+      }
+    },
+    "Liniennummer, z.B. 5, 33 oder S1" : {
+
     },
     "Live" : {
       "localizations" : {
@@ -1993,6 +2119,9 @@
           }
         }
       }
+    },
+    "Live-Verfolgung starten" : {
+
     },
     "Loslegen" : {
       "localizations" : {
@@ -2095,6 +2224,9 @@
         }
       }
     },
+    "Nächste Abfahrt für Linie" : {
+
+    },
     "NÄCHSTE ABFAHRTEN" : {
       "localizations" : {
         "en" : {
@@ -2104,6 +2236,9 @@
           }
         }
       }
+    },
+    "Nächste Haltestelle finden" : {
+
     },
     "Neu einscannen" : {
       "localizations" : {
@@ -2175,6 +2310,9 @@
         }
       }
     },
+    "Noch keine Daten" : {
+
+    },
     "Nur mit gültigem Lichtbildausweis · Nicht übertragbar" : {
       "localizations" : {
         "en" : {
@@ -2184,6 +2322,9 @@
           }
         }
       }
+    },
+    "Nutze diese Verbindung ein paar Mal,\num Auslastungstrends zu sehen." : {
+
     },
     "Öffentliche Daten" : {
       "localizations" : {
@@ -2353,6 +2494,9 @@
         }
       }
     },
+    "So funktioniert's" : {
+
+    },
     "Später" : {
 
     },
@@ -2377,6 +2521,9 @@
         }
       }
     },
+    "Stand: %@" : {
+
+    },
     "Stand: Mai 2026" : {
       "localizations" : {
         "en" : {
@@ -2386,6 +2533,9 @@
           }
         }
       }
+    },
+    "StandBy Abfahrt" : {
+
     },
     "Standort" : {
       "extractionState" : "stale",
@@ -2440,6 +2590,9 @@
       }
     },
     "Station wählen" : {
+
+    },
+    "Störungen" : {
 
     },
     "Straßenbahn" : {
@@ -2538,6 +2691,9 @@
           }
         }
       }
+    },
+    "Sucht die nächstgelegene Haltestelle basierend auf deinem Standort" : {
+
     },
     "Sucht Verbindungen zwischen Start und Ziel" : {
       "localizations" : {
@@ -2740,6 +2896,9 @@
           }
         }
       }
+    },
+    "Tippen zum Auswählen, lange drücken für Optionen" : {
+
     },
     "Tippen zum Hervorheben" : {
       "localizations" : {
@@ -3104,6 +3263,9 @@
     "Wird geladen…" : {
 
     },
+    "Wochenübersicht" : {
+
+    },
     "Wohin möchtest du fahren?" : {
       "localizations" : {
         "en" : {
@@ -3113,6 +3275,9 @@
           }
         }
       }
+    },
+    "z.B. Omas Haus..." : {
+
     },
     "Zeigt aktive Live Activities und verfolgte Fahrten." : {
       "localizations" : {
@@ -3144,6 +3309,9 @@
         }
       }
     },
+    "Zeigt die nächste Abfahrtszeit für eine bestimmte Linie." : {
+
+    },
     "Zeigt die nächsten Abfahrten von Haltestellen in deiner Nähe." : {
       "localizations" : {
         "en" : {
@@ -3153,6 +3321,9 @@
           }
         }
       }
+    },
+    "Zu Favoriten hinzufügen" : {
+
     },
     "Zugriff verweigert" : {
       "localizations" : {

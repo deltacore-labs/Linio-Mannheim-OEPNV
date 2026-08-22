@@ -22,7 +22,12 @@ struct StationPickerView: View {
     @State private var searchDebounceTask: Task<Void, Never>?
     @State private var recentStations: [Station] = []
     @State private var showNearbyMap = false
+    @State private var showAddFavoriteSheet = false
+    @State private var stationToFavorite: Station?
     @FocusState private var isSearchFocused: Bool
+    
+    // Performance: @StateObject für Singleton verhindert unnötige Re-Initialisierungen
+    @StateObject private var favoritesManager = FavoriteStationsManager.shared
 
     // Kürzeres Debounce für schnelleres Feedback
     private let debounceMilliseconds: UInt64 = 300
@@ -93,6 +98,14 @@ struct StationPickerView: View {
                     accessToken: accessToken
                 ) { station in
                     selectAndDismiss(station)
+                }
+            }
+        }
+        .sheet(isPresented: $showAddFavoriteSheet) {
+            if let station = stationToFavorite {
+                AddFavoriteSheet(station: station) {
+                    showAddFavoriteSheet = false
+                    stationToFavorite = nil
                 }
             }
         }
@@ -211,6 +224,47 @@ struct StationPickerView: View {
                             .fill(AppTheme.surfaceCard)
                             .overlay(RoundedRectangle(cornerRadius: 14, style: .continuous).stroke(AppTheme.hairline, lineWidth: 1))
                     )
+                }
+
+                // Favoriten-Haltestellen
+                if !favoritesManager.favorites.isEmpty {
+                    VStack(alignment: .leading, spacing: 10) {
+                        HStack(spacing: 6) {
+                            Image(systemName: "star.fill")
+                                .font(.system(size: 12, weight: .semibold))
+                                .foregroundColor(.yellow)
+                                .accessibilityHidden(true)
+                            Text("Favoriten")
+                                .font(.system(size: 12, weight: .bold))
+                                .foregroundColor(.secondary)
+                                .textCase(.uppercase)
+                                .tracking(0.3)
+                        }
+                        .padding(.horizontal, 4)
+
+                        VStack(spacing: 0) {
+                            ForEach(Array(favoritesManager.favorites.enumerated()), id: \.element.id) { index, favorite in
+                                Button {
+                                    selectAndDismiss(favorite.station)
+                                } label: {
+                                    favoriteStationRow(favorite: favorite)
+                                }
+                                .buttonStyle(.plain)
+                                .accessibilityLabel("\(favorite.displayLabel): \(favorite.station.longName)")
+                                .accessibilityHint("Tippen zum Auswählen")
+
+                                if index < favoritesManager.favorites.count - 1 {
+                                    Divider()
+                                        .padding(.leading, 52)
+                                }
+                            }
+                        }
+                        .background(
+                            RoundedRectangle(cornerRadius: 14, style: .continuous)
+                                .fill(AppTheme.surfaceCard)
+                                .overlay(RoundedRectangle(cornerRadius: 14, style: .continuous).stroke(AppTheme.hairline, lineWidth: 1))
+                        )
+                    }
                 }
 
                 // Zuletzt verwendet
@@ -363,7 +417,24 @@ struct StationPickerView: View {
                     }
                     .buttonStyle(StationRowButtonStyle())
                     .accessibilityLabel(station.longName)
-                    .accessibilityHint("Tippen zum Auswählen")
+                    .accessibilityHint("Tippen zum Auswählen, lange drücken für Optionen")
+                    .contextMenu {
+                        if favoritesManager.isFavorite(station: station) {
+                            Button(role: .destructive) {
+                                favoritesManager.removeFavorite(station: station)
+                                HapticHelper.impact(.light)
+                            } label: {
+                                Label("Aus Favoriten entfernen", systemImage: "star.slash")
+                            }
+                        } else if favoritesManager.canAddMore {
+                            Button {
+                                stationToFavorite = station
+                                showAddFavoriteSheet = true
+                            } label: {
+                                Label("Zu Favoriten hinzufügen", systemImage: "star")
+                            }
+                        }
+                    }
 
                     if index < graphQLService.stations.count - 1 {
                         Divider()
@@ -404,6 +475,57 @@ struct StationPickerView: View {
                     .font(.system(size: 15, weight: .medium))
                     .foregroundColor(.primary)
                     .lineLimit(1)
+
+                if let city {
+                    Text(city)
+                        .font(.system(size: 12))
+                        .foregroundColor(.secondary)
+                }
+            }
+
+            Spacer()
+
+            Image(systemName: "chevron.right")
+                .font(.system(size: 11, weight: .medium))
+                .foregroundColor(.secondary.opacity(0.25))
+                .accessibilityHidden(true)
+        }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 11)
+        .contentShape(Rectangle())
+    }
+
+    @ViewBuilder
+    private func favoriteStationRow(favorite: FavoriteStation) -> some View {
+        let (city, stopName) = extractCityAndStop(favorite.station.longName)
+
+        HStack(spacing: 14) {
+            ZStack {
+                Circle()
+                    .fill(favorite.iconColor.opacity(0.12))
+                    .frame(width: 38, height: 38)
+                Image(systemName: favorite.icon)
+                    .font(.system(size: 14, weight: .medium))
+                    .foregroundStyle(favorite.iconColor)
+                    .accessibilityHidden(true)
+            }
+
+            VStack(alignment: .leading, spacing: 2) {
+                HStack(spacing: 6) {
+                    Text(city != nil ? stopName : favorite.station.longName)
+                        .font(.system(size: 15, weight: .medium))
+                        .foregroundColor(.primary)
+                        .lineLimit(1)
+                    Text(favorite.displayLabel)
+                        .font(.system(size: 10, weight: .semibold))
+                        .foregroundColor(favorite.iconColor)
+                        .padding(.horizontal, 6)
+                        .padding(.vertical, 2)
+                        .background(
+                            Capsule()
+                                .fill(favorite.iconColor.opacity(0.12))
+                        )
+                }
 
                 if let city {
                     Text(city)

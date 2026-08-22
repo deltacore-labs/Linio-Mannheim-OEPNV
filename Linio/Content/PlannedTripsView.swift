@@ -120,6 +120,25 @@ struct PlannedTripsView: View {
                     .multilineTextAlignment(.center)
                     .padding(.horizontal, 40)
             }
+            
+            // CTA Button
+            NavigationLink {
+                // Führt zum Verbindungen-Tab
+            } label: {
+                HStack(spacing: 8) {
+                    Image(systemName: "magnifyingglass")
+                        .font(.system(size: 14, weight: .semibold))
+                    Text("Verbindung suchen")
+                        .font(.system(size: 16, weight: .semibold))
+                }
+                .foregroundStyle(AppTheme.onPrimary)
+                .padding(.horizontal, 24)
+                .padding(.vertical, 14)
+                .background(AppTheme.primaryColor)
+                .clipShape(RoundedRectangle(cornerRadius: 14))
+            }
+            .simultaneousGesture(TapGesture().onEnded { HapticHelper.impact(.medium) })
+            .padding(.top, 8)
         }
         .frame(maxHeight: .infinity)
     }

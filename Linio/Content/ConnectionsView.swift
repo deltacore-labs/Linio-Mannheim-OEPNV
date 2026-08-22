@@ -32,8 +32,10 @@ struct ConnectionsView: View {
     @State private var pulseScale: CGFloat = 1.0
     @State private var headerAppeared = false
     @State private var sameStationValidationError = false
+    @State private var lastRefresh: Date?
 
-    @ObservedObject private var network = NetworkMonitor.shared
+    // Performance: @StateObject für Singleton
+    @StateObject private var network = NetworkMonitor.shared
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     private let formatter = DateFormattingHelper.shared
@@ -47,6 +49,21 @@ struct ConnectionsView: View {
 
     private var currentHeaderHeight: CGFloat {
         max(minHeaderHeight, maxHeaderHeight - scrollOffset)
+    }
+    
+    /// Prüft ob Filter aktiv sind (nicht alle Verkehrsmittel aktiviert)
+    private var hasActiveFilters: Bool {
+        !enableTram || !enableBus || !enableSBahn || showDelaysOnly
+    }
+    
+    /// Beschreibung der aktiven Filter
+    private var activeFilterDescription: String {
+        var filters: [String] = []
+        if !enableTram { filters.append("ohne Tram") }
+        if !enableBus { filters.append("ohne Bus") }
+        if !enableSBahn { filters.append("ohne S-Bahn") }
+        if showDelaysOnly { filters.append("nur Verspätungen") }
+        return filters.isEmpty ? "" : filters.joined(separator: ", ")
     }
 
     var body: some View {
@@ -284,6 +301,36 @@ struct ConnectionsView: View {
                             .stroke(AppTheme.hairline, lineWidth: 1)
                     )
             )
+            
+            // Filter-Indikator (nur anzeigen wenn Filter aktiv)
+            if hasActiveFilters {
+                HStack(spacing: 6) {
+                    Image(systemName: "line.3.horizontal.decrease.circle.fill")
+                        .font(.system(size: 12))
+                        .foregroundColor(.orange)
+                    Text("Filter aktiv: \(activeFilterDescription)")
+                        .font(.system(size: 11, weight: .medium))
+                        .foregroundColor(.orange)
+                    Spacer()
+                    NavigationLink {
+                        SettingsView(locationManager: locationManager, navigateToTrips: .constant(false))
+                    } label: {
+                        Text("Ändern")
+                            .font(.system(size: 11, weight: .semibold))
+                            .foregroundColor(AppTheme.primaryColor)
+                    }
+                }
+                .padding(.horizontal, 12)
+                .padding(.vertical, 8)
+                .background(
+                    RoundedRectangle(cornerRadius: 10, style: .continuous)
+                        .fill(Color.orange.opacity(0.1))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 10, style: .continuous)
+                                .stroke(Color.orange.opacity(0.2), lineWidth: 1)
+                        )
+                )
+            }
         }
         .padding(.horizontal, 16)
     }
@@ -501,10 +548,17 @@ struct ConnectionsView: View {
             }
 
             if graphQLService.isLoading {
-                ProgressView()
-                    .progressViewStyle(CircularProgressViewStyle(tint: AppTheme.primaryColor))
-                    .scaleEffect(1.3)
-                    .padding(.vertical, 30)
+                if hasSearchedOnce {
+                    // Skeleton Loading für bessere UX bei Folge-Suchen
+                    ConnectionsSkeletonList(count: min(maxConnections, 5))
+                        .transition(.opacity)
+                } else {
+                    // Einfacher Spinner für initiale Suche
+                    ProgressView()
+                        .progressViewStyle(CircularProgressViewStyle(tint: AppTheme.primaryColor))
+                        .scaleEffect(1.3)
+                        .padding(.vertical, 30)
+                }
             }
 
             if !hasSearchedOnce && !graphQLService.isLoading {
@@ -516,6 +570,13 @@ struct ConnectionsView: View {
             }
 
             if !filteredTrips.isEmpty {
+                // Refresh Timestamp Header
+                if hasSearchedOnce {
+                    RefreshTimestampView(lastRefresh: lastRefresh, isRefreshing: graphQLService.isLoading)
+                        .padding(.horizontal)
+                        .padding(.bottom, 4)
+                }
+                
                 connectionsList
             } else if !graphQLService.detailedTrips.isEmpty && showDelaysOnly {
                 HStack(spacing: 8) {
@@ -628,39 +689,103 @@ struct ConnectionsView: View {
     // MARK: - Empty State
 
     private var emptyStateView: some View {
-        VStack(spacing: 14) {
-            Image(systemName: "tram.fill")
-                .font(.system(size: 44))
-                .foregroundColor(AppTheme.mutedSoft)
-                .accessibilityHidden(true)
-            VStack(spacing: 5) {
-                Text("Wohin möchtest du fahren?")
-                    .font(.headline)
-                    .foregroundColor(.secondary)
-                Text("Wähle Start und Ziel oben, um Verbindungen zu finden.")
-                    .font(.subheadline)
-                    .foregroundColor(.secondary.opacity(0.6))
-                    .multilineTextAlignment(.center)
-            }
+        EmptyStateView.noConnections {
+            // Optional: CTA für Standortsuche könnte hier eingefügt werden
         }
-        .frame(maxWidth: .infinity)
-        .padding(.vertical, 44)
-        .padding(.horizontal)
+        .padding(.vertical, 20)
     }
 
     // MARK: - Connections List
 
     private var connectionsList: some View {
-        VStack(spacing: 12) {
-            ForEach(filteredTrips) { trip in
-                Button {
-                    guard !trip.legs.isEmpty else { return }
-                    selectedTrip = trip
-                } label: {
-                    TripCard(trip: trip)
-                }
-                .buttonStyle(.plain)
+        // Performance: LazyVStack rendert nur sichtbare Views
+        LazyVStack(spacing: 12) {
+            ForEach(Array(filteredTrips.enumerated()), id: \.element.id) { index, trip in
+                tripCardView(for: trip, isFirst: index == 0)
             }
+        }
+    }
+    
+    @ViewBuilder
+    private func tripCardView(for trip: DetailedTrip, isFirst: Bool) -> some View {
+        let cardContent = Button {
+            guard !trip.legs.isEmpty else { return }
+            HapticHelper.softTap()
+            selectedTrip = trip
+        } label: {
+            TripCard(trip: trip)
+        }
+        .buttonStyle(.plain)
+        .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+            Button {
+                HapticHelper.success()
+                startLiveActivity(for: trip)
+            } label: {
+                Label("Live starten", systemImage: "bolt.fill")
+            }
+            .tint(.green)
+        }
+        .swipeActions(edge: .leading, allowsFullSwipe: false) {
+            Button {
+                HapticHelper.softTap()
+                shareTrip(trip)
+            } label: {
+                Label("Teilen", systemImage: "square.and.arrow.up")
+            }
+            .tint(AppTheme.primaryColor)
+        }
+        .contextMenu {
+            Button {
+                startLiveActivity(for: trip)
+            } label: {
+                Label("Live Activity starten", systemImage: "bolt.fill")
+            }
+            
+            Button {
+                shareTrip(trip)
+            } label: {
+                Label("Verbindung teilen", systemImage: "square.and.arrow.up")
+            }
+            
+            Divider()
+            
+            Button {
+                selectedTrip = trip
+            } label: {
+                Label("Details anzeigen", systemImage: "info.circle")
+            }
+        }
+        
+        // First-Use Tooltip nur bei der ersten Karte anzeigen
+        if isFirst {
+            cardContent
+                .firstUseTooltip(
+                    key: TooltipKey.swipeForLiveActivity,
+                    text: "Wische nach rechts für Live Activity",
+                    edge: .bottom
+                )
+        } else {
+            cardContent
+        }
+    }
+    
+    // MARK: - Trip Actions
+    
+    private func startLiveActivity(for trip: DetailedTrip) {
+        guard let token = authService.accessToken else { return }
+        Task {
+            await liveActivityManager.startActivity(for: trip, accessToken: token)
+        }
+    }
+    
+    private func shareTrip(_ trip: DetailedTrip) {
+        // Nutze den ConnectionShareService für das Teilen
+        let shareText = ConnectionShareService.generateShareText(for: trip)
+        let activityVC = UIActivityViewController(activityItems: [shareText], applicationActivities: nil)
+        
+        if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+           let rootVC = windowScene.windows.first?.rootViewController {
+            rootVC.present(activityVC, animated: true)
         }
     }
 
@@ -731,6 +856,7 @@ struct ConnectionsView: View {
             departureTime: tripTimeMode != .arrival ? iso : nil,
             arrivalTime: tripTimeMode == .arrival ? iso : nil
         )
+        lastRefresh = Date()
         Task { await graphQLService.enrichConnectionsWithOccupancy(accessToken: token) }
     }
 

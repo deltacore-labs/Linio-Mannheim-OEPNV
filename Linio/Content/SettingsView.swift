@@ -28,6 +28,10 @@ struct SettingsView: View {
     @State private var showingCacheSuccess = false
     @State private var showPrivacyPolicy = false
     @State private var notificationAuthStatus: UNAuthorizationStatus = .notDetermined
+    @State private var showFavoritesManagement = false
+    
+    // Performance: @StateObject für Singleton
+    @StateObject private var favoritesManager = FavoriteStationsManager.shared
 
     private var appVersion: String {
         Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.1.0"
@@ -41,6 +45,7 @@ struct SettingsView: View {
                 VStack(spacing: 28) {
                     appHeader
                     tripsSection
+                    favoritesSection
                     searchSection
                     transportSection
                     notificationSection
@@ -171,6 +176,80 @@ struct SettingsView: View {
                 .padding(.vertical, 12)
             }
             .buttonStyle(.plain)
+        }
+    }
+
+    // MARK: - Favorites Section
+
+    private var favoritesSection: some View {
+        SettingsCard(title: "Favoriten-Haltestellen", icon: "star.fill", iconColor: .yellow, cardBg: AppTheme.surfaceCard, dividerColor: AppTheme.hairline) {
+            if favoritesManager.favorites.isEmpty {
+                HStack(spacing: 12) {
+                    IconBadge(icon: "star", color: .yellow)
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("Keine Favoriten")
+                            .font(.body)
+                            .foregroundColor(AppTheme.ink)
+                        Text("Füge Haltestellen als Favoriten hinzu für schnellen Zugriff")
+                            .font(.caption)
+                            .foregroundColor(AppTheme.muted)
+                    }
+                    Spacer()
+                }
+                .padding(.horizontal, 16)
+                .padding(.vertical, 12)
+            } else {
+                ForEach(favoritesManager.favorites) { favorite in
+                    HStack(spacing: 12) {
+                        ZStack {
+                            RoundedRectangle(cornerRadius: 8)
+                                .fill(favorite.iconColor.opacity(0.14))
+                                .frame(width: 32, height: 32)
+                            Image(systemName: favorite.icon)
+                                .font(.system(size: 14, weight: .semibold))
+                                .foregroundColor(favorite.iconColor)
+                        }
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text(favorite.station.longName)
+                                .font(.body)
+                                .foregroundColor(AppTheme.ink)
+                                .lineLimit(1)
+                            Text(favorite.displayLabel)
+                                .font(.caption)
+                                .foregroundColor(favorite.iconColor)
+                        }
+                        Spacer()
+                        Button {
+                            favoritesManager.removeFavorite(id: favorite.id)
+                            HapticHelper.impact(.light)
+                        } label: {
+                            Image(systemName: "xmark.circle.fill")
+                                .font(.system(size: 18))
+                                .foregroundColor(AppTheme.mutedSoft)
+                        }
+                    }
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 10)
+                    
+                    if favorite.id != favoritesManager.favorites.last?.id {
+                        RowDivider(color: AppTheme.hairline)
+                    }
+                }
+            }
+            
+            if !favoritesManager.favorites.isEmpty {
+                RowDivider(color: AppTheme.hairline)
+                
+                HStack(spacing: 12) {
+                    IconBadge(icon: "info.circle", color: AppTheme.muted)
+                    Text("\(favoritesManager.remainingSlots) Plätze verfügbar")
+                        .font(.caption)
+                        .foregroundColor(AppTheme.muted)
+                    Spacer()
+                }
+                .padding(.horizontal, 16)
+                .padding(.vertical, 10)
+            }
         }
     }
 

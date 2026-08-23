@@ -20,7 +20,7 @@ class SecureConfigurationManager {
         loadAndDecryptSecrets()
     }
     
-    // MARK: - Public Accessors
+    // MARK: - Public Accessors (RNV)
     
     var clientID: String? {
         decryptedSecrets["RNV_CLIENT_ID"]
@@ -44,6 +44,36 @@ class SecureConfigurationManager {
     
     var signingKey: String? {
         decryptedSecrets["RNV_SIGNING_KEY"]
+    }
+    
+    // MARK: - Public Accessors (Wallet)
+    // Gibt nil zurück wenn der Wert leer ist, damit Fallbacks greifen können
+    
+    var walletPassTypeID: String? {
+        nonEmptyValue(decryptedSecrets["WALLET_PASS_TYPE_ID"])
+    }
+    
+    var walletTeamID: String? {
+        nonEmptyValue(decryptedSecrets["WALLET_TEAM_ID"])
+    }
+    
+    var walletCertName: String? {
+        nonEmptyValue(decryptedSecrets["WALLET_CERT_NAME"])
+    }
+    
+    var walletCertPassword: String? {
+        // Password kann leer sein, daher keine nonEmpty-Prüfung
+        decryptedSecrets["WALLET_CERT_PASSWORD"]
+    }
+    
+    var walletAuthToken: String? {
+        nonEmptyValue(decryptedSecrets["WALLET_AUTH_TOKEN"])
+    }
+    
+    // Helper: Gibt nil zurück wenn String leer ist
+    private func nonEmptyValue(_ value: String?) -> String? {
+        guard let v = value, !v.isEmpty else { return nil }
+        return v
     }
     
     // MARK: - Loading & Decryption
@@ -111,12 +141,19 @@ class SecureConfigurationManager {
         #endif
         
         decryptedSecrets = [
+            // RNV Secrets
             "RNV_CLIENT_ID": Bundle.main.object(forInfoDictionaryKey: "RNV_CLIENT_ID") as? String ?? "",
             "RNV_CLIENT_SECRET": Bundle.main.object(forInfoDictionaryKey: "RNV_CLIENT_SECRET") as? String ?? "",
             "RNV_TENANT_ID": Bundle.main.object(forInfoDictionaryKey: "RNV_TENANT_ID") as? String ?? "",
             "RNV_RESOURCE": Bundle.main.object(forInfoDictionaryKey: "RNV_RESOURCE") as? String ?? "",
             "RNV_GRAPHQL_URL": Bundle.main.object(forInfoDictionaryKey: "RNV_GRAPHQL_URL") as? String ?? "",
-            "RNV_SIGNING_KEY": Bundle.main.object(forInfoDictionaryKey: "RNV_SIGNING_KEY") as? String ?? ""
+            "RNV_SIGNING_KEY": Bundle.main.object(forInfoDictionaryKey: "RNV_SIGNING_KEY") as? String ?? "",
+            // Wallet Secrets
+            "WALLET_PASS_TYPE_ID": Bundle.main.object(forInfoDictionaryKey: "WalletPassTypeID") as? String ?? "",
+            "WALLET_TEAM_ID": Bundle.main.object(forInfoDictionaryKey: "WalletTeamID") as? String ?? "",
+            "WALLET_CERT_NAME": Bundle.main.object(forInfoDictionaryKey: "WalletCertName") as? String ?? "",
+            "WALLET_CERT_PASSWORD": Bundle.main.object(forInfoDictionaryKey: "WalletCertPassword") as? String ?? "",
+            "WALLET_AUTH_TOKEN": Bundle.main.object(forInfoDictionaryKey: "WalletAuthToken") as? String ?? ""
         ]
     }
     
@@ -126,12 +163,19 @@ class SecureConfigurationManager {
     /// Nur für Setup - nicht in Production verwenden!
     func generateEncryptedSecretsFile() throws -> String {
         let secrets = [
+            // RNV Secrets
             "RNV_CLIENT_ID": Bundle.main.object(forInfoDictionaryKey: "RNV_CLIENT_ID") as? String ?? "",
             "RNV_CLIENT_SECRET": Bundle.main.object(forInfoDictionaryKey: "RNV_CLIENT_SECRET") as? String ?? "",
             "RNV_TENANT_ID": Bundle.main.object(forInfoDictionaryKey: "RNV_TENANT_ID") as? String ?? "",
             "RNV_RESOURCE": Bundle.main.object(forInfoDictionaryKey: "RNV_RESOURCE") as? String ?? "",
             "RNV_GRAPHQL_URL": Bundle.main.object(forInfoDictionaryKey: "RNV_GRAPHQL_URL") as? String ?? "",
-            "RNV_SIGNING_KEY": Bundle.main.object(forInfoDictionaryKey: "RNV_SIGNING_KEY") as? String ?? ""
+            "RNV_SIGNING_KEY": Bundle.main.object(forInfoDictionaryKey: "RNV_SIGNING_KEY") as? String ?? "",
+            // Wallet Secrets
+            "WALLET_PASS_TYPE_ID": Bundle.main.object(forInfoDictionaryKey: "WalletPassTypeID") as? String ?? "",
+            "WALLET_TEAM_ID": Bundle.main.object(forInfoDictionaryKey: "WalletTeamID") as? String ?? "",
+            "WALLET_CERT_NAME": Bundle.main.object(forInfoDictionaryKey: "WalletCertName") as? String ?? "",
+            "WALLET_CERT_PASSWORD": Bundle.main.object(forInfoDictionaryKey: "WalletCertPassword") as? String ?? "",
+            "WALLET_AUTH_TOKEN": Bundle.main.object(forInfoDictionaryKey: "WalletAuthToken") as? String ?? ""
         ]
         
         let encrypted = try encryptionService.encryptDictionary(secrets)

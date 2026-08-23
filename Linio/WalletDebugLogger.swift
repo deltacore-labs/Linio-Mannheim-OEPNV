@@ -114,9 +114,33 @@ final class WalletDebugLogger {
         let canAddPasses = PKAddPassesViewController.canAddPasses()
         info("Wallet-Status", details: "canAddPasses: \(canAddPasses)")
         
-        let certName = Bundle.main.object(forInfoDictionaryKey: "WalletCertName") as? String ?? "nicht gesetzt"
-        let passTypeID = Bundle.main.object(forInfoDictionaryKey: "WalletPassTypeID") as? String ?? "nicht gesetzt"
-        debug("Wallet-Config", details: "Cert: \(certName), PassTypeID: \(passTypeID.prefix(25))...")
+        // Verwende WalletConfig direkt - dieser hat bereits die Fallback-Logik eingebaut
+        let certName = WalletConfig.certFileName
+        let passTypeID = WalletConfig.passTypeIdentifier
+        let teamID = WalletConfig.teamIdentifier
+        
+        // Zeige an, welche Quelle tatsächlich verwendet wurde
+        let config = SecureConfigurationManager.shared
+        let secretsSource: String
+        if let encrypted = config.walletPassTypeID, !encrypted.isEmpty {
+            secretsSource = "EncryptedSecrets"
+        } else if let plistValue = Bundle.main.object(forInfoDictionaryKey: "WalletPassTypeID") as? String, !plistValue.isEmpty {
+            secretsSource = "Info.plist"
+        } else {
+            secretsSource = "Hardcoded Fallback"
+        }
+        debug("Wallet-Config", details: "Source: \(secretsSource)")
+        debug("PassTypeID", details: passTypeID)
+        debug("TeamID", details: teamID)
+        debug("CertName", details: certName)
+        
+        // Validiere Konfiguration
+        if passTypeID.isEmpty {
+            error("PassTypeID FEHLT", details: "Secrets nicht konfiguriert!")
+        }
+        if teamID.isEmpty {
+            error("TeamID FEHLT", details: "Secrets nicht konfiguriert!")
+        }
         
         if Bundle.main.path(forResource: certName, ofType: "p12") != nil {
             success("Zertifikat gefunden", details: "\(certName).p12")

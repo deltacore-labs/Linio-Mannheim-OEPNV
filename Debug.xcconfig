@@ -1,10 +1,13 @@
 // Debug.xcconfig
 
-// Wallet defaults (overridden by Secrets.xcconfig if present)
+// Wallet defaults - werden von Secrets.xcconfig überschrieben falls vorhanden
 WALLET_PASS_TYPE_ID =
 WALLET_TEAM_ID =
 WALLET_CERT_NAME =
+WALLET_CERT_PASSWORD =
+WALLET_AUTH_TOKEN =
 
+// Secrets.xcconfig enthält die echten Werte (nicht im Git!)
 #include? "Secrets.xcconfig"
 
 // Debug-spezifische Build Settings

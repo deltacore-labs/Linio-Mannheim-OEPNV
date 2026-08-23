@@ -423,13 +423,13 @@ struct TicketView: View {
     @State private var showManualSheet = false
     @State private var showFullscreen = false
     @State private var showDeleteConfirm = false
-    @State private var walletPass: PKPass? = nil
-    @State private var showWalletSheet = false
+    @State private var walletPassToAdd: PKPass? = nil
     @State private var walletError: String? = nil
     @State private var showWalletError = false
     @State private var showRenewalSheet = false
     @State private var showRenewalWalletHint = false
     @State private var showWalletUpdatedBanner = false
+    @State private var showWalletUpdatedAlert = false
 
     private let scanner = TicketScanService()
 
@@ -490,11 +490,9 @@ struct TicketView: View {
             Button("Entfernen", role: .destructive) { deleteTicket() }
             Button("Abbrechen", role: .cancel) { }
         }
-        .sheet(isPresented: $showWalletSheet) {
-            if let pass = walletPass {
-                PKAddPassView(pass: pass, isPresented: $showWalletSheet)
-                    .ignoresSafeArea()
-            }
+        .sheet(item: $walletPassToAdd) { pass in
+            PKAddPassView(pass: pass)
+                .ignoresSafeArea()
         }
         .alert("Wallet-Fehler", isPresented: $showWalletError) {
             Button("OK", role: .cancel) { }
@@ -508,6 +506,14 @@ struct TicketView: View {
             Button("Später", role: .cancel) { }
         } message: {
             Text("Dein Ticket wurde verlängert. Bitte füge den aktualisierten Pass erneut zu Apple Wallet hinzu.")
+        }
+        .alert("Pass aktualisiert", isPresented: $showWalletUpdatedAlert) {
+            Button("In Wallet öffnen") {
+                openWalletApp()
+            }
+            Button("OK", role: .cancel) { }
+        } message: {
+            Text("Dein Wallet-Pass wurde aktualisiert. Bitte prüfe kurz in der Wallet-App, ob die neuen Daten korrekt übernommen wurden.")
         }
         .sheet(isPresented: $showRenewalSheet) {
             if let ticket {
@@ -778,38 +784,67 @@ struct TicketView: View {
     }
 
     private func addToWallet() async {
-        guard let ticket else { return }
+        let wlog = WalletDebugLogger.shared
+        wlog.info("addToWallet aufgerufen")
+        
+        guard let ticket else {
+            wlog.error("Kein Ticket vorhanden")
+            return
+        }
+        
         do {
             let generator = WalletPassGenerator()
+            wlog.info("Generiere Pass", details: "Ticket: \(ticket.holderName)")
             let passData  = try generator.generatePass(for: ticket, barcodeImage: barcodeImage)
-            #if DEBUG
-            // Write pass to tmp for debugging (can be AirDrop'd to Mac for inspection)
+            
+            // Write pass to tmp for debugging (auch in Release für TestFlight!)
             let tmpURL = FileManager.default.temporaryDirectory.appendingPathComponent("debug_ticket.pkpass")
             try? passData.write(to: tmpURL)
+            wlog.debug("Debug-Pass geschrieben", details: tmpURL.path)
+            #if DEBUG
             print("💾 [WALLET] Debug-Pass geschrieben: \(tmpURL.path)")
             #endif
+            
+            wlog.info("Erstelle PKPass aus Daten", details: "\(passData.count) bytes")
             let newPass = try PKPass(data: passData)
+            wlog.success("PKPass erstellt", details: "Serial: \(newPass.serialNumber), TypeID: \(newPass.passTypeIdentifier)")
+            
             let library = PKPassLibrary()
+            let existingPasses = library.passes()
+            wlog.debug("Vorhandene Passes", details: "\(existingPasses.count) Stück")
 
-            if library.passes().contains(where: {
+            if existingPasses.contains(where: {
                 $0.serialNumber == newPass.serialNumber &&
                 $0.passTypeIdentifier == newPass.passTypeIdentifier
             }) {
-                // Pass ist bereits in Wallet — lautlos ersetzen, kein Sheet nötig
+                // Pass ist bereits in Wallet — ersetzen und Nutzer informieren
+                wlog.info("Pass existiert bereits, ersetze...")
                 library.replacePass(with: newPass)
                 try? await generator.uploadPass(passData, passTypeIdentifier: newPass.passTypeIdentifier, serialNumber: newPass.serialNumber)
-                withAnimation(.easeInOut(duration: 0.3)) { showWalletUpdatedBanner = true }
+                wlog.success("Pass erfolgreich ersetzt")
+                await MainActor.run {
+                    withAnimation(.easeInOut(duration: 0.3)) { showWalletUpdatedBanner = true }
+                    showWalletUpdatedAlert = true
+                }
             } else {
                 // Erster Hinzufüge-Vorgang — Add-Sheet anzeigen
+                wlog.info("Neuer Pass, zeige Add-Sheet")
                 try? await generator.uploadPass(passData, passTypeIdentifier: newPass.passTypeIdentifier, serialNumber: newPass.serialNumber)
                 await MainActor.run {
-                    walletPass      = newPass
-                    showWalletSheet = true
+                    walletPassToAdd = newPass
                 }
+                wlog.success("Add-Sheet angezeigt")
             }
         } catch {
+            wlog.logError(error, context: "addToWallet fehlgeschlagen")
+            let detailedError = """
+                \(error.localizedDescription)
+                
+                Technische Details:
+                \((error as NSError).domain) (\((error as NSError).code))
+                """
             await MainActor.run {
-                walletError     = error.localizedDescription
+                walletError     = detailedError
                 showWalletError = true
             }
         }
@@ -872,6 +907,12 @@ struct TicketView: View {
         storedJSON = ""
         BarcodeStorage.delete()
         TicketRenewalService.shared.cancelRenewalNotification()
+    }
+    
+    private func openWalletApp() {
+        if let url = URL(string: "shoebox://") {
+            UIApplication.shared.open(url)
+        }
     }
 
     #if DEBUG
@@ -1297,28 +1338,40 @@ private struct DTicketLogoView: View {
     }
 }
 
+// MARK: - PKPass Identifiable Extension (for item-based sheet)
+
+extension PKPass: @retroactive Identifiable {
+    public var id: String { "\(passTypeIdentifier)-\(serialNumber)" }
+}
+
 // MARK: - PassKit UIViewControllerRepresentable
 
 private struct PKAddPassView: UIViewControllerRepresentable {
     let pass: PKPass
-    @Binding var isPresented: Bool
+    @Environment(\.dismiss) private var dismiss
 
     func makeUIViewController(context: Context) -> UIViewController {
         guard let vc = PKAddPassesViewController(passes: [pass]) else {
-            return UIViewController()
+            // Fallback: leerer VC mit Dismiss nach kurzem Delay
+            let fallback = UIViewController()
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                fallback.dismiss(animated: true)
+            }
+            return fallback
         }
+        vc.delegate = context.coordinator
         return vc
     }
 
     func updateUIViewController(_ uiViewController: UIViewController, context: Context) {}
 
-    func makeCoordinator() -> Coordinator { Coordinator(isPresented: $isPresented) }
+    func makeCoordinator() -> Coordinator { Coordinator(dismiss: dismiss) }
 
     final class Coordinator: NSObject, PKAddPassesViewControllerDelegate {
-        @Binding var isPresented: Bool
-        init(isPresented: Binding<Bool>) { _isPresented = isPresented }
+        let dismiss: DismissAction
+        init(dismiss: DismissAction) { self.dismiss = dismiss }
         func addPassesViewControllerDidFinish(_ controller: PKAddPassesViewController) {
-            isPresented = false
+            dismiss()
         }
     }
 }

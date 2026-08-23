@@ -37,6 +37,12 @@ struct SettingsView: View {
     private var appVersion: String {
         Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.1.0"
     }
+    
+    /// Erkennt ob die App über TestFlight installiert wurde (nicht App Store)
+    private var isTestFlight: Bool {
+        guard let receiptURL = Bundle.main.appStoreReceiptURL else { return false }
+        return receiptURL.lastPathComponent == "sandboxReceipt"
+    }
 
     private var notificationsDenied: Bool { notificationAuthStatus == .denied }
 
@@ -52,7 +58,12 @@ struct SettingsView: View {
                     notificationSection
                     locationSection
                     appSection
-                    walletDebugSection
+                    
+                    // Wallet Debug nur für TestFlight (interne Tests), nicht im App Store
+                    if isTestFlight {
+                        walletDebugSection
+                    }
+                    
                     #if DEBUG
                     developerSection
                     #endif

@@ -17,6 +17,7 @@ struct NearbyStationButton: View {
     @State private var isLoading = false
     @State private var nearestStation: Station?
     @State private var errorMessage: String?
+    @State private var showError = false
     
     var body: some View {
         Button {
@@ -52,25 +53,37 @@ struct NearbyStationButton: View {
         .disabled(isLoading)
         .accessibilityLabel("Nächste Haltestelle finden")
         .accessibilityHint("Sucht die nächstgelegene Haltestelle basierend auf deinem Standort")
+        .alert("Standortsuche", isPresented: $showError) {
+            Button("OK", role: .cancel) { }
+        } message: {
+            Text(errorMessage ?? "Ein Fehler ist aufgetreten")
+        }
     }
     
     private func findNearestStation() async {
+        isLoading = true
+        HapticHelper.impact(.light)
+        
+        defer { isLoading = false }
+        
         if locationManager.location == nil {
             locationManager.startLocationUpdates()
             // Warte kurz auf Standort
             try? await Task.sleep(nanoseconds: 1_500_000_000)
             guard locationManager.location != nil else {
-                errorMessage = "Standort nicht verfügbar"
+                errorMessage = "Standort nicht verfügbar. Bitte Standortzugriff erlauben."
+                showError = true
+                HapticHelper.notification(.warning)
                 return
             }
         }
         
-        guard let currentLocation = locationManager.location else { return }
-        
-        isLoading = true
-        HapticHelper.impact(.light)
-        
-        defer { isLoading = false }
+        guard let currentLocation = locationManager.location else {
+            errorMessage = "Standort konnte nicht ermittelt werden"
+            showError = true
+            HapticHelper.notification(.warning)
+            return
+        }
         
         // Token sicherstellen
         if !authService.isTokenValid {
@@ -79,6 +92,8 @@ struct NearbyStationButton: View {
         
         guard let token = authService.accessToken, !token.isEmpty else {
             errorMessage = "Authentifizierung fehlgeschlagen"
+            showError = true
+            HapticHelper.notification(.error)
             return
         }
         
@@ -91,7 +106,9 @@ struct NearbyStationButton: View {
         
         // Nächste Station finden
         guard let nearest = graphQLService.stations.first else {
-            errorMessage = "Keine Haltestellen in der Nähe"
+            errorMessage = "Keine Haltestellen in der Nähe gefunden"
+            showError = true
+            HapticHelper.notification(.warning)
             return
         }
         

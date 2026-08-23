@@ -78,17 +78,29 @@ final class WalletPassGenerator {
         return f
     }()
 
+    private let wlog = WalletDebugLogger.shared
+    
     /// Builds a signed `.pkpass` Data ready for `PKPass(data:)`.
     func generatePass(for ticket: DeutschlandTicket, barcodeImage: UIImage?) throws -> Data {
+        wlog.info("Pass-Generierung gestartet", details: "Name: \(ticket.holderName), Barcode: \(barcodeImage != nil)")
+        
         let barcodeInfo = barcodeImage.flatMap { decodeBarcode(from: $0) }
+        if let info = barcodeInfo {
+            wlog.success("Barcode dekodiert", details: "Format: \(info.pkFormat), Länge: \(info.message.count)")
+        } else {
+            wlog.warning("Kein Barcode dekodiert", details: "barcodeImage war \(barcodeImage == nil ? "nil" : "vorhanden aber nicht lesbar")")
+        }
+        
         var files: [String: Data] = [:]
 
         // pass.json
         let passDict = makePassJSON(ticket: ticket, barcodeInfo: barcodeInfo)
         guard let passData = try? JSONSerialization.data(withJSONObject: passDict, options: [.prettyPrinted, .sortedKeys]) else {
+            wlog.error("pass.json Erstellung fehlgeschlagen")
             throw WalletPassError.packagingFailed
         }
         files["pass.json"] = passData
+        wlog.debug("pass.json erstellt", details: "\(passData.count) bytes")
         #if DEBUG
         print("📋 [WALLET] pass.json:\n\(String(data: passData, encoding: .utf8) ?? "")")
         #endif
@@ -123,14 +135,23 @@ final class WalletPassGenerator {
         #endif
 
         // signature — detached CMS signature of manifest.json
-        let signature = try signManifest(manifestData)
-        files["signature"] = signature
-        #if DEBUG
-        print("✅ [WALLET] Signatur erstellt: \(signature.count) Bytes")
-        print("📦 [WALLET] Pass enthält \(files.count) Dateien: \(files.keys.sorted().joined(separator: ", "))")
-        #endif
-
-        return try packageAsZip(files)
+        wlog.info("Starte Signierung", details: "Manifest: \(manifestData.count) bytes")
+        do {
+            let signature = try signManifest(manifestData)
+            files["signature"] = signature
+            wlog.success("Signatur erstellt", details: "\(signature.count) bytes")
+            #if DEBUG
+            print("✅ [WALLET] Signatur erstellt: \(signature.count) Bytes")
+            print("📦 [WALLET] Pass enthält \(files.count) Dateien: \(files.keys.sorted().joined(separator: ", "))")
+            #endif
+            
+            let zipData = try packageAsZip(files)
+            wlog.success("Pass generiert", details: "\(zipData.count) bytes, \(files.count) Dateien")
+            return zipData
+        } catch {
+            wlog.logError(error, context: "Signierung/Packaging fehlgeschlagen")
+            throw error
+        }
     }
 
     /// Uploads the signed .pkpass to the Linio Wallet API so Wallet can fetch updates.
@@ -283,15 +304,26 @@ final class WalletPassGenerator {
         }
 
         let leafDER   = SecCertificateCopyData(leafCert) as Data
-        let chainDERs = chain.map { SecCertificateCopyData($0) as Data }
-
-        guard let issuerSeq = SecCertificateCopyNormalizedIssuerSequence(leafCert) as Data? else {
-            throw WalletPassError.signingFailed
+        // Filter chain: exclude the leaf certificate if already present
+        let leafHash = sha1Data(leafDER)
+        let chainDERs = chain.compactMap { cert -> Data? in
+            let certData = SecCertificateCopyData(cert) as Data
+            return sha1Data(certData) == leafHash ? nil : certData
         }
-        var cfErr2: Unmanaged<CFError>?
-        guard let serialBytes = SecCertificateCopySerialNumberData(leafCert, &cfErr2) as Data? else {
-            cfErr2?.release()
-            throw WalletPassError.signingFailed
+
+        // Extract issuer and serial from raw DER to preserve exact encoding
+        guard let (issuerSeq, serialBytes) = extractIssuerAndSerial(from: leafDER) else {
+            // Fallback to Security framework functions
+            guard let issuer = SecCertificateCopyNormalizedIssuerSequence(leafCert) as Data? else {
+                throw WalletPassError.signingFailed
+            }
+            var cfErr2: Unmanaged<CFError>?
+            guard let serial = SecCertificateCopySerialNumberData(leafCert, &cfErr2) as Data? else {
+                cfErr2?.release()
+                throw WalletPassError.signingFailed
+            }
+            return buildPKCS7(sig: sigBytes, signedAttrs: attrsField, leafDER: leafDER,
+                              chainDERs: chainDERs, issuerSeq: issuer, serialBytes: serial)
         }
 
         return buildPKCS7(sig: sigBytes, signedAttrs: attrsField, leafDER: leafDER,
@@ -299,8 +331,11 @@ final class WalletPassGenerator {
     }
 
     private func loadSigningIdentity() throws -> (SecIdentity, [SecCertificate]) {
+        wlog.info("Lade Signing Identity", details: "Zertifikat: \(WalletConfig.certFileName).p12")
+        
         guard let url = Bundle.main.url(forResource: WalletConfig.certFileName, withExtension: "p12"),
               let p12Data = try? Data(contentsOf: url) else {
+            wlog.error("Zertifikat nicht gefunden", details: "'\(WalletConfig.certFileName).p12' fehlt im Bundle")
             #if DEBUG
             let bundleContents = (try? FileManager.default.contentsOfDirectory(
                 at: Bundle.main.bundleURL, includingPropertiesForKeys: nil
@@ -310,6 +345,8 @@ final class WalletPassGenerator {
             #endif
             throw WalletPassError.noCertificate
         }
+        
+        wlog.debug("P12 geladen", details: "\(p12Data.count) bytes")
 
         // Always pass the passphrase — even an empty string is different from omitting it.
         // Omitting causes iOS to expect interactive input which fails programmatically.
@@ -318,10 +355,12 @@ final class WalletPassGenerator {
         ]
         var items: CFArray?
         let status = SecPKCS12Import(p12Data as CFData, options as CFDictionary, &items)
+        wlog.logCertImport(status: status)
         #if DEBUG
         print("🔐 [WALLET] SecPKCS12Import status: \(status)")
         #endif
         guard status == errSecSuccess else {
+            wlog.error("P12 Import fehlgeschlagen", details: "OSStatus: \(status)")
             throw WalletPassError.importFailed(status)
         }
         guard let itemArray = items as? [[String: Any]],
@@ -376,7 +415,30 @@ final class WalletPassGenerator {
 
         let digestAlgos     = asnSet([asnSeq([oidSHA1, null])])
         let encapContent    = asnSeq([oidData])  // detached — no eContent
-        let allCerts        = asnTagImplicit(0xa0, ([leafDER] + chainDERs).reduce(Data(), +))
+        
+        // Build certificate set: leaf + chain (deduplicated).
+        // Each certificate is already a complete DER-encoded SEQUENCE, so we just concatenate them.
+        // The [0] IMPLICIT tag wraps the raw concatenation of certificate DERs.
+        var certSet = Data()
+        var addedCertHashes = Set<Data>()
+        
+        // Add leaf certificate first
+        let leafHash = sha1Data(leafDER)
+        certSet.append(leafDER)
+        addedCertHashes.insert(leafHash)
+        
+        // Add chain certificates (skip if already added)
+        for certDER in chainDERs {
+            let hash = sha1Data(certDER)
+            if !addedCertHashes.contains(hash) {
+                certSet.append(certDER)
+                addedCertHashes.insert(hash)
+            }
+        }
+        
+        // [0] IMPLICIT certificates — raw concatenation of DER-encoded certificates
+        let allCerts = asnTagImplicit(0xa0, certSet)
+        
         let issuerAndSerial = asnSeq([issuerSeq, asnIntBytes(serialBytes)])
         let signerInfo      = asnSeq([
             asnIntVal(1),
@@ -433,6 +495,73 @@ final class WalletPassGenerator {
             bytes.append(contentsOf: enc)
         }
         return asnTLV(0x06, Data(bytes))
+    }
+    
+    // MARK: - Certificate DER Parsing
+    
+    /// Extracts the raw issuer SEQUENCE and serial number from a DER-encoded X.509 certificate.
+    private func extractIssuerAndSerial(from certDER: Data) -> (issuer: Data, serial: Data)? {
+        guard certDER.count > 4 else { return nil }
+        var idx = 0
+        
+        // Parse outer SEQUENCE (Certificate)
+        guard parseASNSequence(certDER, at: &idx) != nil else { return nil }
+        
+        // Parse TBSCertificate SEQUENCE
+        guard parseASNSequence(certDER, at: &idx) != nil else { return nil }
+        
+        // Check for optional [0] version tag
+        if idx < certDER.count && certDER[idx] == 0xa0 {
+            idx += 1
+            guard let len = parseASNLength(certDER, at: &idx) else { return nil }
+            idx += len
+        }
+        
+        // Parse serial number INTEGER
+        guard certDER[idx] == 0x02 else { return nil }
+        idx += 1
+        guard let serialLen = parseASNLength(certDER, at: &idx) else { return nil }
+        let serialBytes = certDER[idx..<(idx + serialLen)]
+        idx += serialLen
+        
+        // Skip signature AlgorithmIdentifier SEQUENCE
+        guard certDER[idx] == 0x30 else { return nil }
+        idx += 1
+        guard let sigAlgLen = parseASNLength(certDER, at: &idx) else { return nil }
+        idx += sigAlgLen
+        
+        // Parse issuer Name SEQUENCE — keep complete TLV
+        guard certDER[idx] == 0x30 else { return nil }
+        let issuerStart = idx
+        idx += 1
+        guard let issuerLen = parseASNLength(certDER, at: &idx) else { return nil }
+        idx += issuerLen
+        let issuerData = certDER[issuerStart..<idx]
+        
+        return (issuer: Data(issuerData), serial: Data(serialBytes))
+    }
+    
+    private func parseASNSequence(_ data: Data, at idx: inout Int) -> Int? {
+        guard idx < data.count, data[idx] == 0x30 else { return nil }
+        idx += 1
+        guard let len = parseASNLength(data, at: &idx) else { return nil }
+        return len
+    }
+    
+    private func parseASNLength(_ data: Data, at idx: inout Int) -> Int? {
+        guard idx < data.count else { return nil }
+        let first = data[idx]
+        idx += 1
+        if first < 0x80 { return Int(first) }
+        if first == 0x80 { return nil }
+        let numBytes = Int(first & 0x7f)
+        guard idx + numBytes <= data.count else { return nil }
+        var length = 0
+        for _ in 0..<numBytes {
+            length = (length << 8) | Int(data[idx])
+            idx += 1
+        }
+        return length
     }
 
     // MARK: - Barcode Decoding

@@ -29,6 +29,7 @@ struct SettingsView: View {
     @State private var showPrivacyPolicy = false
     @State private var notificationAuthStatus: UNAuthorizationStatus = .notDetermined
     @State private var showFavoritesManagement = false
+    @State private var showWalletDebugLogs = false
     
     // Performance: @StateObject für Singleton
     @StateObject private var favoritesManager = FavoriteStationsManager.shared
@@ -51,6 +52,7 @@ struct SettingsView: View {
                     notificationSection
                     locationSection
                     appSection
+                    walletDebugSection
                     #if DEBUG
                     developerSection
                     #endif
@@ -470,6 +472,53 @@ struct SettingsView: View {
         }
     }
 
+    // MARK: - Wallet Debug Section (TestFlight)
+    
+    private var walletDebugSection: some View {
+        SettingsCard(title: "Wallet Debug", icon: "wallet.pass.fill", iconColor: .purple, cardBg: AppTheme.surfaceCard, dividerColor: AppTheme.hairline) {
+            ActionRow(
+                title: "Debug-Logs anzeigen",
+                icon: "doc.text.magnifyingglass",
+                iconColor: .purple,
+                inkColor: AppTheme.ink
+            ) {
+                showWalletDebugLogs = true
+            }
+            RowDivider(color: AppTheme.hairline)
+            ActionRow(
+                title: "Logs teilen",
+                icon: "square.and.arrow.up",
+                iconColor: .blue,
+                inkColor: AppTheme.ink,
+                showChevron: false
+            ) {
+                shareWalletLogs()
+            }
+            RowDivider(color: AppTheme.hairline)
+            ActionRow(
+                title: "Logs löschen",
+                icon: "trash",
+                iconColor: AppTheme.semanticError,
+                inkColor: AppTheme.semanticError,
+                showChevron: false
+            ) {
+                WalletDebugLogger.shared.clearLogs()
+            }
+        }
+        .sheet(isPresented: $showWalletDebugLogs) {
+            WalletDebugLogsView()
+        }
+    }
+    
+    private func shareWalletLogs() {
+        let logText = WalletDebugLogger.shared.getLogsAsText()
+        let av = UIActivityViewController(activityItems: [logText], applicationActivities: nil)
+        if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+           let rootVC = windowScene.windows.first?.rootViewController {
+            rootVC.present(av, animated: true)
+        }
+    }
+    
     // MARK: - Developer Section
 
     private var developerSection: some View {

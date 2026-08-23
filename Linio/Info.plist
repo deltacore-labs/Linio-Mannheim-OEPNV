@@ -26,6 +26,8 @@
 	<string>$(WALLET_AUTH_TOKEN)</string>
 	<key>WalletCertName</key>
 	<string>$(WALLET_CERT_NAME)</string>
+	<key>WalletCertPassword</key>
+	<string>$(WALLET_CERT_PASSWORD)</string>
 	<key>WalletPassTypeID</key>
 	<string>$(WALLET_PASS_TYPE_ID)</string>
 	<key>WalletTeamID</key>

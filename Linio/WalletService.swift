@@ -33,8 +33,10 @@ enum WalletConfig {
     static var authToken: String {
         Bundle.main.object(forInfoDictionaryKey: "WalletAuthToken") as? String ?? ""
     }
-    // Password used when exporting the .p12 (empty string if none)
-    static let certPassword       = ""
+    // Password used when exporting the .p12 (read from config, empty string if none)
+    static var certPassword: String {
+        Bundle.main.object(forInfoDictionaryKey: "WalletCertPassword") as? String ?? ""
+    }
     // Apple WWDR intermediate certificate (required in the CMS signature chain)
     static let wwdrCertFileName   = "AppleWWDRCAG4"
     static let webServiceURL      = "https://linio-wallet-api.mysicloud.workers.dev/v1"

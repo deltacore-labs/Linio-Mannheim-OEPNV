@@ -690,7 +690,8 @@ struct ConnectionsView: View {
 
     private var emptyStateView: some View {
         EmptyStateView.noConnections {
-            // Optional: CTA für Standortsuche könnte hier eingefügt werden
+            isPickingStartStation = true
+            showingStationPicker = true
         }
         .padding(.vertical, 20)
     }

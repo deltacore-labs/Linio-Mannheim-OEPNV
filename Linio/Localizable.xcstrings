@@ -421,6 +421,9 @@
         }
       }
     },
+    "+%lld" : {
+
+    },
     "+%lld min" : {
       "localizations" : {
         "en" : {
@@ -442,6 +445,9 @@
       }
     },
     "+%lld weitere Meldungen" : {
+
+    },
+    "±0" : {
 
     },
     "🌅" : {
@@ -641,6 +647,9 @@
         }
       }
     },
+    "Aktualisiere..." : {
+
+    },
     "Aktualisieren" : {
       "localizations" : {
         "en" : {
@@ -650,9 +659,6 @@
           }
         }
       }
-    },
-    "Aktuell liegen keine Störungsmeldungen vor.\nDer Betrieb läuft planmäßig." : {
-
     },
     "Aktuell um %@ Uhr" : {
       "localizations" : {
@@ -1122,6 +1128,9 @@
         }
       }
     },
+    "Debug-Logs exportieren" : {
+
+    },
     "Debug: State ausgeben" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -1171,6 +1180,9 @@
       }
     },
     "Dein Ticket wurde verlängert. Bitte füge den aktualisierten Pass erneut zu Apple Wallet hinzu." : {
+
+    },
+    "Dein Wallet-Pass wurde aktualisiert. Bitte prüfe kurz in der Wallet-App, ob die neuen Daten korrekt übernommen wurden." : {
 
     },
     "Der gespeicherte Suchverlauf wurde gelöscht." : {
@@ -1720,7 +1732,13 @@
         }
       }
     },
+    "In Wallet öffnen" : {
+
+    },
     "In Zwischenablage kopieren" : {
+
+    },
+    "Inaktiv" : {
 
     },
     "Inaktiv, Tippen zum Aktivieren" : {
@@ -1906,7 +1924,7 @@
         }
       }
     },
-    "Keine Störungen" : {
+    "Keine Logs vorhanden" : {
 
     },
     "Keine verspäteten Verbindungen." : {
@@ -2100,6 +2118,9 @@
         }
       }
     },
+    "Live Activity starten" : {
+
+    },
     "Live aktiv" : {
       "localizations" : {
         "en" : {
@@ -2109,6 +2130,12 @@
           }
         }
       }
+    },
+    "Live starten" : {
+
+    },
+    "Live-Tracking aktiv" : {
+
     },
     "Live-Verfolgung" : {
       "localizations" : {
@@ -2406,6 +2433,9 @@
         }
       }
     },
+    "Pass aktualisiert" : {
+
+    },
     "pünktlich" : {
       "localizations" : {
         "en" : {
@@ -2557,6 +2587,9 @@
           }
         }
       }
+    },
+    "Standortsuche" : {
+
     },
     "Standortzugriff in Einstellungen erlauben" : {
       "extractionState" : "stale",
@@ -2715,6 +2748,9 @@
           }
         }
       }
+    },
+    "Teilen" : {
+
     },
     "Test-Notification (5s)" : {
       "extractionState" : "stale",
@@ -2887,6 +2923,9 @@
         }
       }
     },
+    "Tippen zum Ausführen" : {
+
+    },
     "Tippen zum Auswählen" : {
       "localizations" : {
         "en" : {
@@ -3010,6 +3049,9 @@
         }
       }
     },
+    "Verbindung wird geladen" : {
+
+    },
     "Verbindung wird hergestellt" : {
       "localizations" : {
         "en" : {
@@ -3049,6 +3091,9 @@
           }
         }
       }
+    },
+    "Verbindungen werden geladen" : {
+
     },
     "Verbindungsdetails" : {
       "localizations" : {
@@ -3134,6 +3179,9 @@
         }
       }
     },
+    "Versuche, ein Ticket zum Wallet hinzuzufügen, um Logs zu generieren." : {
+
+    },
     "Von" : {
       "localizations" : {
         "en" : {
@@ -3188,6 +3236,7 @@
 
     },
     "Wähle Start und Ziel oben, um Verbindungen zu finden." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -3196,6 +3245,9 @@
           }
         }
       }
+    },
+    "Wallet Debug Logs" : {
+
     },
     "Wallet-Fehler" : {
       "localizations" : {
@@ -3260,6 +3312,9 @@
         }
       }
     },
+    "Wird geladen" : {
+
+    },
     "Wird geladen…" : {
 
     },
@@ -3267,6 +3322,7 @@
 
     },
     "Wohin möchtest du fahren?" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {

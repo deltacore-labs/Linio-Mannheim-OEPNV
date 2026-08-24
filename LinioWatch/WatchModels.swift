@@ -5,7 +5,7 @@ import SwiftUI
 
 // MARK: - Gespeicherte Trips (aus "savedTripData" im App Group, gesetzt vom LiveActivityManager)
 
-struct WidgetTripData: Codable, Identifiable {
+struct WidgetTripData: Codable, Identifiable, Equatable {
     let id: String
     let startTime: String
     let endTime: String
@@ -13,9 +13,13 @@ struct WidgetTripData: Codable, Identifiable {
     let startStation: String
     let endStation: String
     let legs: [WidgetTripLegData]
+    
+    static func == (lhs: WidgetTripData, rhs: WidgetTripData) -> Bool {
+        lhs.id == rhs.id && lhs.startTime == rhs.startTime && lhs.endTime == rhs.endTime
+    }
 }
 
-struct WidgetTripLegData: Codable {
+struct WidgetTripLegData: Codable, Equatable {
     let legType: String?
     let boardStopName: String?
     let alightStopName: String?

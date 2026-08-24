@@ -96,19 +96,6 @@ final class DateFormattingHelper: @unchecked Sendable {
         return Self.shortDateFormatter.string(from: date)
     }
 
-    private let fullDateFormatter: DateFormatter = {
-        let f = DateFormatter()
-        f.dateFormat = "dd.MM.yyyy"
-        f.locale = Locale(identifier: "de_DE")
-        return f
-    }()
-
-    func formatFullDate(_ date: Date) -> String {
-        lock.lock()
-        defer { lock.unlock() }
-        return fullDateFormatter.string(from: date)
-    }
-
     func parseGermanDate(_ raw: String) -> Date? {
         lock.lock()
         defer { lock.unlock() }
@@ -341,28 +328,8 @@ struct HapticHelper {
         notification(.success)
     }
     
-    /// Fehler-Feedback (z.B. bei Validierungsfehlern)
-    static func error() {
-        notification(.error)
-    }
-    
-    /// Warnung-Feedback (z.B. bei kritischen Aktionen)
-    static func warning() {
-        notification(.warning)
-    }
-    
     /// Sanftes Antippen (für subtile Interaktionen)
     static func softTap() {
         impact(.soft)
-    }
-    
-    /// Starkes Antippen (für wichtige Aktionen)
-    static func heavyTap() {
-        impact(.heavy)
-    }
-    
-    /// Leichtes Antippen (für Buttons)
-    static func lightTap() {
-        impact(.light)
     }
 }

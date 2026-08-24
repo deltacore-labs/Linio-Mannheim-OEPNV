@@ -125,18 +125,6 @@ extension EmptyStateView {
         )
     }
     
-    /// Keine geplanten Fahrten
-    static func noPlannedTrips(onNewTrip: @escaping () -> Void) -> EmptyStateView {
-        EmptyStateView(
-            icon: "calendar.badge.clock",
-            title: "Keine geplanten Fahrten",
-            message: "Starte eine Live Activity für deine nächste Verbindung, um sie hier zu verfolgen.",
-            ctaTitle: "Verbindung suchen",
-            ctaIcon: "magnifyingglass",
-            ctaAction: onNewTrip
-        )
-    }
-    
     /// Keine Störungen
     static func noAlerts() -> EmptyStateView {
         EmptyStateView(
@@ -145,50 +133,12 @@ extension EmptyStateView {
             message: "Momentan gibt es keine Störungen oder Verspätungen im rnv-Netz."
         )
     }
-    
-    /// Keine Suchergebnisse
-    static func noSearchResults(query: String, onClear: @escaping () -> Void) -> EmptyStateView {
-        EmptyStateView(
-            icon: "magnifyingglass",
-            title: "Keine Ergebnisse",
-            message: "Für \"\(query)\" wurden keine Haltestellen gefunden.",
-            ctaTitle: "Suche löschen",
-            ctaIcon: "xmark.circle",
-            ctaAction: onClear
-        )
-    }
-    
-    /// Leeres Archiv
-    static func noArchive() -> EmptyStateView {
-        EmptyStateView(
-            icon: "archivebox",
-            title: "Archiv ist leer",
-            message: "Abgeschlossene Fahrten werden hier für 7 Tage gespeichert."
-        )
-    }
-    
-    /// Offline-Zustand
-    static func offline(onRetry: @escaping () -> Void) -> EmptyStateView {
-        EmptyStateView(
-            icon: "wifi.slash",
-            title: "Keine Verbindung",
-            message: "Prüfe deine Internetverbindung und versuche es erneut.",
-            ctaTitle: "Erneut versuchen",
-            ctaIcon: "arrow.clockwise",
-            ctaAction: onRetry
-        )
-    }
 }
 
 // MARK: - Previews
 
 #Preview("No Connections") {
     EmptyStateView.noConnections { }
-        .background(AppTheme.canvas)
-}
-
-#Preview("No Planned Trips") {
-    EmptyStateView.noPlannedTrips { }
         .background(AppTheme.canvas)
 }
 

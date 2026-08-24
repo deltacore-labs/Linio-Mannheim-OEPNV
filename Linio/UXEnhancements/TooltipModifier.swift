@@ -102,8 +102,6 @@ extension View {
 
 enum TooltipKey {
     static let swipeForLiveActivity = "swipe_live_activity"
-    static let pullToRefresh = "pull_to_refresh"
-    static let tapForDetails = "tap_for_details"
 }
 
 #Preview("Tooltip") {

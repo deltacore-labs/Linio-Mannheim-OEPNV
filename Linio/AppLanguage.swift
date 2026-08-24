@@ -189,6 +189,22 @@ private enum Translations {
         "Haltestelle": "Stop",
         "Keine Haltestelle": "No Stop",
         "Fußweg · %@": "Walk · %@",
+        
+        // MARK: Walking Navigation
+        "Fußweg": "Walking Route",
+        "Entfernung": "Distance",
+        "Gehzeit": "Walk Time",
+        "Ziel": "Destination",
+        "Abfahrt": "Departure",
+        "Erreichbar": "Reachable",
+        "Knapp!": "Tight!",
+        "Jetzt losgehen!": "Leave now!",
+        "Losgehen um %@": "Leave at %@",
+        "In Apple Maps öffnen": "Open in Apple Maps",
+        "Navigation in Apple Maps starten": "Start navigation in Apple Maps",
+        "%d Minuten Fußweg": "%d minute walk",
+        "%d min Fußweg": "%d min walk",
+        "Karte": "Map",
 
         // MARK: Planned Trips
         "Archiv": "Archive",
@@ -257,12 +273,16 @@ private enum Translations {
         "Bundesweit im Nahverkehr": "Nationwide in local transit",
 
         // MARK: Onboarding (used as LocalizedStringKey via OnboardingView fix)
-        "Willkommen bei\nÖPNV Mannheim": "Welcome to\nPublic Transit Mannheim",
+        "Willkommen bei Linio": "Welcome to Linio",
         "Dein Begleiter für Bus, Tram und S-Bahn in Mannheim und Umgebung. Verbindungen in Echtzeit – direkt auf deinem iPhone.": "Your companion for bus, tram and S-Bahn in Mannheim and the surrounding area. Real-time connections – directly on your iPhone.",
         "Haltestellen\nin deiner Nähe": "Stops\nNearby",
         "Die App nutzt deinen Standort, um nahegelegene Haltestellen zu finden. Deine Position wird nur für die Suche verwendet und nie gespeichert.": "The app uses your location to find nearby stops. Your position is only used for searching and never stored.",
         "Live Activity &\nDynamic Island": "Live Activity &\nDynamic Island",
         "Verfolge deine Fahrt direkt im Dynamic Island oder auf dem Sperrbildschirm – mit Echtzeit-Abfahrtszeiten und Verspätungsanzeige.": "Track your journey directly in the Dynamic Island or on the lock screen – with real-time departure times and delay indicator.",
+        "Deutschlandticket\nim Wallet": "Deutschlandticket\nin Wallet",
+        "Importiere dein Ticket per Screenshot und füge es zu Apple Wallet hinzu. Der QR-Code wird automatisch erkannt.": "Import your ticket via screenshot and add it to Apple Wallet. The QR code is automatically recognized.",
+        "Apple Watch\nApp": "Apple Watch\nApp",
+        "Abfahrten, Verbindungen und aktive Fahrten direkt am Handgelenk. Mit haptischem Feedback bei Umstieg und Ankunft.": "Departures, connections and active trips right on your wrist. With haptic feedback for interchanges and arrivals.",
 
         // MARK: Privacy Policy
         "Stand: Mai 2026": "As of: May 2026",

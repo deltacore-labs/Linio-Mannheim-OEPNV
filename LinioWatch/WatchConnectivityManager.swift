@@ -348,5 +348,13 @@ extension WatchConnectivityManager: WCSessionDelegate {
                 self.onContextUpdated?()
             }
         }
+        
+        // Spracheinstellung vom iPhone übernehmen
+        if let lang = applicationContext["appLanguage"] as? String {
+            Task { @MainActor in
+                WatchLocalizationManager.shared.updateFromContext(applicationContext)
+                self.log("appContext: Sprache aktualisiert → \(lang)")
+            }
+        }
     }
 }

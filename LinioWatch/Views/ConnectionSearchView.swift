@@ -12,19 +12,19 @@ struct ConnectionSearchView: View {
             List {
                 Section {
                     NavigationLink(destination: WatchStationPickerView(
-                        title: "Von",
+                        title: "Von".localized,
                         stationID: $fromID,
                         stationName: $fromName
                     )) {
-                        LabeledStationRow(label: "Von", name: fromName)
+                        LabeledStationRow(label: "Von".localized, name: fromName)
                     }
 
                     NavigationLink(destination: WatchStationPickerView(
-                        title: "Nach",
+                        title: "Nach".localized,
                         stationID: $toID,
                         stationName: $toName
                     )) {
-                        LabeledStationRow(label: "Nach", name: toName)
+                        LabeledStationRow(label: "Nach".localized, name: toName)
                     }
                 }
 
@@ -32,7 +32,7 @@ struct ConnectionSearchView: View {
                     Button(action: search) {
                         HStack {
                             Spacer()
-                            Label("Suchen", systemImage: "magnifyingglass")
+                            Label("Suchen".localized, systemImage: "magnifyingglass")
                                 .font(.headline)
                             Spacer()
                         }
@@ -47,7 +47,7 @@ struct ConnectionSearchView: View {
                     VStack(spacing: 6) {
                         Image(systemName: "exclamationmark.triangle.fill").foregroundColor(.orange)
                         Text(error).font(.caption2).foregroundColor(.secondary).multilineTextAlignment(.center)
-                        Button("Erneut", action: search).font(.caption)
+                        Button("Erneut".localized, action: search).font(.caption)
                     }
                     .frame(maxWidth: .infinity)
                     .listRowBackground(Color.clear)
@@ -59,7 +59,7 @@ struct ConnectionSearchView: View {
                     }
                 }
             }
-            .navigationTitle("Verbindungen")
+            .navigationTitle("Verbindungen".localized)
         }
     }
 

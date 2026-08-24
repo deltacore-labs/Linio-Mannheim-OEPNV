@@ -96,7 +96,7 @@ private struct TripTrackingView: View {
             }
             .padding(.horizontal, 4)
         }
-        .navigationTitle("Aktive Fahrt")
+        .navigationTitle("Aktive Fahrt".localized)
         .onReceive(timer) { now = $0 }
     }
 }
@@ -130,7 +130,7 @@ private struct CountdownView: View {
         case .duringJourney:
             HStack(spacing: 6) {
                 Circle().fill(.green).frame(width: 6, height: 6)
-                Text("Unterwegs")
+                Text("Unterwegs".localized)
                     .font(.headline)
                     .foregroundColor(.green)
                 Spacer()
@@ -145,7 +145,7 @@ private struct CountdownView: View {
             HStack(spacing: 6) {
                 Image(systemName: "checkmark.circle.fill")
                     .foregroundColor(.green)
-                Text("Angekommen")
+                Text("Angekommen".localized)
                     .font(.headline)
                     .foregroundColor(.green)
             }
@@ -162,11 +162,11 @@ private struct NoActiveTripView: View {
                 .font(.system(size: 36))
                 .foregroundColor(.secondary)
 
-            Text("Keine aktive Fahrt")
+            Text("Keine aktive Fahrt".localized)
                 .font(.headline)
                 .multilineTextAlignment(.center)
 
-            Text("Starte die Verfolgung in der iPhone-App.")
+            Text("Starte eine Live Activity\nauf dem iPhone".localized)
                 .font(.caption2)
                 .foregroundColor(.secondary)
                 .multilineTextAlignment(.center)
@@ -204,15 +204,15 @@ private struct PhaseIndicatorView: View {
     var body: some View {
         switch phase {
         case .beforeDeparture:
-            Label("Bald", systemImage: "clock.fill")
+            Label("Bald".localized, systemImage: "clock.fill")
                 .font(.caption2.bold())
                 .foregroundColor(.cyan)
         case .duringJourney:
-            Label("Fährt", systemImage: "location.fill")
+            Label("Fährt".localized, systemImage: "location.fill")
                 .font(.caption2.bold())
                 .foregroundColor(.green)
         case .arrived:
-            Label("Da", systemImage: "checkmark.circle.fill")
+            Label("Da".localized, systemImage: "checkmark.circle.fill")
                 .font(.caption2.bold())
                 .foregroundColor(.green)
         }

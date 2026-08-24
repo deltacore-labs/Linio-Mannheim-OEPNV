@@ -13,7 +13,7 @@ struct SavedTripsView: View {
                         SavedTripRow(trip: trip)
                     }
                 }
-                .navigationTitle("Geplante Fahrten")
+                .navigationTitle("Geplante Fahrten".localized)
                 .navigationBarTitleDisplayMode(.inline)
             }
         }
@@ -99,11 +99,11 @@ private struct PhaseCountdownLabel: View {
                     .foregroundColor(mins <= 2 ? .orange : .cyan)
             }
         case .duringJourney:
-            Label("Unterwegs", systemImage: "location.fill")
+            Label("Unterwegs".localized, systemImage: "location.fill")
                 .font(.caption2.bold())
                 .foregroundColor(.green)
         case .arrived:
-            Label("Angekommen", systemImage: "checkmark.circle")
+            Label("Angekommen".localized, systemImage: "checkmark.circle")
                 .font(.caption2)
                 .foregroundColor(.secondary)
         }
@@ -196,9 +196,9 @@ private struct EmptyTripsView: View {
             Image(systemName: "calendar.badge.plus")
                 .font(.system(size: 36))
                 .foregroundColor(.secondary)
-            Text("Keine Fahrten")
+            Text("Keine geplanten Fahrten".localized)
                 .font(.headline)
-            Text("Plane eine Verbindung in der iPhone-App.")
+            Text("Plane Fahrten in der\niPhone-App".localized)
                 .font(.caption2)
                 .foregroundColor(.secondary)
                 .multilineTextAlignment(.center)

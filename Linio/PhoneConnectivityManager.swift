@@ -48,6 +48,8 @@ final class PhoneConnectivityManager: NSObject {
               let graphQLURL = config.graphQLURL, !graphQLURL.isEmpty, !graphQLURL.hasPrefix("$(")
         else { return }
 
+        let appLanguage = UserDefaults.standard.string(forKey: "appLanguage") ?? "de"
+        
         let context: [String: Any] = [
             "watchCredentials": [
                 "clientID": clientID,
@@ -56,7 +58,8 @@ final class PhoneConnectivityManager: NSObject {
                 "graphQLURL": graphQLURL,
                 "accessToken": token,
                 "tokenExpiry": tokenExpiry.timeIntervalSince1970
-            ]
+            ],
+            "appLanguage": appLanguage
         ]
 
         try? WCSession.default.updateApplicationContext(context)
@@ -79,6 +82,7 @@ final class PhoneConnectivityManager: NSObject {
         if let savedData = defaults?.data(forKey: "savedTripData") {
             context["savedTripData"] = savedData
         }
+        context["appLanguage"] = UserDefaults.standard.string(forKey: "appLanguage") ?? "de"
 
         try? WCSession.default.updateApplicationContext(context)
     }
@@ -99,6 +103,19 @@ final class PhoneConnectivityManager: NSObject {
         } else {
             WCSession.default.transferUserInfo(["tripDataDidChange": true])
         }
+    }
+    
+    /// Sendet die aktuelle Spracheinstellung an die Watch.
+    func pushLanguageToWatch() {
+        guard WCSession.isSupported(),
+              WCSession.default.activationState == .activated,
+              WCSession.default.isPaired,
+              WCSession.default.isWatchAppInstalled
+        else { return }
+        
+        var context = WCSession.default.applicationContext
+        context["appLanguage"] = UserDefaults.standard.string(forKey: "appLanguage") ?? "de"
+        try? WCSession.default.updateApplicationContext(context)
     }
 }
 

@@ -10,7 +10,7 @@ struct DeparturesView: View {
             List {
                 Section {
                     NavigationLink(destination: WatchStationPickerView(
-                        title: "Haltestelle",
+                        title: "Haltestelle".localized,
                         stationID: $selectedStationID,
                         stationName: $selectedStationName
                     )) {
@@ -39,7 +39,7 @@ struct DeparturesView: View {
                     }
                 }
             }
-            .navigationTitle("Abfahrten")
+            .navigationTitle("Abfahrten".localized)
             .onAppear { loadDepartures() }
             .onChange(of: selectedStationID) { loadDepartures() }
             .onChange(of: connectivity.isReachable) { _, isReachable in
@@ -112,12 +112,12 @@ private struct EmptyDeparturesRow: View {
                 .font(.system(size: 24))
                 .foregroundColor(.secondary)
 
-            Text(isReachable ? "Keine Abfahrten" : "iPhone nicht erreichbar")
+            Text(isReachable ? "Keine Abfahrten".localized : "iPhone nicht erreichbar".localized)
                 .font(.caption.bold())
                 .multilineTextAlignment(.center)
 
             if isReachable {
-                Button("Laden", action: onLoad)
+                Button("Laden".localized, action: onLoad)
                     .font(.caption)
             }
         }
@@ -139,7 +139,7 @@ private struct ErrorRow: View {
                 .font(.caption2)
                 .foregroundColor(.secondary)
                 .multilineTextAlignment(.center)
-            Button("Erneut", action: retry)
+            Button("Erneut".localized, action: retry)
                 .font(.caption)
         }
         .frame(maxWidth: .infinity)

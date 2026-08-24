@@ -76,5 +76,9 @@ struct LinioApp: App {
                     .id(appLanguage)
             }
         }
+        .onChange(of: appLanguage) { _, _ in
+            // Spracheinstellung an Apple Watch senden
+            PhoneConnectivityManager.shared.pushLanguageToWatch()
+        }
     }
 }

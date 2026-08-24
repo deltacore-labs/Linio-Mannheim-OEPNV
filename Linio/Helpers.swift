@@ -92,6 +92,13 @@ final class DateFormattingHelper: @unchecked Sendable {
         return f
     }()
 
+    private let fullDateFormatter: DateFormatter = {
+        let f = DateFormatter()
+        f.locale = Locale(identifier: "de_DE")
+        f.dateFormat = "dd.MM.yyyy"
+        return f
+    }()
+
     func formatDateShort(_ date: Date) -> String {
         return Self.shortDateFormatter.string(from: date)
     }

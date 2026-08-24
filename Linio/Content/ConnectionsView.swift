@@ -33,6 +33,7 @@ struct ConnectionsView: View {
     @State private var headerAppeared = false
     @State private var sameStationValidationError = false
     @State private var lastRefresh: Date?
+    @State private var isLoadingNearbyStation = false
 
     // Performance: @StateObject für Singleton
     @StateObject private var network = NetworkMonitor.shared
@@ -256,7 +257,11 @@ struct ConnectionsView: View {
                     icon: "circle.fill",
                     iconColor: Color(red: 0.2, green: 0.85, blue: 0.45),
                     placeholder: "Startpunkt wählen",
-                    station: selectedStartStation
+                    station: selectedStartStation,
+                    showLocationButton: true,
+                    onLocationTap: {
+                        Task { await setNearestStationAsStart() }
+                    }
                 ) {
                     isPickingStartStation = true
                     showingStationPicker = true
@@ -270,13 +275,19 @@ struct ConnectionsView: View {
                             swap(&selectedStartStation, &selectedEndStation)
                         }
                     } label: {
-                        Image(systemName: "arrow.up.arrow.down")
-                            .font(.system(size: 11, weight: .bold))
-                            .foregroundColor(AppTheme.muted)
-                            .frame(width: 28, height: 28)
-                            .background(Circle().fill(AppTheme.surfaceStrong))
+                        if isLoadingNearbyStation {
+                            ProgressView()
+                                .scaleEffect(0.7)
+                                .frame(width: 28, height: 28)
+                        } else {
+                            Image(systemName: "arrow.up.arrow.down")
+                                .font(.system(size: 11, weight: .bold))
+                                .foregroundColor(AppTheme.muted)
+                                .frame(width: 28, height: 28)
+                                .background(Circle().fill(AppTheme.surfaceStrong))
+                        }
                     }
-                    .disabled(selectedStartStation == nil && selectedEndStation == nil)
+                    .disabled(selectedStartStation == nil && selectedEndStation == nil || isLoadingNearbyStation)
                     .accessibilityLabel("Start und Ziel tauschen")
                     AppTheme.hairline.frame(height: 1)
                 }
@@ -336,7 +347,7 @@ struct ConnectionsView: View {
     }
 
     @ViewBuilder
-    private func headerStationRow(icon: String, iconColor: Color, placeholder: String, station: Station?, action: @escaping () -> Void) -> some View {
+    private func headerStationRow(icon: String, iconColor: Color, placeholder: String, station: Station?, showLocationButton: Bool = false, onLocationTap: (() -> Void)? = nil, action: @escaping () -> Void) -> some View {
         Button(action: action) {
             HStack(spacing: 12) {
                 Image(systemName: icon)
@@ -351,6 +362,26 @@ struct ConnectionsView: View {
                     .lineLimit(1)
 
                 Spacer()
+                
+                // "Mein Standort" Button
+                if showLocationButton && station == nil,
+                   locationManager.authorizationStatus == .authorizedWhenInUse || locationManager.authorizationStatus == .authorizedAlways {
+                    Button {
+                        onLocationTap?()
+                    } label: {
+                        HStack(spacing: 4) {
+                            Image(systemName: "location.fill")
+                                .font(.system(size: 10, weight: .semibold))
+                            Text("Standort")
+                                .font(.system(size: 11, weight: .semibold))
+                        }
+                        .foregroundColor(AppTheme.primaryColor)
+                        .padding(.horizontal, 10)
+                        .padding(.vertical, 5)
+                        .background(Capsule().fill(AppTheme.primaryColor.opacity(0.1)))
+                    }
+                    .buttonStyle(.plain)
+                }
 
                 Image(systemName: "chevron.right")
                     .font(.system(size: 10, weight: .semibold))
@@ -907,6 +938,65 @@ struct ConnectionsView: View {
             mode: .append
         )
         Task { await graphQLService.enrichConnectionsWithOccupancy(accessToken: token) }
+    }
+    
+    // MARK: - Mein Standort
+    
+    /// Findet die nächstgelegene Haltestelle und setzt sie als Startpunkt
+    private func setNearestStationAsStart() async {
+        isLoadingNearbyStation = true
+        HapticHelper.impact(.light)
+        
+        defer { 
+            Task { @MainActor in
+                isLoadingNearbyStation = false
+            }
+        }
+        
+        // Standort prüfen/anfordern
+        if locationManager.location == nil {
+            locationManager.startLocationUpdates()
+            try? await Task.sleep(nanoseconds: 1_500_000_000)
+            guard locationManager.location != nil else {
+                HapticHelper.notification(.warning)
+                return
+            }
+        }
+        
+        guard let currentLocation = locationManager.location else {
+            HapticHelper.notification(.warning)
+            return
+        }
+        
+        // Token sicherstellen
+        if !authService.isTokenValid {
+            await authService.autoAuthenticate()
+        }
+        
+        guard let token = authService.accessToken, !token.isEmpty else {
+            HapticHelper.notification(.error)
+            return
+        }
+        
+        // Stationen in der Nähe laden
+        await graphQLService.searchStations(
+            lat: currentLocation.latitude,
+            lon: currentLocation.longitude,
+            accessToken: token
+        )
+        
+        // Nächste Station als Start setzen
+        guard let nearest = graphQLService.stations.first else {
+            HapticHelper.notification(.warning)
+            return
+        }
+        
+        await MainActor.run {
+            withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
+                selectedStartStation = nearest
+            }
+            HapticHelper.success()
+        }
     }
 }
 

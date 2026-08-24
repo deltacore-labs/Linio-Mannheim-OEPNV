@@ -206,6 +206,21 @@ struct DepartureBoardView: View {
                     }
                 }
                 .padding(.top, 2)
+                
+                // Fußweg-Anzeige zur Haltestelle
+                if let station = selectedStation,
+                   let lat = station.latitude, let lon = station.longitude,
+                   locationManager.location != nil {
+                    WalkingIndicatorBadge(
+                        userLocation: locationManager.location,
+                        stopCoordinate: CLLocationCoordinate2D(latitude: lat, longitude: lon),
+                        stopName: station.longName,
+                        departureTime: departures.first.flatMap { formatter.parseISO8601($0.scheduledDeparture) },
+                        compact: false,
+                        locationManager: locationManager
+                    )
+                    .padding(.top, 8)
+                }
             }
             .padding(.top, 8)
             .padding(.bottom, 20)
@@ -246,6 +261,10 @@ struct DepartureBoardView: View {
     private var departureList: some View {
         let visible = Array(departures.prefix(departureDisplayLimit))
         let hasMore = departures.count > departureDisplayLimit
+        let stationCoord = selectedStation.flatMap { s -> CLLocationCoordinate2D? in
+            guard let lat = s.latitude, let lon = s.longitude else { return nil }
+            return CLLocationCoordinate2D(latitude: lat, longitude: lon)
+        }
 
         // Performance: LazyVStack für verzögertes Rendering bei vielen Abfahrten
         return LazyVStack(spacing: 0) {
@@ -254,7 +273,12 @@ struct DepartureBoardView: View {
                     HapticHelper.selection()
                     selectedDeparture = dep
                 } label: {
-                    DepartureRowView(departure: dep, onSteigTap: { selectedSteigDeparture = dep })
+                    DepartureRowView(
+                        departure: dep,
+                        stationCoordinate: stationCoord,
+                        userLocation: locationManager.location,
+                        onSteigTap: { selectedSteigDeparture = dep }
+                    )
                 }
                 .buttonStyle(.plain)
                 if index < visible.count - 1 {
@@ -294,14 +318,20 @@ struct DepartureBoardView: View {
     // MARK: - Loading
 
     private var loadingView: some View {
-        VStack(spacing: 12) {
-            Spacer().frame(height: 64)
-            ProgressView()
-                .tint(AppTheme.muted)
-            Text("Lade Abfahrten …")
-                .font(.system(size: 13))
-                .foregroundColor(AppTheme.muted)
-            Spacer()
+        VStack(spacing: 16) {
+            // Header mit Animation
+            HStack(spacing: 12) {
+                ProgressView()
+                    .tint(AppTheme.muted)
+                Text("Lade Abfahrten …")
+                    .font(.system(size: 13, weight: .medium))
+                    .foregroundColor(AppTheme.muted)
+            }
+            .padding(.top, 20)
+            .padding(.bottom, 8)
+            
+            // Skeleton Loading
+            DepartureBoardSkeletonList(count: 6)
         }
         .accessibilityElement(children: .combine)
         .accessibilityLabel("Abfahrten werden geladen")
@@ -492,8 +522,19 @@ struct DepartureBoardView: View {
 
 struct DepartureRowView: View {
     let departure: Departure
+    var stationCoordinate: CLLocationCoordinate2D? = nil
+    var userLocation: CLLocationCoordinate2D? = nil
     var onSteigTap: (() -> Void)? = nil
     private let formatter = DateFormattingHelper.shared
+
+    private var departureDate: Date? {
+        formatter.parseISO8601(departure.estimatedDeparture ?? departure.scheduledDeparture)
+    }
+    
+    private var isReachable: Bool {
+        guard let userLoc = userLocation, let stopCoord = stationCoordinate, let depTime = departureDate else { return true }
+        return WalkingRouteService.shared.isDepartureReachable(userLocation: userLoc, stop: stopCoord, departureTime: depTime)
+    }
 
     var body: some View {
         HStack(spacing: 16) {
@@ -504,6 +545,17 @@ struct DepartureRowView: View {
                     .font(.subheadline.weight(.medium))
                     .foregroundColor(AppTheme.ink)
                     .lineLimit(1)
+                
+                // Fußweg-Warnung wenn knapp
+                if let userLoc = userLocation, let stopCoord = stationCoordinate, !isReachable {
+                    let walkTime = WalkingRouteService.shared.estimateWalkTime(from: userLoc, to: stopCoord)
+                    HStack(spacing: 3) {
+                        Image(systemName: "figure.walk")
+                        Text("\(Int(ceil(walkTime / 60)))' – Knapp!")
+                    }
+                    .font(.system(size: 10, weight: .medium))
+                    .foregroundColor(.orange)
+                }
             }
 
             Spacer()
@@ -546,7 +598,7 @@ struct DepartureRowView: View {
         .padding(.horizontal, 20)
         .padding(.vertical, 14)
         .accessibilityElement(children: .combine)
-        .accessibilityLabel("\(departure.lineName) Richtung \(departure.direction), \(formatter.formatTime(departure.scheduledDeparture))\(departure.delayMinutes.map { $0 > 0 ? ", +\($0) Minuten" : ", pünktlich" } ?? "")\(departure.occupancy.map { $0 != .unknown ? ", Auslastung \($0.displayText)" : "" } ?? "")")
+        .accessibilityLabel("\(departure.lineName) Richtung \(departure.direction), \(formatter.formatTime(departure.scheduledDeparture))\(departure.delayMinutes.map { $0 > 0 ? ", +\($0) Minuten" : ", pünktlich" } ?? "")\(departure.occupancy.map { $0 != .unknown ? ", Auslastung \($0.displayText)" : "" } ?? "")\(!isReachable ? ", Warnung: Fußweg knapp" : "")")
         .accessibilityHint("Tippen für Details")
     }
 

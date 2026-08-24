@@ -375,14 +375,18 @@ struct StationPickerView: View {
 
     private var loadingView: some View {
         VStack(spacing: 16) {
-            Spacer()
-            ProgressView()
-                .progressViewStyle(CircularProgressViewStyle(tint: AppTheme.primaryColor))
-                .scaleEffect(1.3)
-            Text("Suche Haltestellen...")
-                .font(.subheadline)
-                .foregroundColor(.secondary)
-            Spacer()
+            // Header mit Spinner
+            HStack(spacing: 10) {
+                ProgressView()
+                    .progressViewStyle(CircularProgressViewStyle(tint: AppTheme.muted))
+                Text("Suche Haltestellen...")
+                    .font(.system(size: 13, weight: .medium))
+                    .foregroundColor(AppTheme.muted)
+            }
+            .padding(.top, 20)
+            
+            // Skeleton Cards
+            StationListSkeleton(count: 5)
         }
         .accessibilityElement(children: .combine)
         .accessibilityLabel("Haltestellen werden gesucht")

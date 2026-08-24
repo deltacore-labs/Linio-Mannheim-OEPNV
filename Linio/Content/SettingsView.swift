@@ -553,6 +553,10 @@ struct SettingsView: View {
                 ActionRow(title: "Debug: State ausgeben", icon: "ant.fill", iconColor: AppTheme.semanticError, inkColor: AppTheme.ink, showChevron: false) {
                     LiveActivityState.shared.debugPrintState()
                 }
+                RowDivider(color: AppTheme.hairline)
+                ActionRow(title: "Onboarding zurücksetzen", icon: "arrow.counterclockwise", iconColor: .blue, inkColor: AppTheme.ink, showChevron: false) {
+                    UserDefaults.standard.set(false, forKey: "hasSeenOnboarding")
+                }
             }
         }
     }

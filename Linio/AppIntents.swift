@@ -6,6 +6,95 @@
 import AppIntents
 import SwiftUI
 
+// MARK: - App-Target Widget Data Provider
+// Benötigt für Siri-Intents die auf gespeicherte Fahrten zugreifen
+
+struct AppWidgetDataProvider {
+    static let appGroupID = "group.com.stefanfriedrich.rnvapp"
+
+    static func loadActiveTrips() -> [String] {
+        guard let defaults = UserDefaults(suiteName: appGroupID) else { return [] }
+        return defaults.stringArray(forKey: "activeTrips") ?? []
+    }
+
+    static func loadSavedTrips() -> [AppWidgetTripData] {
+        guard let defaults = UserDefaults(suiteName: appGroupID),
+              let data = defaults.data(forKey: "savedTripData") else { return [] }
+        return (try? JSONDecoder().decode([AppWidgetTripData].self, from: data)) ?? []
+    }
+
+    static func loadNextTrip() -> AppWidgetTripData? {
+        let now = Date()
+        let trips = loadSavedTrips()
+        let activeIds = Set(loadActiveTrips())
+        return trips
+            .filter { activeIds.contains($0.id) }
+            .filter { trip in
+                guard let endDate = parseISO8601(trip.endTime) else { return false }
+                return endDate > now
+            }
+            .sorted { a, b in
+                let dateA = parseISO8601(a.startTime) ?? .distantFuture
+                let dateB = parseISO8601(b.startTime) ?? .distantFuture
+                return dateA < dateB
+            }
+            .first
+    }
+
+    private static let isoFormatterWithFrac: ISO8601DateFormatter = {
+        let f = ISO8601DateFormatter()
+        f.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+        return f
+    }()
+
+    private static let isoFormatterWithout: ISO8601DateFormatter = {
+        let f = ISO8601DateFormatter()
+        f.formatOptions = [.withInternetDateTime]
+        return f
+    }()
+
+    static let timeFormatter: DateFormatter = {
+        let f = DateFormatter()
+        f.dateFormat = "HH:mm"
+        f.locale = Locale(identifier: "de_DE")
+        return f
+    }()
+
+    static func parseISO8601(_ string: String) -> Date? {
+        isoFormatterWithFrac.date(from: string) ?? isoFormatterWithout.date(from: string)
+    }
+
+    static func formatTime(_ isoString: String) -> String {
+        guard let date = parseISO8601(isoString) else { return "--:--" }
+        return timeFormatter.string(from: date)
+    }
+}
+
+struct AppWidgetTripData: Codable, Identifiable {
+    let id: String
+    let startTime: String
+    let endTime: String
+    let interchanges: Int?
+    let startStation: String
+    let endStation: String
+    let legs: [AppWidgetTripLeg]
+}
+
+struct AppWidgetTripLeg: Codable {
+    let legType: String?
+    let boardStopName: String?
+    let alightStopName: String?
+    let departureTime: String?
+    let arrivalTime: String?
+    let serviceName: String?
+    let serviceType: String?
+    let destinationLabel: String?
+    var isTimedLeg: Bool { legType == "TimedLeg" }
+}
+
+// Alias für Kompatibilität mit bestehendem Code
+typealias WidgetDataProvider = AppWidgetDataProvider
+
 // MARK: - Search Connections Intent
 
 struct SearchConnectionsIntent: AppIntent {

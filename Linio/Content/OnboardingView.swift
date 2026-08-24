@@ -14,7 +14,7 @@ struct OnboardingView: View {
     private let pages: [OnboardingPage] = [
         OnboardingPage(
             icon: "tram.circle.fill",
-            title: "Willkommen bei\nÖPNV Mannheim",
+            title: "Willkommen bei Linio",
             body: "Dein Begleiter für Bus, Tram und S-Bahn in Mannheim und Umgebung. Verbindungen in Echtzeit – direkt auf deinem iPhone.",
             gradient: [Color(hex: "#0c0a09"), Color(hex: "#1c1917")]
         ),
@@ -28,6 +28,18 @@ struct OnboardingView: View {
             icon: "bell.badge.fill",
             title: "Live Activity &\nDynamic Island",
             body: "Verfolge deine Fahrt direkt im Dynamic Island oder auf dem Sperrbildschirm – mit Echtzeit-Abfahrtszeiten und Verspätungsanzeige.",
+            gradient: [Color(hex: "#292524"), Color(hex: "#1c1917")]
+        ),
+        OnboardingPage(
+            icon: "wallet.bifold.fill",
+            title: "Deutschlandticket\nim Wallet",
+            body: "Importiere dein Ticket per Screenshot und füge es zu Apple Wallet hinzu. Der QR-Code wird automatisch erkannt.",
+            gradient: [Color(hex: "#1c1917"), Color(hex: "#292524")]
+        ),
+        OnboardingPage(
+            icon: "applewatch",
+            title: "Apple Watch\nApp",
+            body: "Abfahrten, Verbindungen und aktive Fahrten direkt am Handgelenk. Mit haptischem Feedback bei Umstieg und Ankunft.",
             gradient: [Color(hex: "#292524"), Color(hex: "#0c0a09")]
         )
     ]

@@ -37,23 +37,6 @@ final class WatchFeaturesTests: XCTestCase {
         }
     }
     
-    // MARK: - Workout Manager Tests
-    
-    @MainActor
-    func testWorkoutManagerSingleton() {
-        let manager1 = WatchWorkoutManager.shared
-        let manager2 = WatchWorkoutManager.shared
-        XCTAssertTrue(manager1 === manager2, "WorkoutManager sollte ein Singleton sein")
-    }
-    
-    @MainActor
-    func testWorkoutManagerInitialState() {
-        let manager = WatchWorkoutManager.shared
-        XCTAssertFalse(manager.isWorkoutActive, "Workout sollte initial nicht aktiv sein")
-        XCTAssertEqual(manager.elapsedSeconds, 0, "Elapsed seconds sollte 0 sein")
-        XCTAssertEqual(manager.distanceMeters, 0, "Distanz sollte 0 sein")
-    }
-    
     // MARK: - Intent Data Provider Tests
     
     func testIntentDataProviderFindTrip() {

@@ -24,9 +24,5 @@
 	<false/>
 	<key>WKWatchOnly</key>
 	<false/>
-	<key>NSHealthShareUsageDescription</key>
-	<string>Linio verwendet HealthKit um deinen Fußweg zur Haltestelle als Workout zu tracken.</string>
-	<key>NSHealthUpdateUsageDescription</key>
-	<string>Linio speichert deinen Fußweg zur Haltestelle als Workout in der Health App.</string>
 </dict>
 </plist>

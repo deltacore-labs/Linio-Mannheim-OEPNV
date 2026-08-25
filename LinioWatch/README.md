@@ -74,30 +74,6 @@ Zeigt nächste Abfahrt direkt auf dem Zifferblatt:
 
 ---
 
-### 4. 🏃 Workout Integration
-**Dateien:** `WatchWorkoutManager.swift`, `Views/WorkoutView.swift`
-
-Tracke deinen Fußweg zur Haltestelle als HealthKit-Workout:
-
-| Metrik | Beschreibung |
-|--------|--------------|
-| **Zeit** | Verstrichene Zeit |
-| **Distanz** | Gelaufene Meter |
-| **Kalorien** | Verbrannte aktive Kalorien |
-| **Herzfrequenz** | Live-Puls während des Gehens |
-
-**Workflow:**
-1. Zielhaltestelle auswählen
-2. Workout starten
-3. Zur Haltestelle laufen
-4. Workout beenden → Wird in Health gespeichert
-
-**Berechtigungen (Info.plist):**
-- `NSHealthShareUsageDescription` – Lesen von Health-Daten
-- `NSHealthUpdateUsageDescription` – Schreiben von Workouts
-
----
-
 ## 📂 Dateistruktur
 
 ```
@@ -111,7 +87,6 @@ LinioWatch/
 ├── WatchHapticManager.swift    # 🆕 Haptic Feedback
 ├── WatchAppIntents.swift       # 🆕 Siri Shortcuts
 ├── WatchComplication.swift     # 🆕 Watch Face Complication
-├── WatchWorkoutManager.swift   # 🆕 HealthKit Workout
 ├── Info.plist                  # App-Konfiguration
 ├── LinioWatch.entitlements     # Berechtigungen
 └── Views/
@@ -121,7 +96,6 @@ LinioWatch/
     ├── DeparturesView.swift    # Abfahrtsmonitor
     ├── ConnectionSearchView.swift  # Verbindungssuche
     ├── WatchStationPickerView.swift # Haltestellenauswahl
-    ├── WorkoutView.swift       # 🆕 Workout-Tracking
     └── DebugView.swift         # Debug-Informationen
 ```
 
@@ -136,14 +110,11 @@ LinioWatch/
 <array>
     <string>group.com.stefanfriedrich.rnvapp</string>
 </array>
-<key>com.apple.developer.healthkit</key>
-<true/>
 ```
 
 ### Info.plist Einträge
 - `WKApplication: true` – Standalone Watch App
 - `WKRunsIndependentlyOfCompanionApp: false` – Benötigt iPhone
-- Health Usage Descriptions für Workout-Feature
 
 ---
 
@@ -155,7 +126,6 @@ LinioWatch/
 | **Geplant** | 📅 | Gespeicherte/geplante Fahrten |
 | **Abfahrten** | 🕐 | Abfahrtsmonitor an Haltestelle |
 | **Suche** | 🔍 | Verbindung suchen |
-| **Workout** | 🚶 | 🆕 Fußweg zur Haltestelle tracken |
 | **Debug** | 🐞 | Debug-Informationen |
 
 ---
@@ -186,10 +156,9 @@ Alle Views haben `#Preview` Makros für schnelles Testen in Xcode.
 
 ## ⚠️ Hinweise
 
-1. **HealthKit** benötigt echte Apple Watch für vollständige Funktionalität
-2. **Complication** muss manuell zum Zifferblatt hinzugefügt werden
-3. **Siri Shortcuts** erscheinen nach erstem App-Start in den Einstellungen
-4. **Haptic Feedback** funktioniert nur auf echter Hardware
+1. **Complication** muss manuell zum Zifferblatt hinzugefügt werden
+2. **Siri Shortcuts** erscheinen nach erstem App-Start in den Einstellungen
+3. **Haptic Feedback** funktioniert nur auf echter Hardware
 
 ---
 
@@ -199,8 +168,6 @@ Alle Views haben `#Preview` Makros für schnelles Testen in Xcode.
 - ✅ Haptic Feedback für Umstieg und Ankunft
 - ✅ Siri Shortcuts mit deutschen Phrasen
 - ✅ Watch Face Complication (WidgetKit)
-- ✅ Workout-Tracking für Fußweg zur Haltestelle
-- ✅ Neuer Workout-Tab in der App
 
 ### v4.0
 - Erste Watch App Version

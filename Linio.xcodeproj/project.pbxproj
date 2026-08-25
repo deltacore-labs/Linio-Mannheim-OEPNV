@@ -38,8 +38,6 @@
 		FA1B2C3D4E5F6A7B8C9D0E1A /* WatchHapticManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB1B2C3D4E5F6A7B8C9D0E1B /* WatchHapticManager.swift */; };
 		FA2B3C4D5E6F7A8B9C0D1E2A /* WatchAppIntents.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB2B3C4D5E6F7A8B9C0D1E2B /* WatchAppIntents.swift */; };
 		FA3B4C5D6E7F8A9B0C1D2E3A /* WatchComplication.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB3B4C5D6E7F8A9B0C1D2E3B /* WatchComplication.swift */; };
-		FA4B5C6D7E8F9A0B1C2D3E4A /* WatchWorkoutManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB4B5C6D7E8F9A0B1C2D3E4B /* WatchWorkoutManager.swift */; };
-		FA5B6C7D8E9F0A1B2C3D4E5A /* WorkoutView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB5B6C7D8E9F0A1B2C3D4E5B /* WorkoutView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -134,9 +132,7 @@
 		FB1B2C3D4E5F6A7B8C9D0E1B /* WatchHapticManager.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = WatchHapticManager.swift; sourceTree = "<group>"; };
 		FB2B3C4D5E6F7A8B9C0D1E2B /* WatchAppIntents.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = WatchAppIntents.swift; sourceTree = "<group>"; };
 		FB3B4C5D6E7F8A9B0C1D2E3B /* WatchComplication.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = WatchComplication.swift; sourceTree = "<group>"; };
-		FB4B5C6D7E8F9A0B1C2D3E4B /* WatchWorkoutManager.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = WatchWorkoutManager.swift; sourceTree = "<group>"; };
 		FB6B7C8D9E0F1A2B3C4D5E6C /* WatchLocalization.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = WatchLocalization.swift; sourceTree = "<group>"; };
-		FB5B6C7D8E9F0A1B2C3D4E5B /* WorkoutView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = WorkoutView.swift; sourceTree = "<group>"; };
 		F4AF3F675DCC44B7B2218C1F /* ConnectionSearchView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ConnectionSearchView.swift; sourceTree = "<group>"; };
 		F50FC19EC7F5F96CA4125341 /* LinioWatch.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = LinioWatch.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		F52290A6F7215AE6A17DA1BC /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/WatchOS.platform/Developer/SDKs/WatchOS11.0.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
@@ -243,7 +239,6 @@
 				F4AF3F675DCC44B7B2218C1F /* ConnectionSearchView.swift */,
 				DD22EE33FF440011223344CC /* WatchStationPickerView.swift */,
 				12AB34CD56EF12AB34CD56EF /* DebugView.swift */,
-				FB5B6C7D8E9F0A1B2C3D4E5B /* WorkoutView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -310,7 +305,6 @@
 				FB1B2C3D4E5F6A7B8C9D0E1B /* WatchHapticManager.swift */,
 				FB2B3C4D5E6F7A8B9C0D1E2B /* WatchAppIntents.swift */,
 				FB3B4C5D6E7F8A9B0C1D2E3B /* WatchComplication.swift */,
-				FB4B5C6D7E8F9A0B1C2D3E4B /* WatchWorkoutManager.swift */,
 				FB6B7C8D9E0F1A2B3C4D5E6C /* WatchLocalization.swift */,
 				8A6B3F591AE6C55A16B2746B /* LinioWatch.entitlements */,
 			);
@@ -495,7 +489,6 @@
 				FA1B2C3D4E5F6A7B8C9D0E1A /* WatchHapticManager.swift in Sources */,
 				FA2B3C4D5E6F7A8B9C0D1E2A /* WatchAppIntents.swift in Sources */,
 				FA3B4C5D6E7F8A9B0C1D2E3A /* WatchComplication.swift in Sources */,
-				FA4B5C6D7E8F9A0B1C2D3E4A /* WatchWorkoutManager.swift in Sources */,
 				FB6B7C8D9E0F1A2B3C4D5E6B /* WatchLocalization.swift in Sources */,
 				B802ECD0D273B8378428D900 /* ContentView.swift in Sources */,
 				EBED6334CFBEED0A06A3FDAD /* ActiveTripView.swift in Sources */,
@@ -504,7 +497,6 @@
 				3D35824A9C154C899F753900 /* ConnectionSearchView.swift in Sources */,
 				CC11DD22EE33FF4400112233 /* WatchStationPickerView.swift in Sources */,
 				AB12CD34EF56AB12CD34EF56 /* DebugView.swift in Sources */,
-				FA5B6C7D8E9F0A1B2C3D4E5A /* WorkoutView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

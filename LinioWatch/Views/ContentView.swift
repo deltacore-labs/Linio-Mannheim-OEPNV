@@ -24,12 +24,8 @@ struct ContentView: View {
                 .tag(3)
                 .tabItem { Label("Suche".localized, systemImage: "magnifyingglass") }
 
-            WorkoutView()
-                .tag(4)
-                .tabItem { Label("Fußweg".localized, systemImage: "figure.walk") }
-
             DebugView()
-                .tag(5)
+                .tag(4)
                 .tabItem { Label("Debug", systemImage: "ladybug") }
         }
         .onOpenURL { _ in

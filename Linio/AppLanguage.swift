@@ -195,7 +195,7 @@ private enum Translations {
         "Entfernung": "Distance",
         "Gehzeit": "Walk Time",
         "Ziel": "Destination",
-        "Abfahrt": "Departure",
+        // "Abfahrt" bereits in MARK: Departures definiert
         "Erreichbar": "Reachable",
         "Knapp!": "Tight!",
         "Jetzt losgehen!": "Leave now!",

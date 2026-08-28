@@ -1,0 +1,208 @@
+{
+  "fill" : {
+    "linear-gradient" : [
+      "srgb:1.00000,1.00000,1.00000,1.00000",
+      "srgb:0.75407,0.75409,0.75408,1.00000"
+    ]
+  },
+  "groups" : [
+    {
+      "layers" : [
+        {
+          "fill" : {
+            "solid" : "display-p3:0.32229,0.20992,0.38133,1.00000"
+          },
+          "glass" : true,
+          "image-name" : "Image 12.png",
+          "name" : "Image 12",
+          "position" : {
+            "scale" : 1,
+            "translation-in-points" : [
+              0,
+              1.3552543746834544
+            ]
+          }
+        },
+        {
+          "fill" : {
+            "solid" : "display-p3:0.32895,0.21454,0.39239,1.00000"
+          },
+          "glass" : true,
+          "image-name" : "Image 11.png",
+          "name" : "Image 11",
+          "position" : {
+            "scale" : 1,
+            "translation-in-points" : [
+              0,
+              20.355254374683454
+            ]
+          }
+        },
+        {
+          "fill" : {
+            "solid" : "display-p3:0.34708,0.23178,0.42232,1.00000"
+          },
+          "glass" : true,
+          "image-name" : "Image 10.png",
+          "name" : "Image 10",
+          "position" : {
+            "scale" : 1,
+            "translation-in-points" : [
+              0,
+              45.56254623602581
+            ]
+          }
+        },
+        {
+          "fill" : {
+            "solid" : "display-p3:0.37284,0.25154,0.46284,1.00000"
+          },
+          "glass" : true,
+          "image-name" : "Image 9.png",
+          "name" : "Image 9",
+          "position" : {
+            "scale" : 1,
+            "translation-in-points" : [
+              0,
+              77.18084622573383
+            ]
+          }
+        },
+        {
+          "fill" : {
+            "solid" : "display-p3:0.42166,0.28961,0.53427,1.00000"
+          },
+          "glass" : true,
+          "image-name" : "Image 8.png",
+          "name" : "Image 8",
+          "position" : {
+            "scale" : 1,
+            "translation-in-points" : [
+              0,
+              121.65118370210087
+            ]
+          }
+        },
+        {
+          "fill" : {
+            "solid" : "display-p3:0.49742,0.35216,0.65801,1.00000"
+          },
+          "glass" : true,
+          "image-name" : "Image 7.png",
+          "name" : "Image 7",
+          "position" : {
+            "scale" : 1,
+            "translation-in-points" : [
+              0,
+              179.53823821568517
+            ]
+          }
+        },
+        {
+          "fill" : {
+            "solid" : "display-p3:0.59791,0.41931,0.80194,1.00000"
+          },
+          "glass" : true,
+          "image-name" : "Image 6.png",
+          "name" : "Image 6",
+          "position" : {
+            "scale" : 1,
+            "translation-in-points" : [
+              0,
+              253.98285406349396
+            ]
+          }
+        },
+        {
+          "fill" : {
+            "solid" : "display-p3:0.69030,0.47954,0.94098,1.00000"
+          },
+          "glass" : true,
+          "image-name" : "Image 5.png",
+          "name" : "Image 5",
+          "position" : {
+            "scale" : 1,
+            "translation-in-points" : [
+              0,
+              346.2587686641949
+            ]
+          }
+        },
+        {
+          "fill" : {
+            "linear-gradient" : [
+              "display-p3:0.31318,0.17924,0.34561,1.00000",
+              "display-p3:0.79264,0.48511,0.96369,1.00000"
+            ]
+          },
+          "glass" : true,
+          "image-name" : "Image 4.png",
+          "name" : "Image 4",
+          "position" : {
+            "scale" : 1,
+            "translation-in-points" : [
+              245.71837907088866,
+              189.53823821568517
+            ]
+          }
+        },
+        {
+          "fill" : {
+            "linear-gradient" : [
+              "display-p3:0.31318,0.17924,0.34561,1.00000",
+              "display-p3:0.79264,0.48511,0.96369,1.00000"
+            ]
+          },
+          "glass" : true,
+          "image-name" : "Image 3.png",
+          "name" : "Image 3",
+          "position" : {
+            "scale" : 1,
+            "translation-in-points" : [
+              -247.5,
+              190.53823821568517
+            ]
+          }
+        },
+        {
+          "fill" : {
+            "linear-gradient" : [
+              "display-p3:0.31106,0.17954,0.34392,1.00000",
+              "display-p3:0.84872,0.46830,0.96783,1.00000"
+            ]
+          },
+          "glass" : true,
+          "image-name" : "Image.png",
+          "name" : "Image",
+          "position" : {
+            "scale" : 1,
+            "translation-in-points" : [
+              0,
+              -97.46176178431483
+            ]
+          }
+        },
+        {
+          "glass" : false,
+          "hidden" : true,
+          "image-name" : "Image 2.png",
+          "name" : "Image 2"
+        }
+      ],
+      "shadow" : {
+        "kind" : "neutral",
+        "opacity" : 0.6
+      },
+      "translucency" : {
+        "enabled" : true,
+        "value" : 0.2
+      }
+    }
+  ],
+  "supported-platforms" : {
+    "circles" : [
+      "watchOS"
+    ],
+    "squares" : "shared"
+  }
+}

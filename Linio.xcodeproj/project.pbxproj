@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		1637212A5F0BE13B975EA346 /* TripLegTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A5722CA61596FAE6260926E /* TripLegTests.swift */; };
+		1DED12E04F3DFB06C1D54390 /* OccupancyLevelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F05AA19AD5432323E909098 /* OccupancyLevelTests.swift */; };
 		2810C6DEC9BFB58944B8614C /* DeparturesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 93CBB7CE42CD42C1D4DA5DE4 /* DeparturesView.swift */; };
 		39111F902F1C61A0002FB482 /* .gitignore in Resources */ = {isa = PBXBuildFile; fileRef = 39111F8F2F1C61A0002FB482 /* .gitignore */; };
 		395F1FEA2F11B3F700BC7030 /* Apollo in Frameworks */ = {isa = PBXBuildFile; productRef = 395F1FE92F11B3F700BC7030 /* Apollo */; };
@@ -16,28 +18,39 @@
 		395F20BB2F128DB700BC7030 /* LinioLiveActivityExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 395F20A72F128DB500BC7030 /* LinioLiveActivityExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		39E6B1792FACFE4900530110 /* WatchConnectivity.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 47AAB2A72D7597E0244DDB50 /* WatchConnectivity.framework */; };
 		3D35824A9C154C899F753900 /* ConnectionSearchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4AF3F675DCC44B7B2218C1F /* ConnectionSearchView.swift */; };
+		409C8A06A9E21D6DE9CE2D1E /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FED4DB111CF266B7B0CE55D6 /* Foundation.framework */; };
 		48B707E0FE2F06C7DF6A565E /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 24A9B46C77197C343CC5C33E /* SwiftUI.framework */; };
+		52416B137C034D60D65B9750 /* DateFormattingHelperTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22F1A78086131C49DA228F69 /* DateFormattingHelperTests.swift */; };
 		57EDFA3C7F77AE674225DD28 /* WatchConnectivity.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4AC99C37BEC617215A2FDE2C /* WatchConnectivity.framework */; };
+		78024477701B0C949B9E4D2E /* WatchDateHelperTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 431D5CCD804789EE87533D0F /* WatchDateHelperTests.swift */; };
+		785E0F91DE3A612222615BF6 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 491560FFC903457FD584B352 /* Foundation.framework */; };
 		7DBDB4AD9D0DA448A37C48E9 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F52290A6F7215AE6A17DA1BC /* Foundation.framework */; };
+		8F356595B2890A332FA3B15C /* TransportIconHelperTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A8F84F933E1DFE4D98177CA /* TransportIconHelperTests.swift */; };
 		A0E86D8DA9A8B911527223AB /* WatchDataManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9ED490D419C9DBE03FAA21B4 /* WatchDataManager.swift */; };
 		A1B2C3D4E5F6A7B8C9D0E1F2 /* WatchDirectService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F2E1D0C9B8A7F6E5D4C3B2A1 /* WatchDirectService.swift */; };
+		A6E9971BB590116A5A3AB752 /* AccessibilityHelpersTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB2E3B8CE9C8A7DE3579EC1F /* AccessibilityHelpersTests.swift */; };
 		AB12CD34EF56AB12CD34EF56 /* DebugView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 12AB34CD56EF12AB34CD56EF /* DebugView.swift */; };
 		AC15135173E7EB8E1FC05134 /* WatchApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3586F8F82591C327AC1184D9 /* WatchApp.swift */; };
 		B59AA62002E811D8BC48653B /* WatchConnectivityManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C2E89EE46FAF298E6247B82 /* WatchConnectivityManager.swift */; };
 		B802ECD0D273B8378428D900 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF3FF46771BC4230A08B904E /* ContentView.swift */; };
+		B9B8A27CE854D947434DAB69 /* WatchModelsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A7D7990F8CE501A0F41C325 /* WatchModelsTests.swift */; };
+		BED71936411FE3DBA15A5551 /* NetworkErrorFactoryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 26C532F0481A77FD6ED3E630 /* NetworkErrorFactoryTests.swift */; };
 		BFAA0003BFAA0003BFAA0003 /* ZXingCpp in Frameworks */ = {isa = PBXBuildFile; productRef = BFAA0002BFAA0002BFAA0002 /* ZXingCpp */; };
 		C3836C4CBF30DE1186B4AC83 /* WatchModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FEB0BED9C1BB7BD41733D19 /* WatchModels.swift */; };
 		C711471A5C4F81491F9F7149 /* SavedTripsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A8C1D454BD4A661DC5B81DDE /* SavedTripsView.swift */; };
 		CC000003000000000000000C /* LinioWatch.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = F50FC19EC7F5F96CA4125341 /* LinioWatch.app */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		CC11DD22EE33FF4400112233 /* WatchStationPickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD22EE33FF440011223344CC /* WatchStationPickerView.swift */; };
-		CE03CE03CE03CE03CE03CE03 /* Linio/Zertifikat D-Ticket.p12 in Resources */ = {isa = PBXBuildFile; fileRef = CE01CE01CE01CE01CE01CE01 /* Linio/Zertifikat D-Ticket.p12 */; };
-		CE04CE04CE04CE04CE04CE04 /* Linio/AppleWWDRCAG4.cer in Resources */ = {isa = PBXBuildFile; fileRef = CE02CE02CE02CE02CE02CE02 /* Linio/AppleWWDRCAG4.cer */; };
+		CE03CE03CE03CE03CE03CE03 /* Zertifikat D-Ticket.p12 in Resources */ = {isa = PBXBuildFile; fileRef = CE01CE01CE01CE01CE01CE01 /* Zertifikat D-Ticket.p12 */; };
+		CE04CE04CE04CE04CE04CE04 /* AppleWWDRCAG4.cer in Resources */ = {isa = PBXBuildFile; fileRef = CE02CE02CE02CE02CE02CE02 /* AppleWWDRCAG4.cer */; };
+		CE12401FD74B04024EB720F4 /* StationModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 153C7AF3B945547850E68153 /* StationModelTests.swift */; };
 		DD1A2B3C4E5F6A7B8C9D0E1F /* WatchDemoData.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE1A2B3C4E5F6A7B8C9D0E1F /* WatchDemoData.swift */; };
-		FB6B7C8D9E0F1A2B3C4D5E6B /* WatchLocalization.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB6B7C8D9E0F1A2B3C4D5E6C /* WatchLocalization.swift */; };
+		EB6ECBF6F126D688D341BBD0 /* NetworkErrorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E86FE4060FBF12E47269984 /* NetworkErrorTests.swift */; };
 		EBED6334CFBEED0A06A3FDAD /* ActiveTripView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2F833CF806B9CB3374EC3D0 /* ActiveTripView.swift */; };
 		FA1B2C3D4E5F6A7B8C9D0E1A /* WatchHapticManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB1B2C3D4E5F6A7B8C9D0E1B /* WatchHapticManager.swift */; };
 		FA2B3C4D5E6F7A8B9C0D1E2A /* WatchAppIntents.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB2B3C4D5E6F7A8B9C0D1E2B /* WatchAppIntents.swift */; };
 		FA3B4C5D6E7F8A9B0C1D2E3A /* WatchComplication.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB3B4C5D6E7F8A9B0C1D2E3B /* WatchComplication.swift */; };
+		FB6B7C8D9E0F1A2B3C4D5E6B /* WatchLocalization.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB6B7C8D9E0F1A2B3C4D5E6C /* WatchLocalization.swift */; };
+		FC7B8C9D0E1F2A3B4C5D6E7A /* WatchCacheManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC7B8C9D0E1F2A3B4C5D6E7B /* WatchCacheManager.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -54,6 +67,20 @@
 			proxyType = 1;
 			remoteGlobalIDString = 80B5293081A328395ABFE9D5;
 			remoteInfo = LinioWatch;
+		};
+		F677FBA0D55BEA74CD2EC68B /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 395F1FCD2F11B2B000BC7030 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 80B5293081A328395ABFE9D5;
+			remoteInfo = LinioWatch;
+		};
+		FF06C51E7893CA03EC49577E /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 395F1FCD2F11B2B000BC7030 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 395F1FD42F11B2B100BC7030;
+			remoteInfo = Linio;
 		};
 /* End PBXContainerItemProxy section */
 
@@ -103,8 +130,16 @@
 
 /* Begin PBXFileReference section */
 		12AB34CD56EF12AB34CD56EF /* DebugView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = DebugView.swift; sourceTree = "<group>"; };
+		153C7AF3B945547850E68153 /* StationModelTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = StationModelTests.swift; sourceTree = "<group>"; };
+		1A5722CA61596FAE6260926E /* TripLegTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = TripLegTests.swift; sourceTree = "<group>"; };
+		1A7D7990F8CE501A0F41C325 /* WatchModelsTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = WatchModelsTests.swift; sourceTree = "<group>"; };
+		1E86FE4060FBF12E47269984 /* NetworkErrorTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = NetworkErrorTests.swift; sourceTree = "<group>"; };
+		22F1A78086131C49DA228F69 /* DateFormattingHelperTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = DateFormattingHelperTests.swift; sourceTree = "<group>"; };
 		24A9B46C77197C343CC5C33E /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = Platforms/WatchOS.platform/Developer/SDKs/WatchOS11.0.sdk/System/Library/Frameworks/SwiftUI.framework; sourceTree = DEVELOPER_DIR; };
+		26AD5CD20E9A8FC2A79DC133 /* LinioTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = LinioTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		26C532F0481A77FD6ED3E630 /* NetworkErrorFactoryTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = NetworkErrorFactoryTests.swift; sourceTree = "<group>"; };
 		3586F8F82591C327AC1184D9 /* WatchApp.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = WatchApp.swift; sourceTree = "<group>"; };
+		37F37F761E0166D3BBE8F9C6 /* Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		39111F8D2F1C6108002FB482 /* Debug.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Debug.xcconfig; sourceTree = "<group>"; };
 		39111F8F2F1C61A0002FB482 /* .gitignore */ = {isa = PBXFileReference; lastKnownFileType = text; path = .gitignore; sourceTree = "<group>"; };
 		39111F9D2F1C6A1E002FB482 /* Secrets.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Secrets.xcconfig; sourceTree = "<group>"; };
@@ -114,28 +149,37 @@
 		395F20A92F128DB500BC7030 /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
 		395F20AB2F128DB500BC7030 /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
 		395F20C12F128DC400BC7030 /* LinioLiveActivityExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = LinioLiveActivityExtension.entitlements; sourceTree = "<group>"; };
+		3A8F84F933E1DFE4D98177CA /* TransportIconHelperTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = TransportIconHelperTests.swift; sourceTree = "<group>"; };
+		431D5CCD804789EE87533D0F /* WatchDateHelperTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = WatchDateHelperTests.swift; sourceTree = "<group>"; };
 		47AAB2A72D7597E0244DDB50 /* WatchConnectivity.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WatchConnectivity.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS.sdk/System/Library/Frameworks/WatchConnectivity.framework; sourceTree = DEVELOPER_DIR; };
+		491560FFC903457FD584B352 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/WatchOS.platform/Developer/SDKs/WatchOS26.0.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
+		49D41475C595961EFCBABD28 /* Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		4AC99C37BEC617215A2FDE2C /* WatchConnectivity.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WatchConnectivity.framework; path = Platforms/WatchOS.platform/Developer/SDKs/WatchOS.sdk/System/Library/Frameworks/WatchConnectivity.framework; sourceTree = DEVELOPER_DIR; };
 		4C2E89EE46FAF298E6247B82 /* WatchConnectivityManager.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = WatchConnectivityManager.swift; sourceTree = "<group>"; };
 		4FEB0BED9C1BB7BD41733D19 /* WatchModels.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = WatchModels.swift; sourceTree = "<group>"; };
+		5F05AA19AD5432323E909098 /* OccupancyLevelTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = OccupancyLevelTests.swift; sourceTree = "<group>"; };
+		834515BDE2DF24A6A724C2EB /* LinioWatchTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = LinioWatchTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		8A6B3F591AE6C55A16B2746B /* LinioWatch.entitlements */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.entitlements; path = LinioWatch.entitlements; sourceTree = "<group>"; };
 		93CBB7CE42CD42C1D4DA5DE4 /* DeparturesView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = DeparturesView.swift; sourceTree = "<group>"; };
 		9ED490D419C9DBE03FAA21B4 /* WatchDataManager.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = WatchDataManager.swift; sourceTree = "<group>"; };
 		A8C1D454BD4A661DC5B81DDE /* SavedTripsView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SavedTripsView.swift; sourceTree = "<group>"; };
 		C2F833CF806B9CB3374EC3D0 /* ActiveTripView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ActiveTripView.swift; sourceTree = "<group>"; };
-		CE01CE01CE01CE01CE01CE01 /* Linio/Zertifikat D-Ticket.p12 */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Linio/Zertifikat D-Ticket.p12"; sourceTree = "<group>"; };
-		CE02CE02CE02CE02CE02CE02 /* Linio/AppleWWDRCAG4.cer */ = {isa = PBXFileReference; lastKnownFileType = file; path = Linio/AppleWWDRCAG4.cer; sourceTree = "<group>"; };
+		CE01CE01CE01CE01CE01CE01 /* Zertifikat D-Ticket.p12 */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Linio/Zertifikat D-Ticket.p12"; sourceTree = "<group>"; };
+		CE02CE02CE02CE02CE02CE02 /* AppleWWDRCAG4.cer */ = {isa = PBXFileReference; lastKnownFileType = file; path = Linio/AppleWWDRCAG4.cer; sourceTree = "<group>"; };
 		DD22EE33FF440011223344CC /* WatchStationPickerView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = WatchStationPickerView.swift; sourceTree = "<group>"; };
 		DF3FF46771BC4230A08B904E /* ContentView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		EB2E3B8CE9C8A7DE3579EC1F /* AccessibilityHelpersTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AccessibilityHelpersTests.swift; sourceTree = "<group>"; };
 		EE1A2B3C4E5F6A7B8C9D0E1F /* WatchDemoData.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = WatchDemoData.swift; sourceTree = "<group>"; };
 		F2E1D0C9B8A7F6E5D4C3B2A1 /* WatchDirectService.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = WatchDirectService.swift; sourceTree = "<group>"; };
+		F4AF3F675DCC44B7B2218C1F /* ConnectionSearchView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ConnectionSearchView.swift; sourceTree = "<group>"; };
+		F50FC19EC7F5F96CA4125341 /* LinioWatch.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = LinioWatch.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		F52290A6F7215AE6A17DA1BC /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/WatchOS.platform/Developer/SDKs/WatchOS11.0.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
 		FB1B2C3D4E5F6A7B8C9D0E1B /* WatchHapticManager.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = WatchHapticManager.swift; sourceTree = "<group>"; };
 		FB2B3C4D5E6F7A8B9C0D1E2B /* WatchAppIntents.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = WatchAppIntents.swift; sourceTree = "<group>"; };
 		FB3B4C5D6E7F8A9B0C1D2E3B /* WatchComplication.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = WatchComplication.swift; sourceTree = "<group>"; };
 		FB6B7C8D9E0F1A2B3C4D5E6C /* WatchLocalization.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = WatchLocalization.swift; sourceTree = "<group>"; };
-		F4AF3F675DCC44B7B2218C1F /* ConnectionSearchView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ConnectionSearchView.swift; sourceTree = "<group>"; };
-		F50FC19EC7F5F96CA4125341 /* LinioWatch.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = LinioWatch.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		F52290A6F7215AE6A17DA1BC /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/WatchOS.platform/Developer/SDKs/WatchOS11.0.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
+		FC7B8C9D0E1F2A3B4C5D6E7B /* WatchCacheManager.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = WatchCacheManager.swift; sourceTree = "<group>"; };
+		FED4DB111CF266B7B0CE55D6 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.0.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -216,6 +260,22 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		8BF3D98DD79A867AE2A0A601 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				409C8A06A9E21D6DE9CE2D1E /* Foundation.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		90FA622C61C9EBF4E9ACC2C7 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				785E0F91DE3A612222615BF6 /* Foundation.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		9C17B028BBCD0EBA8D5249FA /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -243,6 +303,23 @@
 			path = Views;
 			sourceTree = "<group>";
 		};
+		390E5FFDFB4B801A1A9FFCCE /* LinioTests */ = {
+			isa = PBXGroup;
+			children = (
+				3A8F84F933E1DFE4D98177CA /* TransportIconHelperTests.swift */,
+				1A5722CA61596FAE6260926E /* TripLegTests.swift */,
+				EB2E3B8CE9C8A7DE3579EC1F /* AccessibilityHelpersTests.swift */,
+				26C532F0481A77FD6ED3E630 /* NetworkErrorFactoryTests.swift */,
+				1E86FE4060FBF12E47269984 /* NetworkErrorTests.swift */,
+				153C7AF3B945547850E68153 /* StationModelTests.swift */,
+				22F1A78086131C49DA228F69 /* DateFormattingHelperTests.swift */,
+				5F05AA19AD5432323E909098 /* OccupancyLevelTests.swift */,
+				37F37F761E0166D3BBE8F9C6 /* Info.plist */,
+			);
+			name = LinioTests;
+			path = LinioTests;
+			sourceTree = "<group>";
+		};
 		395F1FCC2F11B2B000BC7030 = {
 			isa = PBXGroup;
 			children = (
@@ -256,8 +333,10 @@
 				39111F9D2F1C6A1E002FB482 /* Secrets.xcconfig */,
 				39111FA12F1C7046002FB482 /* Release.xcconfig */,
 				A641D2E1C1550EA591808145 /* LinioWatch */,
-				CE01CE01CE01CE01CE01CE01 /* Linio/Zertifikat D-Ticket.p12 */,
-				CE02CE02CE02CE02CE02CE02 /* Linio/AppleWWDRCAG4.cer */,
+				CE01CE01CE01CE01CE01CE01 /* Zertifikat D-Ticket.p12 */,
+				CE02CE02CE02CE02CE02CE02 /* AppleWWDRCAG4.cer */,
+				390E5FFDFB4B801A1A9FFCCE /* LinioTests */,
+				81DC686BB9FCAB9F2AF9F0D7 /* LinioWatchTests */,
 			);
 			sourceTree = "<group>";
 		};
@@ -267,6 +346,8 @@
 				395F1FD52F11B2B100BC7030 /* Linio.app */,
 				395F20A72F128DB500BC7030 /* LinioLiveActivityExtension.appex */,
 				F50FC19EC7F5F96CA4125341 /* LinioWatch.app */,
+				26AD5CD20E9A8FC2A79DC133 /* LinioTests.xctest */,
+				834515BDE2DF24A6A724C2EB /* LinioWatchTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -288,8 +369,20 @@
 				F52290A6F7215AE6A17DA1BC /* Foundation.framework */,
 				4AC99C37BEC617215A2FDE2C /* WatchConnectivity.framework */,
 				24A9B46C77197C343CC5C33E /* SwiftUI.framework */,
+				491560FFC903457FD584B352 /* Foundation.framework */,
 			);
 			name = watchOS;
+			sourceTree = "<group>";
+		};
+		81DC686BB9FCAB9F2AF9F0D7 /* LinioWatchTests */ = {
+			isa = PBXGroup;
+			children = (
+				431D5CCD804789EE87533D0F /* WatchDateHelperTests.swift */,
+				1A7D7990F8CE501A0F41C325 /* WatchModelsTests.swift */,
+				49D41475C595961EFCBABD28 /* Info.plist */,
+			);
+			name = LinioWatchTests;
+			path = LinioWatchTests;
 			sourceTree = "<group>";
 		};
 		A641D2E1C1550EA591808145 /* LinioWatch */ = {
@@ -306,6 +399,7 @@
 				FB2B3C4D5E6F7A8B9C0D1E2B /* WatchAppIntents.swift */,
 				FB3B4C5D6E7F8A9B0C1D2E3B /* WatchComplication.swift */,
 				FB6B7C8D9E0F1A2B3C4D5E6C /* WatchLocalization.swift */,
+				FC7B8C9D0E1F2A3B4C5D6E7B /* WatchCacheManager.swift */,
 				8A6B3F591AE6C55A16B2746B /* LinioWatch.entitlements */,
 			);
 			path = LinioWatch;
@@ -315,6 +409,7 @@
 			isa = PBXGroup;
 			children = (
 				47AAB2A72D7597E0244DDB50 /* WatchConnectivity.framework */,
+				FED4DB111CF266B7B0CE55D6 /* Foundation.framework */,
 			);
 			name = iOS;
 			sourceTree = "<group>";
@@ -390,6 +485,42 @@
 			productReference = F50FC19EC7F5F96CA4125341 /* LinioWatch.app */;
 			productType = "com.apple.product-type.application";
 		};
+		B4E300BAF9190E40CC02D135 /* LinioWatchTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 25AB2D500259FB6E8422372B /* Build configuration list for PBXNativeTarget "LinioWatchTests" */;
+			buildPhases = (
+				6C0BCDEF66E931CC8E0017E8 /* Sources */,
+				90FA622C61C9EBF4E9ACC2C7 /* Frameworks */,
+				F950BD1CACAB1B34954006B4 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				E39AAD80147116223430814E /* PBXTargetDependency */,
+			);
+			name = LinioWatchTests;
+			productName = LinioWatchTests;
+			productReference = 834515BDE2DF24A6A724C2EB /* LinioWatchTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		C598C4C9C5794E53DAB94A5E /* LinioTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = ABA99BD9354B06AB6241D5BD /* Build configuration list for PBXNativeTarget "LinioTests" */;
+			buildPhases = (
+				F6A8E4B8579107162EAA2309 /* Sources */,
+				8BF3D98DD79A867AE2A0A601 /* Frameworks */,
+				41D59FF0B891B39E36E01D97 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				6ACA0258137299F33ECB3205 /* PBXTargetDependency */,
+			);
+			name = LinioTests;
+			productName = LinioTests;
+			productReference = 26AD5CD20E9A8FC2A79DC133 /* LinioTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -419,7 +550,7 @@
 			mainGroup = 395F1FCC2F11B2B000BC7030;
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
-				395F1FE82F11B3F700BC7030 /* XCLocalSwiftPackageReference "LocalPackages/apollo-ios" */,
+				395F1FE82F11B3F700BC7030 /* XCLocalSwiftPackageReference "apollo-ios" */,
 				BFAA0001BFAA0001BFAA0001 /* XCRemoteSwiftPackageReference "zxing-cpp" */,
 			);
 			preferredProjectObjectVersion = 77;
@@ -430,6 +561,8 @@
 				395F1FD42F11B2B100BC7030 /* Linio */,
 				395F20A62F128DB500BC7030 /* LinioLiveActivityExtension */,
 				80B5293081A328395ABFE9D5 /* LinioWatch */,
+				C598C4C9C5794E53DAB94A5E /* LinioTests */,
+				B4E300BAF9190E40CC02D135 /* LinioWatchTests */,
 			);
 		};
 /* End PBXProject section */
@@ -447,12 +580,26 @@
 			buildActionMask = 2147483647;
 			files = (
 				39111F902F1C61A0002FB482 /* .gitignore in Resources */,
-				CE03CE03CE03CE03CE03CE03 /* Linio/Zertifikat D-Ticket.p12 in Resources */,
-				CE04CE04CE04CE04CE04CE04 /* Linio/AppleWWDRCAG4.cer in Resources */,
+				CE03CE03CE03CE03CE03CE03 /* Zertifikat D-Ticket.p12 in Resources */,
+				CE04CE04CE04CE04CE04CE04 /* AppleWWDRCAG4.cer in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		395F20A52F128DB500BC7030 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		41D59FF0B891B39E36E01D97 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F950BD1CACAB1B34954006B4 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -476,6 +623,15 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		6C0BCDEF66E931CC8E0017E8 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				78024477701B0C949B9E4D2E /* WatchDateHelperTests.swift in Sources */,
+				B9B8A27CE854D947434DAB69 /* WatchModelsTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		C72E98BE17BE3D4A84387F3C /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -490,6 +646,7 @@
 				FA2B3C4D5E6F7A8B9C0D1E2A /* WatchAppIntents.swift in Sources */,
 				FA3B4C5D6E7F8A9B0C1D2E3A /* WatchComplication.swift in Sources */,
 				FB6B7C8D9E0F1A2B3C4D5E6B /* WatchLocalization.swift in Sources */,
+				FC7B8C9D0E1F2A3B4C5D6E7A /* WatchCacheManager.swift in Sources */,
 				B802ECD0D273B8378428D900 /* ContentView.swift in Sources */,
 				EBED6334CFBEED0A06A3FDAD /* ActiveTripView.swift in Sources */,
 				C711471A5C4F81491F9F7149 /* SavedTripsView.swift in Sources */,
@@ -497,6 +654,21 @@
 				3D35824A9C154C899F753900 /* ConnectionSearchView.swift in Sources */,
 				CC11DD22EE33FF4400112233 /* WatchStationPickerView.swift in Sources */,
 				AB12CD34EF56AB12CD34EF56 /* DebugView.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F6A8E4B8579107162EAA2309 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				8F356595B2890A332FA3B15C /* TransportIconHelperTests.swift in Sources */,
+				1637212A5F0BE13B975EA346 /* TripLegTests.swift in Sources */,
+				A6E9971BB590116A5A3AB752 /* AccessibilityHelpersTests.swift in Sources */,
+				BED71936411FE3DBA15A5551 /* NetworkErrorFactoryTests.swift in Sources */,
+				EB6ECBF6F126D688D341BBD0 /* NetworkErrorTests.swift in Sources */,
+				CE12401FD74B04024EB720F4 /* StationModelTests.swift in Sources */,
+				52416B137C034D60D65B9750 /* DateFormattingHelperTests.swift in Sources */,
+				1DED12E04F3DFB06C1D54390 /* OccupancyLevelTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -508,14 +680,41 @@
 			target = 395F20A62F128DB500BC7030 /* LinioLiveActivityExtension */;
 			targetProxy = 395F20B92F128DB700BC7030 /* PBXContainerItemProxy */;
 		};
+		6ACA0258137299F33ECB3205 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = Linio;
+			target = 395F1FD42F11B2B100BC7030 /* Linio */;
+			targetProxy = FF06C51E7893CA03EC49577E /* PBXContainerItemProxy */;
+		};
 		BB000002000000000000000B /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 80B5293081A328395ABFE9D5 /* LinioWatch */;
 			targetProxy = BB000001000000000000000A /* PBXContainerItemProxy */;
 		};
+		E39AAD80147116223430814E /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = LinioWatch;
+			target = 80B5293081A328395ABFE9D5 /* LinioWatch */;
+			targetProxy = F677FBA0D55BEA74CD2EC68B /* PBXContainerItemProxy */;
+		};
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
+		09D693AD375066A85507091E /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = A4HCRKN53K;
+				INFOPLIST_FILE = LinioWatchTests/Info.plist;
+				PRODUCT_BUNDLE_IDENTIFIER = "Stefan.Mannheim-Transportation.LinioWatchTests";
+				SDKROOT = watchos;
+				SWIFT_VERSION = 5.9;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/LinioWatch.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/LinioWatch";
+				WATCHOS_DEPLOYMENT_TARGET = 7.0;
+			};
+			name = Debug;
+		};
 		36927EE4F5272159DDC1D399 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -678,7 +877,6 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 39111F8D2F1C6108002FB482 /* Debug.xcconfig */;
 			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = NO;
 				CODE_SIGN_ENTITLEMENTS = Linio/Linio.entitlements;
@@ -704,7 +902,6 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 4.1;
 				PRODUCT_BUNDLE_IDENTIFIER = "Stefan.Mannheim-Transportation";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				RNV_APP_GROUP_ID = "$(RNV_APP_GROUP_ID)";
@@ -881,6 +1078,55 @@
 			};
 			name = Debug;
 		};
+		82DE5C74237A4B91D89F45F4 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = A4HCRKN53K;
+				INFOPLIST_FILE = LinioTests/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "Stefan.Mannheim-Transportation.LinioTests";
+				SDKROOT = iphoneos;
+				SWIFT_VERSION = 5.9;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Linio.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Linio";
+			};
+			name = Debug;
+		};
+		8556420BF7F5E50A48EA8F70 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = A4HCRKN53K;
+				INFOPLIST_FILE = LinioTests/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "Stefan.Mannheim-Transportation.LinioTests";
+				SDKROOT = iphoneos;
+				SWIFT_VERSION = 5.9;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Linio.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Linio";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		FAA6405A9C0994FA0E8DEE99 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = A4HCRKN53K;
+				INFOPLIST_FILE = LinioWatchTests/Info.plist;
+				PRODUCT_BUNDLE_IDENTIFIER = "Stefan.Mannheim-Transportation.LinioWatchTests";
+				SDKROOT = watchos;
+				SWIFT_VERSION = 5.9;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/LinioWatch.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/LinioWatch";
+				VALIDATE_PRODUCT = YES;
+				WATCHOS_DEPLOYMENT_TARGET = 7.0;
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -889,6 +1135,15 @@
 			buildConfigurations = (
 				36927EE4F5272159DDC1D399 /* Release */,
 				7F288CB76A6E68451F7B5B60 /* Debug */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		25AB2D500259FB6E8422372B /* Build configuration list for PBXNativeTarget "LinioWatchTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				FAA6405A9C0994FA0E8DEE99 /* Release */,
+				09D693AD375066A85507091E /* Debug */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
@@ -920,10 +1175,19 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
+		ABA99BD9354B06AB6241D5BD /* Build configuration list for PBXNativeTarget "LinioTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				8556420BF7F5E50A48EA8F70 /* Release */,
+				82DE5C74237A4B91D89F45F4 /* Debug */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 /* End XCConfigurationList section */
 
 /* Begin XCLocalSwiftPackageReference section */
-		395F1FE82F11B3F700BC7030 /* XCLocalSwiftPackageReference "LocalPackages/apollo-ios" */ = {
+		395F1FE82F11B3F700BC7030 /* XCLocalSwiftPackageReference "apollo-ios" */ = {
 			isa = XCLocalSwiftPackageReference;
 			relativePath = "LocalPackages/apollo-ios";
 		};
@@ -943,12 +1207,12 @@
 /* Begin XCSwiftPackageProductDependency section */
 		395F1FE92F11B3F700BC7030 /* Apollo */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 395F1FE82F11B3F700BC7030 /* XCLocalSwiftPackageReference "LocalPackages/apollo-ios" */;
+			package = 395F1FE82F11B3F700BC7030 /* XCLocalSwiftPackageReference "apollo-ios" */;
 			productName = Apollo;
 		};
 		395F1FEB2F11B3F700BC7030 /* ApolloAPI */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 395F1FE82F11B3F700BC7030 /* XCLocalSwiftPackageReference "LocalPackages/apollo-ios" */;
+			package = 395F1FE82F11B3F700BC7030 /* XCLocalSwiftPackageReference "apollo-ios" */;
 			productName = ApolloAPI;
 		};
 		BFAA0002BFAA0002BFAA0002 /* ZXingCpp */ = {

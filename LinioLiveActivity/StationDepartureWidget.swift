@@ -8,6 +8,7 @@
 import WidgetKit
 import SwiftUI
 import AppIntents
+import Security
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 // MARK: - Datenmodell
@@ -58,8 +59,14 @@ struct StationDepartureEntry: TimelineEntry {
 
 private struct WidgetDepartureService {
 
-    /// Gibt `nil` zurück wenn der Netzwerkaufruf fehlschlägt, `[]` wenn keine Abfahrten.
-    static func fetch(hafasID: String, token: String, graphqlURL: String) async -> [WidgetDeparture]? {
+    enum FetchResult {
+        case success([WidgetDeparture])
+        case unauthorized
+        case failed
+    }
+
+    /// Liefert `.unauthorized` bei 401, `.failed` bei sonstigen Fehlern, `.success` bei 2xx.
+    static func fetch(hafasID: String, token: String, graphqlURL: String) async -> FetchResult {
         let safeID = sanitize(hafasID)
         let safeTime = sanitize(ISO8601DateFormatter().string(from: Date()))
 
@@ -85,23 +92,28 @@ private struct WidgetDepartureService {
         }
         """
 
-        guard let url = URL(string: graphqlURL) else { return nil }
+        guard let url = URL(string: graphqlURL) else { return .failed }
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
-        guard let body = try? JSONSerialization.data(withJSONObject: ["query": query]) else { return nil }
+        guard let body = try? JSONSerialization.data(withJSONObject: ["query": query]) else { return .failed }
         request.httpBody = body
 
-        guard let (data, _) = try? await URLSession.shared.data(for: request) else { return nil }
+        guard let (data, response) = try? await URLSession.shared.data(for: request) else { return .failed }
+
+        if let http = response as? HTTPURLResponse {
+            if http.statusCode == 401 { return .unauthorized }
+            guard (200...299).contains(http.statusCode) else { return .failed }
+        }
 
         guard let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
               let responseData = json["data"] as? [String: Any],
               let stationObj = responseData["station"] as? [String: Any],
               let journeysObj = stationObj["journeys"] as? [String: Any],
-              let elements = journeysObj["elements"] as? [[String: Any]] else { return nil }
+              let elements = journeysObj["elements"] as? [[String: Any]] else { return .failed }
 
-        return elements.compactMap { parse(element: $0, hafasID: safeID) }
+        return .success(elements.compactMap { parse(element: $0, hafasID: safeID) })
     }
 
     private static func parse(element: [String: Any], hafasID: String) -> WidgetDeparture? {
@@ -192,7 +204,20 @@ struct StationDepartureProvider: AppIntentTimelineProvider {
     private func buildEntry(for configuration: StationSelectionIntent) async -> StationDepartureEntry {
         let defaults = UserDefaults(suiteName: "group.com.stefanfriedrich.rnvapp")
 
-        guard let token = defaults?.string(forKey: "widgetAccessToken"), !token.isEmpty else {
+        // Token aus Shared Keychain lesen
+        let keychainQuery: [String: Any] = [
+            kSecClass as String: kSecClassGenericPassword,
+            kSecAttrService as String: "com.stefanfriedrich.rnvapp.widget",
+            kSecAttrAccount as String: "widgetAccessToken",
+            kSecAttrAccessGroup as String: "A4HCRKN53K.group.com.stefanfriedrich.rnvapp",
+            kSecReturnData as String: true,
+            kSecMatchLimit as String: kSecMatchLimitOne
+        ]
+        var keychainResult: AnyObject?
+        SecItemCopyMatching(keychainQuery as CFDictionary, &keychainResult)
+        let token = (keychainResult as? Data).flatMap { String(data: $0, encoding: .utf8) }
+
+        guard let token, !token.isEmpty else {
             return StationDepartureEntry(
                 date: Date(), configuration: configuration,
                 stationName: "—", departures: [], errorState: .noToken, isPlaceholder: false
@@ -217,30 +242,42 @@ struct StationDepartureProvider: AppIntentTimelineProvider {
         let graphqlURL = defaults?.string(forKey: "widgetGraphQLURL")
             ?? "https://graphql-sandbox-dds.rnv-online.de/"
 
-        let result = await WidgetDepartureService.fetch(
+        let fetchResult = await WidgetDepartureService.fetch(
             hafasID: station.hafasID,
             token: token,
             graphqlURL: graphqlURL
         )
 
-        let relevance: TimelineEntryRelevance? = {
-            guard let firstDep = result?.first,
-                  let depDate = WidgetDataProvider.parseISO8601(firstDep.effectiveTimeISO) else { return nil }
-            let mins = depDate.timeIntervalSince(Date()) / 60
-            if mins < 5 { return TimelineEntryRelevance(score: 10.0, duration: 5 * 60) }
-            if mins < 20 { return TimelineEntryRelevance(score: 5.0, duration: 5 * 60) }
-            return TimelineEntryRelevance(score: 1.0, duration: 5 * 60)
-        }()
-
-        return StationDepartureEntry(
-            date: Date(),
-            configuration: configuration,
-            stationName: station.longName,
-            departures: result ?? [],
-            errorState: result == nil ? .networkError : nil,
-            isPlaceholder: false,
-            relevance: relevance
-        )
+        switch fetchResult {
+        case .unauthorized:
+            return StationDepartureEntry(
+                date: Date(), configuration: configuration,
+                stationName: station.longName, departures: [], errorState: .noToken, isPlaceholder: false
+            )
+        case .failed:
+            return StationDepartureEntry(
+                date: Date(), configuration: configuration,
+                stationName: station.longName, departures: [], errorState: .networkError, isPlaceholder: false
+            )
+        case .success(let departures):
+            let relevance: TimelineEntryRelevance? = {
+                guard let firstDep = departures.first,
+                      let depDate = WidgetDataProvider.parseISO8601(firstDep.effectiveTimeISO) else { return nil }
+                let mins = depDate.timeIntervalSince(Date()) / 60
+                if mins < 5 { return TimelineEntryRelevance(score: 10.0, duration: 5 * 60) }
+                if mins < 20 { return TimelineEntryRelevance(score: 5.0, duration: 5 * 60) }
+                return TimelineEntryRelevance(score: 1.0, duration: 5 * 60)
+            }()
+            return StationDepartureEntry(
+                date: Date(),
+                configuration: configuration,
+                stationName: station.longName,
+                departures: departures,
+                errorState: nil,
+                isPlaceholder: false,
+                relevance: relevance
+            )
+        }
     }
 }
 
@@ -618,6 +655,115 @@ struct StationDepartureLargeView: View {
     }
 }
 
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// MARK: - Lock Screen Accessory Views (iOS 16+)
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+/// Inline Lock Screen Widget: "🚊 5 → Heidelberg · 3'"
+struct StationAccessoryInlineView: View {
+    let entry: StationDepartureEntry
+    
+    var body: some View {
+        if let dep = entry.departures.first {
+            let mins = minutesUntil(dep)
+            Label(
+                "\(dep.serviceName) → \(shortDestination(dep.destination)) · \(mins)'",
+                systemImage: WidgetTheme.lineIcon(for: dep.serviceType, serviceName: dep.serviceName)
+            )
+        } else if entry.errorState == .noStation {
+            Label("Station wählen", systemImage: "mappin.slash")
+        } else {
+            Label("Keine Abfahrten", systemImage: "tram.fill")
+        }
+    }
+    
+    private func minutesUntil(_ dep: WidgetDeparture) -> Int {
+        guard let date = WidgetDataProvider.parseISO8601(dep.effectiveTimeISO) else { return 0 }
+        return max(0, Int(date.timeIntervalSince(entry.date) / 60))
+    }
+    
+    private func shortDestination(_ dest: String) -> String {
+        // Kürze lange Namen für Inline-Darstellung
+        let short = dest.replacingOccurrences(of: " Hbf", with: "")
+                        .replacingOccurrences(of: " Hauptbahnhof", with: "")
+        return short.count > 12 ? String(short.prefix(10)) + "…" : short
+    }
+}
+
+/// Circular Lock Screen Widget: Countdown im Kreis
+struct StationAccessoryCircularView: View {
+    let entry: StationDepartureEntry
+    
+    var body: some View {
+        ZStack {
+            if let dep = entry.departures.first {
+                let mins = minutesUntil(dep)
+                AccessoryWidgetBackground()
+                VStack(spacing: 1) {
+                    Text(dep.serviceName)
+                        .font(.system(size: 11, weight: .heavy, design: .rounded))
+                        .minimumScaleFactor(0.7)
+                    Text("\(mins)'")
+                        .font(.system(size: 16, weight: .bold, design: .rounded))
+                }
+            } else {
+                AccessoryWidgetBackground()
+                Image(systemName: entry.errorState == .noStation ? "mappin.slash" : "tram.fill")
+                    .font(.system(size: 18))
+                    .foregroundStyle(.secondary)
+            }
+        }
+    }
+    
+    private func minutesUntil(_ dep: WidgetDeparture) -> Int {
+        guard let date = WidgetDataProvider.parseISO8601(dep.effectiveTimeISO) else { return 0 }
+        return max(0, Int(date.timeIntervalSince(entry.date) / 60))
+    }
+}
+
+/// Rectangular Lock Screen Widget: Linie + Ziel + Zeit
+struct StationAccessoryRectangularView: View {
+    let entry: StationDepartureEntry
+    
+    var body: some View {
+        if let dep = entry.departures.first {
+            let mins = minutesUntil(dep)
+            VStack(alignment: .leading, spacing: 2) {
+                HStack {
+                    Image(systemName: WidgetTheme.lineIcon(for: dep.serviceType, serviceName: dep.serviceName))
+                        .font(.system(size: 10, weight: .bold))
+                    Text(dep.serviceName)
+                        .font(.system(size: 13, weight: .heavy, design: .rounded))
+                    Spacer()
+                    Text("\(mins)'")
+                        .font(.system(size: 15, weight: .heavy, design: .rounded))
+                }
+                Text(entry.stationName)
+                    .font(.system(size: 10, weight: .medium))
+                    .foregroundStyle(.secondary)
+                    .lineLimit(1)
+                Text("→ " + dep.destination)
+                    .font(.system(size: 11, weight: .semibold))
+                    .lineLimit(1)
+            }
+        } else {
+            VStack(alignment: .leading, spacing: 3) {
+                Image(systemName: entry.errorState == .noStation ? "mappin.slash" : "tram.fill")
+                    .font(.system(size: 14))
+                    .foregroundStyle(.secondary)
+                Text(entry.errorState == .noStation ? "Station wählen" : "Keine Abfahrten")
+                    .font(.system(size: 11, weight: .semibold))
+                    .foregroundStyle(.secondary)
+            }
+        }
+    }
+    
+    private func minutesUntil(_ dep: WidgetDeparture) -> Int {
+        guard let date = WidgetDataProvider.parseISO8601(dep.effectiveTimeISO) else { return 0 }
+        return max(0, Int(date.timeIntervalSince(entry.date) / 60))
+    }
+}
+
 // MARK: Container
 
 struct StationDepartureContainerView: View {
@@ -626,9 +772,12 @@ struct StationDepartureContainerView: View {
 
     var body: some View {
         switch family {
-        case .systemLarge:  StationDepartureLargeView(entry: entry)
-        case .systemMedium: StationDepartureMediumView(entry: entry)
-        default:            StationDepartureSmallView(entry: entry)
+        case .systemLarge:          StationDepartureLargeView(entry: entry)
+        case .systemMedium:         StationDepartureMediumView(entry: entry)
+        case .accessoryCircular:    StationAccessoryCircularView(entry: entry)
+        case .accessoryRectangular: StationAccessoryRectangularView(entry: entry)
+        case .accessoryInline:      StationAccessoryInlineView(entry: entry)
+        default:                    StationDepartureSmallView(entry: entry)
         }
     }
 }
@@ -673,7 +822,10 @@ struct StationDepartureWidget: Widget {
         }
         .configurationDisplayName("widget.stationDeparture.name")
         .description("widget.stationDeparture.description")
-        .supportedFamilies([.systemSmall, .systemMedium, .systemLarge])
+        .supportedFamilies([
+            .systemSmall, .systemMedium, .systemLarge,
+            .accessoryCircular, .accessoryRectangular, .accessoryInline
+        ])
     }
 }
 

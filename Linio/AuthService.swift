@@ -4,6 +4,7 @@
 
 import Foundation
 import Combine
+import Security
 
 @MainActor
 class AuthService: ObservableObject {
@@ -159,9 +160,21 @@ class AuthService: ObservableObject {
                     self.isAuthenticating = false
                     self.authError = nil
 
-                    // Token + URL für Widget in App Group speichern
+                    // Token in Shared Keychain speichern (zugänglich für Widget-Extension)
+                    if let tokenData = token.data(using: .utf8) {
+                        let keychainQuery: [String: Any] = [
+                            kSecClass as String: kSecClassGenericPassword,
+                            kSecAttrService as String: AppConfiguration.widgetKeychainService,
+                            kSecAttrAccount as String: AppConfiguration.widgetKeychainTokenKey,
+                            kSecAttrAccessGroup as String: AppConfiguration.widgetKeychainAccessGroup,
+                            kSecValueData as String: tokenData,
+                            kSecAttrAccessible as String: kSecAttrAccessibleWhenUnlockedThisDeviceOnly
+                        ]
+                        SecItemDelete(keychainQuery as CFDictionary)
+                        SecItemAdd(keychainQuery as CFDictionary, nil)
+                    }
+                    // Ablaufzeit und URL weiterhin in App Group (nicht sicherheitskritisch)
                     let appGroupDefaults = UserDefaults(suiteName: AppConfiguration.appGroupID)
-                    appGroupDefaults?.set(token, forKey: "widgetAccessToken")
                     appGroupDefaults?.set(expiry.timeIntervalSince1970, forKey: "widgetAccessTokenExpiry")
                     let rawGraphQLURL = Bundle.main.object(forInfoDictionaryKey: "RNV_GRAPHQL_URL") as? String
                     let graphqlURL: String
@@ -209,9 +222,16 @@ class AuthService: ObservableObject {
         isAuthenticated = false
         authError = nil
 
-        // Token aus App Group löschen
+        // Token aus Keychain löschen
+        let keychainQuery: [String: Any] = [
+            kSecClass as String: kSecClassGenericPassword,
+            kSecAttrService as String: AppConfiguration.widgetKeychainService,
+            kSecAttrAccount as String: AppConfiguration.widgetKeychainTokenKey,
+            kSecAttrAccessGroup as String: AppConfiguration.widgetKeychainAccessGroup
+        ]
+        SecItemDelete(keychainQuery as CFDictionary)
+        // Ablaufzeit und URL aus App Group löschen
         let appGroupDefaults = UserDefaults(suiteName: AppConfiguration.appGroupID)
-        appGroupDefaults?.removeObject(forKey: "widgetAccessToken")
         appGroupDefaults?.removeObject(forKey: "widgetAccessTokenExpiry")
         appGroupDefaults?.removeObject(forKey: "widgetGraphQLURL")
 

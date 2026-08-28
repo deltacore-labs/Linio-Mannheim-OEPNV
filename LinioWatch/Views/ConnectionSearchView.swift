@@ -1,17 +1,41 @@
 import SwiftUI
+import CoreLocation
 
 struct ConnectionSearchView: View {
     @EnvironmentObject var connectivity: WatchConnectivityManager
+    @StateObject private var locationManager = WatchLocationManager.shared
     @State private var fromID   = WatchStation.all.first?.id                    ?? "de:08222:115"
     @State private var fromName = WatchStation.all.first?.name                  ?? "MA Hauptbahnhof"
     @State private var toID     = WatchStation.all.dropFirst().first?.id         ?? "de:08222:101"
     @State private var toName   = WatchStation.all.dropFirst().first?.name       ?? "MA Paradeplatz"
+    @State private var isLoadingNearby = false
 
     var body: some View {
         NavigationStack {
             List {
+                // "In der Nähe als Start" Button
                 Section {
-                    NavigationLink(destination: WatchStationPickerView(
+                    Button {
+                        Task { await setNearbyAsStart() }
+                    } label: {
+                        HStack(spacing: 8) {
+                            if isLoadingNearby || connectivity.nearbyLoading {
+                                ProgressView()
+                                    .scaleEffect(0.8)
+                            } else {
+                                Image(systemName: "location.fill")
+                                    .font(.system(size: 12, weight: .semibold))
+                                    .foregroundColor(.blue)
+                            }
+                            Text("Standort als Start".localized)
+                                .font(.caption)
+                        }
+                    }
+                    .disabled(isLoadingNearby || connectivity.nearbyLoading)
+                }
+                
+                Section {
+                    NavigationLink(destination: ImprovedStationPickerView(
                         title: "Von".localized,
                         stationID: $fromID,
                         stationName: $fromName
@@ -19,7 +43,7 @@ struct ConnectionSearchView: View {
                         LabeledStationRow(label: "Von".localized, name: fromName)
                     }
 
-                    NavigationLink(destination: WatchStationPickerView(
+                    NavigationLink(destination: ImprovedStationPickerView(
                         title: "Nach".localized,
                         stationID: $toID,
                         stationName: $toName
@@ -60,6 +84,13 @@ struct ConnectionSearchView: View {
                 }
             }
             .navigationTitle("Verbindungen".localized)
+            .onChange(of: connectivity.nearbyStations) { _, stations in
+                if let first = stations.first, isLoadingNearby {
+                    fromID = first.id
+                    fromName = first.name
+                    isLoadingNearby = false
+                }
+            }
         }
     }
 
@@ -68,6 +99,17 @@ struct ConnectionSearchView: View {
             fromID: fromID, toID: toID,
             fromName: fromName, toName: toName
         )
+    }
+    
+    private func setNearbyAsStart() async {
+        isLoadingNearby = true
+        
+        guard let location = await locationManager.requestLocation() else {
+            isLoadingNearby = false
+            return
+        }
+        
+        connectivity.requestNearbyStations(latitude: location.latitude, longitude: location.longitude)
     }
 }
 

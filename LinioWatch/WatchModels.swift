@@ -60,7 +60,7 @@ struct TripLegData: Codable {
 
 // MARK: - Abfahrten (kommen via WatchConnectivity vom iPhone)
 
-struct WatchDeparture: Identifiable, Codable {
+struct WatchDeparture: Identifiable, Codable, Equatable {
     let id: String
     let lineName: String
     let direction: String
@@ -68,6 +68,10 @@ struct WatchDeparture: Identifiable, Codable {
     let estimatedTime: String?
     let serviceType: String?
     let delayMinutes: Int?
+    
+    static func == (lhs: WatchDeparture, rhs: WatchDeparture) -> Bool {
+        lhs.id == rhs.id && lhs.scheduledTime == rhs.scheduledTime
+    }
 }
 
 // MARK: - Trip Phase

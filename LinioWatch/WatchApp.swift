@@ -15,9 +15,9 @@ struct LinioWatchApp: App {
             ContentView()
                 .environmentObject(dataManager)
                 .environmentObject(connectivity)
-                .onAppear {
-                    dataManager.refresh()
-                    connectivity.onContextUpdated = { [weak dataManager] in
+                .onAppear { [weak dataManager] in
+                    dataManager?.refresh()
+                    connectivity.onContextUpdated = {
                         dataManager?.refresh()
                         // Complication aktualisieren wenn sich Daten ändern
                         WidgetCenter.shared.reloadAllTimelines()

@@ -6,7 +6,28 @@ Die LinioWatch App ist eine vollständige Companion-App für die Apple Watch, di
 
 ---
 
-## 🆕 Neue Features (August 2026)
+## 🆕 v4.2 Update (August 2026)
+
+### Performance-Verbesserungen
+- **Intelligentes Caching** – Reduziert API-Aufrufe um bis zu 60%
+- **Offline-Modus** – Gecachte Abfahrten für 1 Stunde verfügbar
+- **Auto-Retry** – Automatisches Wiederholen bei Verbindungsfehlern
+
+### Neue Features
+- **⭐ Favoriten-Haltestellen** – Quick-Access zu oft genutzten Stationen
+- **📊 Cache-Statistiken** – Einsicht in gesparte API-Aufrufe
+- **🎯 Verbesserte Complication** – Fortschrittsring mit Linien-Anzeige
+- **🔄 Deep Links** – Navigation via URL-Schema
+
+### UI/UX Verbesserungen
+- **Vertikale Tab-Navigation** – Natürlichere Wisch-Gesten
+- **Progress Bar** – Visueller Fortschritt während der Fahrt
+- **Swipe-to-Favorite** – Schnelles Hinzufügen von Favoriten
+- **Einstellungen-Tab** – Ersetzt Debug-View für Endnutzer
+
+---
+
+## 🆕 Frühere Features (August 2026)
 
 ### 1. ⌚ Haptic Feedback
 **Datei:** `WatchHapticManager.swift`
@@ -81,19 +102,21 @@ LinioWatch/
 ├── WatchApp.swift              # App Entry Point
 ├── WatchModels.swift           # Datenmodelle
 ├── WatchDataManager.swift      # Datenverwaltung
-├── WatchConnectivityManager.swift  # iPhone ↔ Watch Sync
+├── WatchConnectivityManager.swift  # iPhone ↔ Watch Sync (mit Auto-Retry)
 ├── WatchDirectService.swift    # API-Aufrufe direkt von der Watch
+├── WatchCacheManager.swift     # 🆕 Intelligentes Caching-System
 ├── WatchDemoData.swift         # Demo-Daten für Previews
-├── WatchHapticManager.swift    # 🆕 Haptic Feedback
-├── WatchAppIntents.swift       # 🆕 Siri Shortcuts
-├── WatchComplication.swift     # 🆕 Watch Face Complication
+├── WatchHapticManager.swift    # Haptic Feedback
+├── WatchAppIntents.swift       # Siri Shortcuts
+├── WatchComplication.swift     # Watch Face Complication
+├── WatchLocalization.swift     # Dynamische Lokalisierung
 ├── Info.plist                  # App-Konfiguration
 ├── LinioWatch.entitlements     # Berechtigungen
 └── Views/
-    ├── ContentView.swift       # Haupt-TabView
-    ├── ActiveTripView.swift    # Aktive Fahrt anzeigen
+    ├── ContentView.swift       # Haupt-TabView + SettingsView
+    ├── ActiveTripView.swift    # Aktive Fahrt mit Progress Bar
     ├── SavedTripsView.swift    # Geplante Fahrten
-    ├── DeparturesView.swift    # Abfahrtsmonitor
+    ├── DeparturesView.swift    # Abfahrtsmonitor mit Favoriten
     ├── ConnectionSearchView.swift  # Verbindungssuche
     ├── WatchStationPickerView.swift # Haltestellenauswahl
     └── DebugView.swift         # Debug-Informationen
@@ -163,6 +186,17 @@ Alle Views haben `#Preview` Makros für schnelles Testen in Xcode.
 ---
 
 ## 📋 Changelog
+
+### v4.2 (August 2026)
+- ✅ **WatchCacheManager** – Intelligentes Caching mit TTL
+- ✅ **Favoriten-Haltestellen** – Quick-Access mit Swipe-to-Add
+- ✅ **Offline-Modus** – Gecachte Daten für 1 Stunde
+- ✅ **Auto-Retry** – Automatisches Wiederholen bei Fehlern
+- ✅ **Progress Bar** – Visueller Fahrtfortschritt
+- ✅ **Verbesserte Complication** – Mit Fortschrittsring
+- ✅ **Einstellungen-Tab** – Cache-Statistiken & Favoriten
+- ✅ **Deep Links** – URL-Schema Navigation
+- ✅ **Vertikale Tab-Navigation** – Bessere UX
 
 ### v4.1 (August 2026)
 - ✅ Haptic Feedback für Umstieg und Ankunft

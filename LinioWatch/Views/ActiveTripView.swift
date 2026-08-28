@@ -3,12 +3,20 @@ import Combine
 
 struct ActiveTripView: View {
     @EnvironmentObject var dataManager: WatchDataManager
+    @StateObject private var hapticManager = WatchHapticManager.shared
+    @State private var showingDetails = false
 
     var body: some View {
-        if let trip = dataManager.activeTrip {
-            TripTrackingView(trip: trip)
-        } else {
-            NoActiveTripView()
+        NavigationStack {
+            Group {
+                if let trip = dataManager.activeTrip {
+                    TripTrackingView(trip: trip, showingDetails: $showingDetails)
+                } else {
+                    NoActiveTripView()
+                }
+            }
+            .navigationTitle("Aktive Fahrt".localized)
+            .navigationBarTitleDisplayMode(.inline)
         }
     }
 }
@@ -17,57 +25,78 @@ struct ActiveTripView: View {
 
 private struct TripTrackingView: View {
     let trip: WidgetTripData
+    @Binding var showingDetails: Bool
     @State private var now = Date()
+    @State private var animateProgress = false
 
     private let timer = Timer.publish(every: 30, on: .main, in: .common).autoconnect()
 
     private var phase: TripPhase { WatchDateHelper.phase(for: trip) }
     private var firstLeg: WidgetTripLegData? { trip.legs.first(where: { $0.isTimedLeg }) }
+    
+    private var progressValue: Double {
+        guard let start = WatchDateHelper.parse(trip.startTime),
+              let end = WatchDateHelper.parse(trip.endTime) else { return 0 }
+        let total = end.timeIntervalSince(start)
+        let elapsed = Date().timeIntervalSince(start)
+        return min(max(elapsed / total, 0), 1)
+    }
 
     var body: some View {
         ScrollView {
-            VStack(alignment: .leading, spacing: 10) {
+            VStack(alignment: .leading, spacing: 8) {
+                // Progress Bar (nur während der Fahrt)
+                if phase == .duringJourney {
+                    GeometryReader { geo in
+                        ZStack(alignment: .leading) {
+                            RoundedRectangle(cornerRadius: 2)
+                                .fill(Color.gray.opacity(0.3))
+                                .frame(height: 4)
+                            RoundedRectangle(cornerRadius: 2)
+                                .fill(Color.green)
+                                .frame(width: geo.size.width * (animateProgress ? progressValue : 0), height: 4)
+                        }
+                    }
+                    .frame(height: 4)
+                    .onAppear { withAnimation(.easeOut(duration: 0.8)) { animateProgress = true } }
+                }
+                
                 // Linie + Phase
                 HStack {
                     if let leg = firstLeg {
-                        LineBadgeView(
-                            serviceName: leg.serviceName,
-                            serviceType: leg.serviceType
-                        )
+                        LineBadgeView(serviceName: leg.serviceName, serviceType: leg.serviceType)
                     }
                     Spacer()
                     PhaseIndicatorView(phase: phase)
                 }
 
-                Divider()
-
                 // Abfahrt / Ankunft
                 HStack(spacing: 4) {
                     VStack(alignment: .leading, spacing: 2) {
-                        Text("Ab")
+                        Text("Ab".localized)
                             .font(.caption2)
                             .foregroundColor(.secondary)
                         Text(WatchDateHelper.formatTime(trip.startTime))
                             .font(.system(.body, design: .monospaced).bold())
+                            .foregroundColor(phase == .beforeDeparture ? .orange : .primary)
                     }
 
+                    Spacer()
+                    
                     Image(systemName: "arrow.right")
                         .font(.caption.bold())
                         .foregroundColor(.secondary)
-                        .padding(.horizontal, 20)
+                    
+                    Spacer()
 
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text("An")
+                    VStack(alignment: .trailing, spacing: 2) {
+                        Text("An".localized)
                             .font(.caption2)
                             .foregroundColor(.secondary)
                         Text(WatchDateHelper.formatTime(trip.endTime))
                             .font(.system(.body, design: .monospaced))
-                            .foregroundColor(.secondary)
-                        
+                            .foregroundColor(phase == .arrived ? .green : .secondary)
                     }
-                    
-                    Spacer()
-                    
                 }
 
                 // Countdown / Status
@@ -75,23 +104,22 @@ private struct TripTrackingView: View {
 
                 Divider()
 
-                // Route
+                // Route (kompakter)
                 VStack(alignment: .leading, spacing: 4) {
-                    RouteStopRow(name: trip.startStation, isStart: true)
+                    RouteStopRow(name: trip.startStation, isStart: true, isActive: phase == .beforeDeparture)
 
                     if trip.interchanges > 0 {
                         HStack(spacing: 4) {
                             Image(systemName: "arrow.triangle.2.circlepath")
                                 .font(.caption2)
-                                .foregroundColor(.secondary)
-                            Text("\(trip.interchanges) Umstieg\(trip.interchanges > 1 ? "e" : "")")
+                            Text("\(trip.interchanges) Umstieg\(trip.interchanges > 1 ? "e" : "")".localized)
                                 .font(.caption2)
-                                .foregroundColor(.secondary)
                         }
+                        .foregroundColor(.secondary)
                         .padding(.leading, 10)
                     }
 
-                    RouteStopRow(name: trip.endStation, isStart: false)
+                    RouteStopRow(name: trip.endStation, isStart: false, isActive: phase == .arrived)
                 }
             }
             .padding(.horizontal, 4)
@@ -222,15 +250,24 @@ private struct PhaseIndicatorView: View {
 private struct RouteStopRow: View {
     let name: String
     let isStart: Bool
+    var isActive: Bool = false
 
     var body: some View {
         HStack(spacing: 6) {
-            Circle()
-                .fill(isStart ? Color.green : Color.secondary)
-                .frame(width: 6, height: 6)
+            ZStack {
+                Circle()
+                    .fill(isStart ? Color.green : (isActive ? Color.green : Color.secondary))
+                    .frame(width: 6, height: 6)
+                if isActive {
+                    Circle()
+                        .stroke(Color.green.opacity(0.5), lineWidth: 2)
+                        .frame(width: 10, height: 10)
+                }
+            }
             Text(name)
                 .font(.caption)
-                .foregroundColor(isStart ? .primary : .secondary)
+                .fontWeight(isActive ? .bold : .regular)
+                .foregroundColor(isActive ? .green : (isStart ? .primary : .secondary))
                 .lineLimit(1)
         }
     }

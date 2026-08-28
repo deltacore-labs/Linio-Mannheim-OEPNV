@@ -7,6 +7,7 @@ import Security
 class WatchDirectService {
     static let shared = WatchDirectService()
 
+    private static let hubStationNames = ["Mannheim Hauptbahnhof", "Heidelberg Hauptbahnhof", "Paradeplatz"]
     private var cachedHubIDs: [String]? = nil
     private let credentialsKey = "watchCachedCredentials"
     private let keychainService = "com.stefanfriedrich.rnvapp.watch"
@@ -20,7 +21,15 @@ class WatchDirectService {
         var tokenExpiry: TimeInterval?
     }
 
-    private init() {}
+    private init() {
+        // Einmalige Migration aus UserDefaults → Keychain beim ersten Start
+        if keychainLoad() == nil,
+           let data = UserDefaults.standard.data(forKey: credentialsKey),
+           (try? JSONDecoder().decode(Credentials.self, from: data)) != nil {
+            keychainSave(data)
+            UserDefaults.standard.removeObject(forKey: credentialsKey)
+        }
+    }
 
     // MARK: - Keychain helpers
 
@@ -58,17 +67,16 @@ class WatchDirectService {
         UserDefaults.standard.removeObject(forKey: credentialsKey)
     }
 
+    func updateToken(_ token: String, expiry: TimeInterval) {
+        guard var creds = loadCredentials() else { return }
+        creds.accessToken = token
+        creds.tokenExpiry = expiry
+        saveCredentials(creds)
+    }
+
     func loadCredentials() -> Credentials? {
-        if let data = keychainLoad() {
-            return try? JSONDecoder().decode(Credentials.self, from: data)
-        }
-        // Einmalige Migration aus UserDefaults (Altdaten)
-        if let data = UserDefaults.standard.data(forKey: credentialsKey),
-           let creds = try? JSONDecoder().decode(Credentials.self, from: data) {
-            saveCredentials(creds)
-            return creds
-        }
-        return nil
+        guard let data = keychainLoad() else { return nil }
+        return try? JSONDecoder().decode(Credentials.self, from: data)
     }
 
     var hasCredentials: Bool { loadCredentials() != nil }
@@ -100,9 +108,8 @@ class WatchDirectService {
         else { return nil }
 
         if cachedHubIDs == nil {
-            let hubNames = ["Mannheim Hauptbahnhof", "Heidelberg Hauptbahnhof", "Paradeplatz"]
             let ids = await withTaskGroup(of: String?.self) { group in
-                for name in hubNames {
+                for name in Self.hubStationNames {
                     group.addTask {
                         await Self.resolveStationID(name: name, token: token, graphQLURL: creds.graphQLURL)
                     }

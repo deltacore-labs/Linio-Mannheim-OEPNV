@@ -109,20 +109,38 @@ struct ComplicationCircularView: View {
         if entry.hasActiveTrip, let mins = entry.minutesUntil {
             ZStack {
                 AccessoryWidgetBackground()
-                VStack(spacing: 0) {
-                    Image(systemName: "tram.fill")
-                        .font(.system(size: 10))
+                
+                // Fortschrittsring (basierend auf Zeit, max 60 min)
+                Circle()
+                    .trim(from: 0, to: min(Double(mins) / 60.0, 1.0))
+                    .stroke(
+                        mins <= 2 ? Color.orange : Color.green,
+                        style: StrokeStyle(lineWidth: 2.5, lineCap: .round)
+                    )
+                    .rotationEffect(.degrees(-90))
+                    .padding(2)
+                
+                VStack(spacing: -2) {
+                    if let line = entry.lineName {
+                        Text(line)
+                            .font(.system(size: 9, weight: .bold))
+                            .foregroundColor(.secondary)
+                    }
                     Text("\(mins)")
-                        .font(.system(size: 18, weight: .bold, design: .rounded))
-                    Text("min")
-                        .font(.system(size: 8))
+                        .font(.system(size: 16, weight: .bold, design: .rounded))
+                        .foregroundColor(mins <= 2 ? .orange : .primary)
                 }
             }
         } else {
             ZStack {
                 AccessoryWidgetBackground()
-                Image(systemName: "tram")
-                    .font(.system(size: 20))
+                VStack(spacing: 2) {
+                    Image(systemName: "tram")
+                        .font(.system(size: 16))
+                    Text("Linio")
+                        .font(.system(size: 8))
+                        .foregroundColor(.secondary)
+                }
             }
         }
     }

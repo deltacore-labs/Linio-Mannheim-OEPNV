@@ -20,6 +20,9 @@ enum WatchMessage {
     static let requestStationSearch    = "requestStationSearch"
     static let searchQueryKey          = "searchQuery"
     static let stationSearchResultsKey = "stationSearchResults"
+    static let requestNearbyStations   = "requestNearbyStations"
+    static let latitudeKey             = "latitude"
+    static let longitudeKey            = "longitude"
 }
 
 @MainActor
@@ -91,10 +94,23 @@ class WatchConnectivityManager: NSObject, ObservableObject {
         }
     }
 
-    // MARK: - Abfahrten anfragen
+    // MARK: - Abfahrten anfragen (mit Auto-Retry)
+    
+    private var retryCount = 0
+    private let maxRetries = 2
+    private var pendingStationID: String?
+    private var pendingStationName: String?
 
     func requestDepartures(stationID: String, stationName: String) {
-        log("requestDepartures: \(stationName) (\(stationID))")
+        pendingStationID = stationID
+        pendingStationName = stationName
+        retryCount = 0
+        requestDeparturesInternal(stationID: stationID, stationName: stationName)
+    }
+    
+    private func requestDeparturesInternal(stationID: String, stationName: String) {
+        log("requestDepartures: \(stationName) (\(stationID)) [Versuch \(retryCount + 1)/\(maxRetries + 1)]")
+        
         if WCSession.default.isReachable {
             log("→ Pfad: iPhone (WCSession erreichbar)")
             requestViaiPhone(stationID: stationID, stationName: stationName)
@@ -103,8 +119,26 @@ class WatchConnectivityManager: NSObject, ObservableObject {
             Task { await requestDirectly(stationID: stationID) }
         } else {
             log("→ Pfad: keiner – iPhone nicht erreichbar, keine Credentials")
-            lastError = "iPhone nicht erreichbar"
+            
+            // Auto-Retry nach kurzer Verzögerung
+            if retryCount < maxRetries {
+                retryCount += 1
+                log("→ Retry in 2 Sekunden...")
+                DispatchQueue.main.asyncAfter(deadline: .now() + 2) { [weak self] in
+                    guard let self, let id = self.pendingStationID, let name = self.pendingStationName else { return }
+                    self.requestDeparturesInternal(stationID: id, stationName: name)
+                }
+            } else {
+                lastError = "iPhone nicht erreichbar".localized
+                isLoading = false
+            }
         }
+    }
+    
+    func retryLastRequest() {
+        guard let id = pendingStationID, let name = pendingStationName else { return }
+        retryCount = 0
+        requestDeparturesInternal(stationID: id, stationName: name)
     }
 
     // MARK: - Stationssuche
@@ -142,6 +176,50 @@ class WatchConnectivityManager: NSObject, ObservableObject {
                 guard let self else { return }
                 self.stationSearchLoading = false
                 self.stationSearchError = error.localizedDescription
+            }
+        }
+    }
+
+    // MARK: - Stationen in der Nähe suchen (Standort-basiert)
+
+    @Published var nearbyStations: [WatchStation] = []
+    @Published var nearbyLoading = false
+    @Published var nearbyError: String? = nil
+
+    func requestNearbyStations(latitude: Double, longitude: Double) {
+        guard WCSession.default.isReachable else {
+            nearbyError = "iPhone nicht erreichbar"
+            return
+        }
+        nearbyLoading = true
+        nearbyError = nil
+        log("requestNearbyStations: lat=\(latitude), lon=\(longitude)")
+
+        let msg: [String: Any] = [
+            WatchMessage.requestNearbyStations: true,
+            WatchMessage.latitudeKey: latitude,
+            WatchMessage.longitudeKey: longitude
+        ]
+
+        WCSession.default.sendMessage(msg) { [weak self] reply in
+            Task { @MainActor [weak self] in
+                guard let self else { return }
+                self.nearbyLoading = false
+                if let rawData = reply[WatchMessage.stationSearchResultsKey] as? Data,
+                   let decoded = try? JSONDecoder().decode([WatchStation].self, from: rawData) {
+                    self.nearbyStations = decoded
+                    self.log("requestNearbyStations: \(decoded.count) Stationen erhalten")
+                } else {
+                    self.nearbyError = "Keine Stationen gefunden"
+                    self.log("requestNearbyStations: keine Ergebnisse")
+                }
+            }
+        } errorHandler: { [weak self] error in
+            Task { @MainActor [weak self] in
+                guard let self else { return }
+                self.nearbyLoading = false
+                self.nearbyError = error.localizedDescription
+                self.log("requestNearbyStations: Fehler – \(error.localizedDescription)")
             }
         }
     }
@@ -284,6 +362,16 @@ extension WatchConnectivityManager: WCSessionDelegate {
                 self.onContextUpdated?()
             }
         }
+        // Token-Update direkt empfangen (nicht persistent)
+        if let tokenData = message["watchTokenUpdate"] as? [String: Any],
+           let token = tokenData["accessToken"] as? String,
+           let expiry = tokenData["tokenExpiry"] as? TimeInterval {
+            Task { @MainActor in
+                WatchDirectService.shared.updateToken(token, expiry: expiry)
+                self.log("didReceiveMessage: Token aktualisiert")
+                self.onContextUpdated?()
+            }
+        }
     }
 
     // Verzögerte Benachrichtigung (wenn Watch beim Senden nicht erreichbar war)
@@ -292,6 +380,16 @@ extension WatchConnectivityManager: WCSessionDelegate {
         if userInfo["tripDataDidChange"] != nil {
             Task { @MainActor in
                 self.log("didReceiveUserInfo: tripDataDidChange")
+                self.onContextUpdated?()
+            }
+        }
+        // Token-Update aus UserInfo (Fallback wenn Watch beim sendMessage nicht erreichbar war)
+        if let tokenData = userInfo["watchTokenUpdate"] as? [String: Any],
+           let token = tokenData["accessToken"] as? String,
+           let expiry = tokenData["tokenExpiry"] as? TimeInterval {
+            Task { @MainActor in
+                WatchDirectService.shared.updateToken(token, expiry: expiry)
+                self.log("didReceiveUserInfo: Token aktualisiert")
                 self.onContextUpdated?()
             }
         }
@@ -334,17 +432,19 @@ extension WatchConnectivityManager: WCSessionDelegate {
            let tenantID = creds["tenantID"] as? String,
            let resource = creds["resource"] as? String,
            let graphQLURL = creds["graphQLURL"] as? String {
+            // Token kommt separat via sendMessage/transferUserInfo — nicht aus Application Context
+            let existing = WatchDirectService.shared.loadCredentials()
             let credentials = WatchDirectService.Credentials(
                 clientID: clientID,
                 tenantID: tenantID,
                 resource: resource,
                 graphQLURL: graphQLURL,
-                accessToken: creds["accessToken"] as? String,
-                tokenExpiry: creds["tokenExpiry"] as? TimeInterval
+                accessToken: existing?.accessToken,
+                tokenExpiry: existing?.tokenExpiry
             )
             Task { @MainActor in
                 WatchDirectService.shared.saveCredentials(credentials)
-                self.log("appContext: Credentials gespeichert (clientID=\(clientID.prefix(8))…)")
+                self.log("appContext: Konfiguration gespeichert (clientID=\(clientID.prefix(8))…)")
                 self.onContextUpdated?()
             }
         }

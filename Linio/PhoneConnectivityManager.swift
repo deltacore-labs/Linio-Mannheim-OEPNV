@@ -17,6 +17,9 @@ private enum WatchMessageKey {
     static let requestStationSearch    = "requestStationSearch"
     static let searchQuery             = "searchQuery"
     static let stationSearchResults    = "stationSearchResults"
+    static let requestNearbyStations   = "requestNearbyStations"
+    static let latitude                = "latitude"
+    static let longitude               = "longitude"
 }
 
 final class PhoneConnectivityManager: NSObject {
@@ -49,20 +52,31 @@ final class PhoneConnectivityManager: NSObject {
         else { return }
 
         let appLanguage = UserDefaults.standard.string(forKey: "appLanguage") ?? "de"
-        
+
+        // Konfiguration via Application Context (persistent, kein Access Token enthalten)
         let context: [String: Any] = [
             "watchCredentials": [
                 "clientID": clientID,
                 "tenantID": tenantID,
                 "resource": resource,
-                "graphQLURL": graphQLURL,
-                "accessToken": token,
-                "tokenExpiry": tokenExpiry.timeIntervalSince1970
+                "graphQLURL": graphQLURL
             ],
             "appLanguage": appLanguage
         ]
-
         try? WCSession.default.updateApplicationContext(context)
+
+        // Access Token separat senden — nicht persistent auf Disk
+        let tokenPayload: [String: Any] = [
+            "watchTokenUpdate": [
+                "accessToken": token,
+                "tokenExpiry": tokenExpiry.timeIntervalSince1970
+            ]
+        ]
+        if WCSession.default.isReachable {
+            WCSession.default.sendMessage(tokenPayload, replyHandler: nil, errorHandler: nil)
+        } else {
+            WCSession.default.transferUserInfo(tokenPayload)
+        }
     }
 
     /// Sendet die gespeicherten Trip-Daten an die Watch via Application Context.
@@ -146,6 +160,10 @@ extension PhoneConnectivityManager: WCSessionDelegate {
         } else if message[WatchMessageKey.requestStationSearch] != nil,
                   let query = message[WatchMessageKey.searchQuery] as? String {
             Task { await searchStationsAndReply(query: query, replyHandler: replyHandler) }
+        } else if message[WatchMessageKey.requestNearbyStations] != nil,
+                  let lat = message[WatchMessageKey.latitude] as? Double,
+                  let lon = message[WatchMessageKey.longitude] as? Double {
+            Task { await searchNearbyStationsAndReply(lat: lat, lon: lon, replyHandler: replyHandler) }
         } else if message["requestTripData"] != nil {
             let defaults = UserDefaults(suiteName: "group.com.stefanfriedrich.rnvapp")
             var reply: [String: Any] = [:]
@@ -180,6 +198,35 @@ extension PhoneConnectivityManager: WCSessionDelegate {
         let results: [WatchStationResult] = graphQL.stations.prefix(15).map {
             WatchStationResult(id: $0.globalID, name: $0.longName)
         }
+
+        if let data = try? JSONEncoder().encode(results) {
+            replyHandler([WatchMessageKey.stationSearchResults: data])
+        } else {
+            replyHandler([:])
+        }
+    }
+
+    @MainActor
+    private func searchNearbyStationsAndReply(lat: Double, lon: Double,
+                                              replyHandler: @escaping ([String: Any]) -> Void) async {
+        let graphQL = graphQLService
+        let auth = authService
+        plog("searchNearbyStations: lat=\(lat), lon=\(lon)")
+
+        let token: String
+        if auth.isTokenValid, let existing = auth.accessToken {
+            token = existing
+        } else {
+            await auth.autoAuthenticate()
+            guard let fresh = auth.accessToken, auth.isTokenValid else { replyHandler([:]); return }
+            token = fresh
+        }
+
+        await graphQL.searchStations(lat: lat, lon: lon, accessToken: token)
+        let results: [WatchStationResult] = graphQL.stations.prefix(10).map {
+            WatchStationResult(id: $0.globalID, name: $0.longName)
+        }
+        plog("searchNearbyStations: \(results.count) Stationen gefunden")
 
         if let data = try? JSONEncoder().encode(results) {
             replyHandler([WatchMessageKey.stationSearchResults: data])

@@ -575,7 +575,7 @@ struct ConnectionsView: View {
             if sameStationValidationError {
                 errorBanner(message: "Start und Ziel dürfen nicht identisch sein.")
             } else if let error = graphQLService.lastError {
-                errorBanner(message: error.message)
+                errorBanner(message: error.errorDescription ?? error.shortDescription)
             }
 
             if graphQLService.isLoading {

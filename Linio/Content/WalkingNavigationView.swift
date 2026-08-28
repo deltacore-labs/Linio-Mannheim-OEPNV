@@ -80,9 +80,19 @@ struct WalkingNavigationView: View {
     private var mapPreviewSection: some View {
         ZStack {
             if let region = mapRegion {
-                Map(coordinateRegion: .constant(region), annotationItems: mapAnnotations) { item in
-                    MapAnnotation(coordinate: item.coordinate) {
-                        annotationView(for: item)
+                Map(initialPosition: .region(region)) {
+                    UserAnnotation()
+                    
+                    Annotation(stopName, coordinate: stopCoordinate) {
+                        VStack(spacing: 2) {
+                            Image(systemName: "tram.fill")
+                                .font(.system(size: 14, weight: .semibold))
+                                .foregroundColor(.white)
+                                .padding(6)
+                                .background(AppTheme.primary)
+                                .clipShape(Circle())
+                                .shadow(radius: 2)
+                        }
                     }
                 }
                 .frame(height: 200)
@@ -122,37 +132,6 @@ struct WalkingNavigationView: View {
                                 .foregroundColor(AppTheme.muted)
                         }
                     }
-            }
-        }
-    }
-    
-    private var mapAnnotations: [MapAnnotationItem] {
-        var items: [MapAnnotationItem] = []
-        if let userLoc = locationManager.location {
-            items.append(MapAnnotationItem(id: "user", coordinate: userLoc, type: .user))
-        }
-        items.append(MapAnnotationItem(id: "stop", coordinate: stopCoordinate, type: .stop))
-        return items
-    }
-    
-    @ViewBuilder
-    private func annotationView(for item: MapAnnotationItem) -> some View {
-        switch item.type {
-        case .user:
-            Circle()
-                .fill(Color.blue)
-                .frame(width: 14, height: 14)
-                .overlay(Circle().stroke(Color.white, lineWidth: 2))
-                .shadow(radius: 2)
-        case .stop:
-            VStack(spacing: 2) {
-                Image(systemName: "tram.fill")
-                    .font(.system(size: 14, weight: .semibold))
-                    .foregroundColor(.white)
-                    .padding(6)
-                    .background(AppTheme.primary)
-                    .clipShape(Circle())
-                    .shadow(radius: 2)
             }
         }
     }
@@ -285,14 +264,4 @@ struct WalkingNavigationView: View {
         }
         isLoading = false
     }
-}
-
-// MARK: - Map Annotation Item
-
-struct MapAnnotationItem: Identifiable {
-    let id: String
-    let coordinate: CLLocationCoordinate2D
-    let type: AnnotationType
-    
-    enum AnnotationType { case user, stop }
 }

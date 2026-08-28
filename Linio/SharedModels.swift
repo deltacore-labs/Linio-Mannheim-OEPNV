@@ -11,8 +11,8 @@ import WidgetKit
 
 // MARK: - Activity Attributes
 
-struct TripLiveActivityAttributes: ActivityAttributes {
-    public struct ContentState: Codable, Hashable {
+struct TripLiveActivityAttributes: ActivityAttributes, Sendable {
+    public struct ContentState: Codable, Hashable, Sendable {
         var currentLegIndex: Int
         var nextStopName: String
         var nextStopTime: String
@@ -38,7 +38,7 @@ struct TripLiveActivityAttributes: ActivityAttributes {
 
 // MARK: - Trip Phases
 
-enum TripPhase: String, Codable, Hashable {
+enum TripPhase: String, Codable, Hashable, Sendable {
     case beforeDeparture
     case duringJourney
     case arrived

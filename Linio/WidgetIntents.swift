@@ -59,6 +59,7 @@ struct LinioWidgetIntentsPackage: AppIntentsPackage {}
 
 // MARK: - Interactive Widget: Live Activity aus Widget starten
 
+@MainActor
 struct StartNextTripLiveActivityIntent: AppIntent {
     static let title: LocalizedStringResource = "Live-Verfolgung starten"
     static let openAppWhenRun: Bool = false
@@ -102,7 +103,7 @@ struct StartNextTripLiveActivityIntent: AppIntent {
             phase: phase
         )
 
-        try? Activity.request(attributes: attrs, content: .init(state: state, staleDate: nil))
+        _ = try? Activity.request(attributes: attrs, content: .init(state: state, staleDate: nil))
         return .result()
     }
 }

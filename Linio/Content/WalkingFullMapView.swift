@@ -15,8 +15,7 @@ struct WalkingFullMapView: View {
     let stopName: String
     let route: WalkingRoute?
     
-    @State private var mapRegion: MKCoordinateRegion
-    @State private var showUserLocation = true
+    @State private var cameraPosition: MapCameraPosition
     @Environment(\.dismiss) private var dismiss
     
     init(userLocation: CLLocationCoordinate2D?, stopCoordinate: CLLocationCoordinate2D, stopName: String, route: WalkingRoute?) {
@@ -35,14 +34,16 @@ struct WalkingFullMapView: View {
                             longitudeDelta: max(abs($0.longitude - stopCoordinate.longitude) * 1.5, 0.01))
         } ?? MKCoordinateSpan(latitudeDelta: 0.01, longitudeDelta: 0.01)
         
-        _mapRegion = State(initialValue: MKCoordinateRegion(center: center, span: span))
+        _cameraPosition = State(initialValue: .region(MKCoordinateRegion(center: center, span: span)))
     }
     
     var body: some View {
         NavigationView {
             ZStack {
-                Map(coordinateRegion: $mapRegion, showsUserLocation: showUserLocation, annotationItems: annotations) { item in
-                    MapAnnotation(coordinate: item.coordinate) {
+                Map(position: $cameraPosition) {
+                    UserAnnotation()
+                    
+                    Annotation(stopName, coordinate: stopCoordinate) {
                         stopAnnotation
                     }
                 }
@@ -62,10 +63,6 @@ struct WalkingFullMapView: View {
                 }
             }
         }
-    }
-    
-    private var annotations: [StopAnnotation] {
-        [StopAnnotation(id: "stop", coordinate: stopCoordinate, name: stopName)]
     }
     
     private var stopAnnotation: some View {
@@ -119,12 +116,4 @@ struct WalkingFullMapView: View {
         }
         .padding()
     }
-}
-
-// MARK: - Stop Annotation
-
-private struct StopAnnotation: Identifiable {
-    let id: String
-    let coordinate: CLLocationCoordinate2D
-    let name: String
 }

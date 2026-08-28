@@ -40,8 +40,15 @@ struct SettingsView: View {
     
     /// Erkennt ob die App über TestFlight installiert wurde (nicht App Store)
     private var isTestFlight: Bool {
-        guard let receiptURL = Bundle.main.appStoreReceiptURL else { return false }
-        return receiptURL.lastPathComponent == "sandboxReceipt"
+        #if DEBUG
+        return true // Im Debug-Modus immer als TestFlight behandeln
+        #else
+        // Prüft ob die App in einer Sandbox-Umgebung läuft (TestFlight)
+        if let receiptURL = Bundle.main.appStoreReceiptURL {
+            return receiptURL.lastPathComponent == "sandboxReceipt"
+        }
+        return false
+        #endif
     }
 
     private var notificationsDenied: Bool { notificationAuthStatus == .denied }

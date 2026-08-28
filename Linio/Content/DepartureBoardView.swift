@@ -19,7 +19,7 @@ struct DepartureBoardView: View {
     @State private var selectedStation: Station?
     @State private var departures: [Departure] = []
     @State private var isLoadingDepartures = false
-    @State private var departureError: String?
+    @State private var departureError: NetworkError?
     @State private var showStationPicker = false
     @State private var refreshTask: Task<Void, Never>?
     @State private var lastRefresh: Date?
@@ -66,7 +66,7 @@ struct DepartureBoardView: View {
                             if isLoadingDepartures && departures.isEmpty && departureError == nil {
                                 loadingView
                             } else if let error = departureError {
-                                errorView(error)
+                                errorView(error.errorDescription ?? error.shortDescription)
                             } else if departures.isEmpty && selectedStation != nil {
                                 noDeparturesView
                             } else if selectedStation == nil {

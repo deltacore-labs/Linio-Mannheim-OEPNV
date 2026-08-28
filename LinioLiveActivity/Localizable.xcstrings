@@ -313,6 +313,9 @@
         }
       }
     },
+    "Keine Abfahrten" : {
+
+    },
     "Keine Abfahrten in den\nnächsten 60 min" : {
       "localizations" : {
         "en" : {
@@ -643,6 +646,12 @@
     },
     "widget.activeTrips.description" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Übersicht aller aktuell verfolgten Fahrten."
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -653,6 +662,12 @@
     },
     "widget.activeTrips.name" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aktive Fahrten"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -663,6 +678,12 @@
     },
     "widget.nextDeparture.description" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zeigt deine nächste geplante Verbindung."
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -673,6 +694,12 @@
     },
     "widget.nextDeparture.name" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nächste Abfahrt"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -683,6 +710,12 @@
     },
     "widget.quickSearch.description" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Öffnet die App direkt zur Verbindungssuche."
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -693,6 +726,12 @@
     },
     "widget.quickSearch.name" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Schnellsuche"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -702,13 +741,45 @@
       }
     },
     "widget.standBy.description" : {
-
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zeigt deine nächste Fahrt im StandBy-Modus."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Shows your next trip in StandBy mode."
+          }
+        }
+      }
     },
     "widget.standBy.name" : {
-
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "StandBy-Anzeige"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "StandBy Display"
+          }
+        }
+      }
     },
     "widget.stationDeparture.description" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zeigt aktuelle Abfahrten einer Haltestelle."
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -719,6 +790,12 @@
     },
     "widget.stationDeparture.name" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Abfahrtstafel"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -729,6 +806,12 @@
     },
     "widget.watchTrip.description" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zeigt deine nächste ÖPNV-Verbindung."
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -739,6 +822,12 @@
     },
     "widget.watchTrip.name" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nächste Fahrt"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",

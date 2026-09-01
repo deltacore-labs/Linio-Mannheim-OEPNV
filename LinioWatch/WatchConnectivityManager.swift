@@ -57,7 +57,9 @@ class WatchConnectivityManager: NSObject, ObservableObject {
         let f = DateFormatter()
         f.dateFormat = "HH:mm:ss"
         let entry = "\(f.string(from: Date())) \(msg)"
+        #if DEBUG
         print("[WatchDebug] \(entry)")
+        #endif
         debugLog.insert(entry, at: 0)
         if debugLog.count > 80 { debugLog.removeLast() }
     }

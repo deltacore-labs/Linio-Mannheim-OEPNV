@@ -154,7 +154,7 @@ final class TicketRenewalService {
         let trigger = UNTimeIntervalNotificationTrigger(timeInterval: delay, repeats: false)
         let request = UNNotificationRequest(identifier: notificationIDFinal, content: content, trigger: trigger)
         UNUserNotificationCenter.current().add(request) { _ in
-            print("✅ [RENEWAL] Test-Notification in \(Int(delay))s geplant")
+            DebugLog.log("✅ Test-Notification in \(Int(delay))s geplant", category: "RENEWAL")
         }
     }
     #endif

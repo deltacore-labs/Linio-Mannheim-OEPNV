@@ -335,9 +335,30 @@ For data sharing between the main app, widget, and Live Activity extension:
 
 ---
 
+## 📚 Documentation
+
+| Document | Description |
+|----------|-------------|
+| [CHANGELOG.md](CHANGELOG.md) | Version history and changes |
+| [CONTRIBUTING.md](CONTRIBUTING.md) | Contribution guidelines |
+| [docs/development/](docs/development/) | Developer documentation |
+| [LinioTests/README.md](LinioTests/README.md) | Unit test documentation |
+| [LinioWatch/README.md](LinioWatch/README.md) | Apple Watch app documentation |
+
+### Developer Docs
+
+- [Architecture](docs/development/ARCHITECTURE.md) - Project structure & patterns
+- [Testing](docs/development/TESTING.md) - Test strategy & conventions
+- [Code Style](docs/development/CODE_STYLE.md) - Coding standards & SwiftLint
+- [API](docs/development/API.md) - RNV GraphQL API integration
+
+---
+
 ## 🤝 Contributing
 
 Contributions are welcome! Fork the project, open issues, or submit pull requests.
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for detailed guidelines.
 
 For questions or feedback: [delta.corelabs@gmail.com](mailto:delta.corelabs@gmail.com)
 

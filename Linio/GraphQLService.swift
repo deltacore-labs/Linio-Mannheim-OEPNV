@@ -194,7 +194,7 @@ struct DetailedTrip: Identifiable, Equatable {
 
 struct IntermediateStop: Equatable {
     let name: String
-    let scheduledTime: String
+    let scheduledTime: String?
     let estimatedTime: String?
     let occupancy: OccupancyLevel?
     let latitude: Double?
@@ -338,8 +338,26 @@ class GraphQLService: ObservableObject {
 #endif
     }
 
+    private static let session: URLSession = {
+        let config = URLSessionConfiguration.default
+        config.timeoutIntervalForRequest = AppConfiguration.requestTimeout
+        config.timeoutIntervalForResource = AppConfiguration.resourceTimeout
+        
+        // Performance: URL-Cache für häufig wiederholte Anfragen
+        // Reduziert Netzwerkverkehr und verbessert Antwortzeiten
+        config.urlCache = URLCache(
+            memoryCapacity: 10_000_000,  // 10 MB In-Memory Cache
+            diskCapacity: 50_000_000,    // 50 MB Disk Cache
+            diskPath: "graphql_cache"
+        )
+        // Nutze Cache falls verfügbar, sonst Netzwerk
+        config.requestCachePolicy = .returnCacheDataElseLoad
+        
+        return URLSession(configuration: config)
+    }()
+
     private static func loadGraphQLURL() -> String {
-        let fallbackURL = "https://graphql-sandbox-dds.rnv-online.de/"
+        let fallbackURL = AppConfiguration.fallbackGraphQLURL
 
         guard let bundleURL = Bundle.main.object(forInfoDictionaryKey: "RNV_GRAPHQL_URL") as? String else {
 #if DEBUG
@@ -380,23 +398,31 @@ class GraphQLService: ObservableObject {
             .replacingOccurrences(of: "\"", with: "\\\"")
             .replacingOccurrences(of: "\n", with: "")
             .replacingOccurrences(of: "\r", with: "")
+            .replacingOccurrences(of: "\0", with: "")
+            .replacingOccurrences(of: "\t", with: " ")
     }
 
-    // MARK: - GraphQL Error Extraction
+    // MARK: - GraphQL Response Parsing
 
-    func extractGraphQLErrors(from data: Data) -> NetworkError? {
+    /// Parst die GraphQL Response-Daten. Diese Funktion ist `nonisolated`, da sie
+    /// reine Datenverarbeitung macht ohne State zu verändern.
+    nonisolated func parseResponseData(from data: Data) -> [String: Any]? {
+        (try? JSONSerialization.jsonObject(with: data) as? [String: Any])?["data"] as? [String: Any]
+    }
+
+    /// Extrahiert GraphQL-Fehler aus der Response. Diese Funktion ist `nonisolated`, da sie
+    /// reine Datenverarbeitung macht ohne State zu verändern.
+    nonisolated func extractGraphQLErrors(from data: Data) -> NetworkError? {
         guard let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
-              let errors = json["errors"] as? [[String: Any]],
-              let firstMessage = errors.first?["message"] as? String else {
-            return nil
-        }
-        return .graphQLError(message: firstMessage)
+              let msg = (json["errors"] as? [[String: Any]])?.first?["message"] as? String
+        else { return nil }
+        return .graphQLError(message: msg)
     }
 
     // MARK: - Query Execution
 
     /// Executes a GraphQL query and returns the raw response data.
-    internal func executeQuery(query: String, accessToken: String) async throws -> Data {
+    internal func executeQuery(query: String, accessToken: String, retryCount: Int = 0) async throws -> Data {
         guard let url = URL(string: baseURL) else {
             throw NetworkError.serverUnreachable
         }
@@ -416,7 +442,7 @@ class GraphQLService: ObservableObject {
         print("📡 [GraphQL] Anfrage an: \(url.host ?? "")")
 #endif
 
-        let (data, response) = try await URLSession.shared.data(for: request)
+        let (data, response) = try await Self.session.data(for: request)
 
         if let httpResponse = response as? HTTPURLResponse {
 #if DEBUG
@@ -429,13 +455,16 @@ class GraphQLService: ObservableObject {
                 print("❌ [GraphQL] Error body (\(httpResponse.statusCode)): \(body)")
 #endif
                 if httpResponse.statusCode == 401 {
+                    guard retryCount < 1 else {
+                        throw NetworkError.unauthorized
+                    }
                     plog("executeQuery: HTTP 401 – Token erneuern und erneut versuchen")
                     await AuthService.shared.autoAuthenticate()
                     guard AuthService.shared.isAuthenticated,
                           let newToken = AuthService.shared.accessToken else {
                         throw NetworkError.unauthorized
                     }
-                    return try await executeQuery(query: query, accessToken: newToken)
+                    return try await executeQuery(query: query, accessToken: newToken, retryCount: retryCount + 1)
                 }
                 throw NetworkError.from(httpStatusCode: httpResponse.statusCode) ?? .httpError(code: httpResponse.statusCode)
             }

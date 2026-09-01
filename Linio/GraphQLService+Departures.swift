@@ -158,8 +158,7 @@ extension GraphQLService {
             return DeparturesResult(departures: [], error: gqlError)
         }
 
-        guard let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
-              let responseData = json["data"] as? [String: Any],
+        guard let responseData = parseResponseData(from: data),
               let stationObj = responseData["station"] as? [String: Any],
               let journeysObj = stationObj["journeys"] as? [String: Any],
               let elements = journeysObj["elements"] as? [[String: Any]]
@@ -251,7 +250,12 @@ extension GraphQLService {
                 let stopRealtime: String? = (rawRealtime == "null" || rawRealtime?.isEmpty == true) ? nil : rawRealtime
 
                 if !seenBoard {
-                    if stopPlanned == boardTime {
+                    let boardDate = DateFormattingHelper.shared.parseISO8601(boardTime)
+                    let stopDate = stopPlanned.flatMap { DateFormattingHelper.shared.parseISO8601($0) }
+                    if let bd = boardDate, let sd = stopDate, abs(bd.timeIntervalSince(sd)) < 30 {
+                        seenBoard = true
+                        boardStopName = name
+                    } else if boardDate == nil, stopPlanned == boardTime {
                         seenBoard = true
                         boardStopName = name
                     }
@@ -315,8 +319,7 @@ extension GraphQLService {
         }
         """
         guard let data = try? await executeQuery(query: query, accessToken: accessToken),
-              let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
-              let responseData = json["data"] as? [String: Any],
+              let responseData = parseResponseData(from: data),
               let stationsObj = responseData["stations"] as? [String: Any],
               let elements = stationsObj["elements"] as? [[String: Any]],
               let first = elements.first,
@@ -402,8 +405,7 @@ extension GraphQLService {
             plog("fetchFirstLegsAsDepartures: Fehler von=\(originID) zu=\(destID) – \(error.localizedDescription)")
             return []
         }
-        guard let json = try? JSONSerialization.jsonObject(with: hubData) as? [String: Any],
-              let responseData = json["data"] as? [String: Any],
+        guard let responseData = parseResponseData(from: hubData),
               let trips = responseData["trips"] as? [[String: Any]]
         else { return [] }
 

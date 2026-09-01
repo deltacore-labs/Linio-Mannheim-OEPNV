@@ -183,8 +183,7 @@ extension GraphQLService {
                 throw gqlError
             }
 
-            if let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
-               let responseData = json["data"] as? [String: Any],
+            if let responseData = parseResponseData(from: data),
                let trips = responseData["trips"] as? [[String: Any]] {
                 #if DEBUG
                 print("🚆 [GraphQL] \(trips.count) Trips gefunden")
@@ -225,7 +224,7 @@ extension GraphQLService {
                                 let locObj = stationObj?["location"] as? [String: Any]
                                 return IntermediateStop(
                                     name: name,
-                                    scheduledTime: "",
+                                    scheduledTime: nil,
                                     estimatedTime: nil,
                                     occupancy: nil,
                                     latitude: locObj?["lat"] as? Double,
@@ -282,8 +281,7 @@ extension GraphQLService {
                 return newTrips
             }
         }
-        lastError = .unknown(message: "Fehler beim Laden der Verbindungen")
-        return []
+        throw NetworkError.unknown(message: "Fehler beim Laden der Verbindungen")
     }
 
     // MARK: - Occupancy Enrichment für Verbindungen
@@ -293,14 +291,6 @@ extension GraphQLService {
         guard !trips.isEmpty else { return }
 
         // Sammle unique (hafasID, departureTime) Paare aus allen TimedLegs
-        struct LookupKey: Hashable {
-            let hafasID: String
-            let depTime: String
-        }
-
-        var stationTimeToJourneys: [String: [[String: Any]]] = [:]
-
-        // Extrahiere hafasIDs aus boardRef (Format: "de:08222:2417:..." → "2417")
         var uniqueStationTimes: [(hafasID: String, depTime: String)] = []
         for trip in trips {
             for leg in trip.legs where leg.isTimedLeg {
@@ -315,39 +305,48 @@ extension GraphQLService {
             }
         }
 
-        // Query journeys pro unique Station/Zeit
-        for (hafasID, depTime) in uniqueStationTimes {
-            let safeID = sanitize(hafasID)
-            let safeTime = sanitize(depTime)
-            let query = """
-            {
-              station(id: "\(safeID)") {
-                journeys(startTime: "\(safeTime)", first: 10) {
-                  elements {
-                    ... on Journey {
-                      line { id }
-                      loads(onlyHafasID: "\(safeID)") {
-                        loadType
-                        ratio
-                      }
-                      stops(onlyHafasID: "\(safeID)") {
-                        plannedDeparture { isoString }
+        // Alle Journeys parallel abfragen
+        let stationTimeToJourneys: [String: [[String: Any]]] = await withTaskGroup(
+            of: (String, [[String: Any]])?.self
+        ) { group in
+            for (hafasID, depTime) in uniqueStationTimes {
+                let safeID = sanitize(hafasID)
+                let safeTime = sanitize(depTime)
+                let query = """
+                {
+                  station(id: "\(safeID)") {
+                    journeys(startTime: "\(safeTime)", first: 10) {
+                      elements {
+                        ... on Journey {
+                          line { id }
+                          loads(onlyHafasID: "\(safeID)") {
+                            loadType
+                            ratio
+                          }
+                          stops(onlyHafasID: "\(safeID)") {
+                            plannedDeparture { isoString }
+                          }
+                        }
                       }
                     }
                   }
                 }
-              }
+                """
+                group.addTask {
+                    guard let data = try? await self.executeQuery(query: query, accessToken: accessToken),
+                          let responseData = self.parseResponseData(from: data),
+                          let stationObj = responseData["station"] as? [String: Any],
+                          let journeysObj = stationObj["journeys"] as? [String: Any],
+                          let elements = journeysObj["elements"] as? [[String: Any]]
+                    else { return nil }
+                    return ("\(hafasID)|\(depTime)", elements)
+                }
             }
-            """
-            guard let data = try? await executeQuery(query: query, accessToken: accessToken),
-                  let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
-                  let responseData = json["data"] as? [String: Any],
-                  let stationObj = responseData["station"] as? [String: Any],
-                  let journeysObj = stationObj["journeys"] as? [String: Any],
-                  let elements = journeysObj["elements"] as? [[String: Any]]
-            else { continue }
-
-            stationTimeToJourneys["\(hafasID)|\(depTime)"] = elements
+            var result: [String: [[String: Any]]] = [:]
+            for await pair in group {
+                if let (key, elements) = pair { result[key] = elements }
+            }
+            return result
         }
 
         // Anreichern der Trips
@@ -368,16 +367,13 @@ extension GraphQLService {
 
                 guard let journeys = stationTimeToJourneys["\(hafasID)|\(depTime)"] else { continue }
 
-                // Matche Journey an Leg über Linienname und Zeit
                 for journey in journeys {
                     guard let lineObj = journey["line"] as? [String: Any],
                           let lineID = lineObj["id"] as? String else { continue }
 
-                    // lineName aus leg (z.B. "64"), lineID z.B. "rnv:64:H"
                     let journeyLineName = lineID.split(separator: ":").dropFirst().first.map(String.init) ?? lineID
                     guard journeyLineName == (leg.serviceName ?? "") else { continue }
 
-                    // Zeitabgleich: Journey plannedDeparture ≈ leg.departureTime
                     if let stopsArr = journey["stops"] as? [[String: Any]],
                        let firstStop = stopsArr.first,
                        let plannedObj = firstStop["plannedDeparture"] as? [String: Any],
@@ -395,7 +391,6 @@ extension GraphQLService {
                 }
                 legs[legIdx] = leg
             }
-            // DetailedTrip ist ein Struct – neues Exemplar mit aktualisierten Legs erstellen
             enriched[tripIdx] = DetailedTrip(
                 startTime: enriched[tripIdx].startTime,
                 endTime: enriched[tripIdx].endTime,
@@ -403,6 +398,11 @@ extension GraphQLService {
                 legs: legs
             )
         }
+
+        // Stale-Write-Schutz: nur schreiben wenn keine neuere getConnections-Antwort kam
+        let currentIDs = Set(detailedTrips.map { $0.id })
+        let snapshotIDs = Set(trips.map { $0.id })
+        guard currentIDs == snapshotIDs else { return }
 
         detailedTrips = enriched
     }

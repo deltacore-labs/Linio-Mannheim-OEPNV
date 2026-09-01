@@ -4,8 +4,38 @@
 //
 
 import Foundation
+import CoreLocation
 
 extension GraphQLService {
+
+    // MARK: - Station Parsing (gemeinsame Logik)
+
+    private nonisolated func parseStationsFromElements(_ elements: [[String: Any]]) -> [Station] {
+        elements.compactMap { element -> Station? in
+            guard let hafasID = element["hafasID"] as? String,
+                  let globalID = element["globalID"] as? String,
+                  let longName = element["longName"] as? String else { return nil }
+            let locationObj = element["location"] as? [String: Any]
+            return Station(
+                hafasID: hafasID,
+                globalID: globalID,
+                longName: longName,
+                latitude: locationObj?["lat"] as? Double,
+                longitude: locationObj?["long"] as? Double
+            )
+        }
+    }
+
+    private static let stationQueryFragment = """
+        elements {
+          ... on Station {
+            hafasID
+            globalID
+            longName
+            location { lat long }
+          }
+        }
+    """
 
     // MARK: - Station Search (Location-Based)
 
@@ -13,50 +43,19 @@ extension GraphQLService {
         isLoading = true
         lastError = nil
 
-        let query = """
-        {
-          stations(first: 10, lat: \(lat), long: \(lon), distance: 2.0) {
-            elements {
-              ... on Station {
-                hafasID
-                globalID
-                longName
-                location {
-                  lat
-                  long
-                }
-              }
-            }
-          }
-        }
-        """
+        let query = "{ stations(first: 10, lat: \(lat), long: \(lon), distance: 2.0) { \(Self.stationQueryFragment) } }"
 
         do {
             let data = try await executeQuery(query: query, accessToken: accessToken)
-
-            if let gqlError = extractGraphQLErrors(from: data) {
-                lastError = gqlError
-            }
-
-            if let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
-               let responseData = json["data"] as? [String: Any],
-               let stations = responseData["stations"] as? [String: Any],
-               let elements = stations["elements"] as? [[String: Any]] {
-
-                self.stations = elements.compactMap { element -> Station? in
-                    guard let hafasID = element["hafasID"] as? String,
-                          let globalID = element["globalID"] as? String,
-                          let longName = element["longName"] as? String else { return nil }
-                    let locationObj = element["location"] as? [String: Any]
-                    let lat = locationObj?["lat"] as? Double
-                    let lon = locationObj?["long"] as? Double
-                    return Station(hafasID: hafasID, globalID: globalID, longName: longName, latitude: lat, longitude: lon)
-                }
+            if let gqlError = extractGraphQLErrors(from: data) { lastError = gqlError }
+            if let responseData = parseResponseData(from: data),
+               let stationsObj = responseData["stations"] as? [String: Any],
+               let elements = stationsObj["elements"] as? [[String: Any]] {
+                self.stations = parseStationsFromElements(elements)
             }
         } catch {
             lastError = NetworkError.from(error)
         }
-
         isLoading = false
     }
 
@@ -66,52 +65,19 @@ extension GraphQLService {
         isLoading = true
         lastError = nil
 
-        let safeName = sanitize(name)
-
-        let query = """
-        {
-          stations(first: 20, name: "\(safeName)") {
-            elements {
-              ... on Station {
-                hafasID
-                globalID
-                longName
-                location {
-                  lat
-                  long
-                }
-              }
-            }
-          }
-        }
-        """
+        let query = "{ stations(first: 20, name: \"\(sanitize(name))\") { \(Self.stationQueryFragment) } }"
 
         do {
             let data = try await executeQuery(query: query, accessToken: accessToken)
-
-            if let gqlError = extractGraphQLErrors(from: data) {
-                lastError = gqlError
-            }
-
-            if let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
-               let responseData = json["data"] as? [String: Any],
-               let stations = responseData["stations"] as? [String: Any],
-               let elements = stations["elements"] as? [[String: Any]] {
-
-                self.stations = elements.compactMap { element -> Station? in
-                    guard let hafasID = element["hafasID"] as? String,
-                          let globalID = element["globalID"] as? String,
-                          let longName = element["longName"] as? String else { return nil }
-                    let locationObj = element["location"] as? [String: Any]
-                    let lat = locationObj?["lat"] as? Double
-                    let lon = locationObj?["long"] as? Double
-                    return Station(hafasID: hafasID, globalID: globalID, longName: longName, latitude: lat, longitude: lon)
-                }
+            if let gqlError = extractGraphQLErrors(from: data) { lastError = gqlError }
+            if let responseData = parseResponseData(from: data),
+               let stationsObj = responseData["stations"] as? [String: Any],
+               let elements = stationsObj["elements"] as? [[String: Any]] {
+                self.stations = parseStationsFromElements(elements)
             }
         } catch {
             lastError = NetworkError.from(error)
         }
-
         isLoading = false
     }
 
@@ -120,54 +86,31 @@ extension GraphQLService {
     /// Sucht eine Station anhand des Namens und gibt die zurück deren globalID übereinstimmt.
     /// Wird vom Watch-Pfad genutzt um die hafasID für die Journeys-API zu ermitteln.
     func resolveStation(globalID: String, name: String, accessToken: String) async -> Station? {
-        let safeName = sanitize(name)
-        let query = """
-        {
-          stations(first: 10, name: "\(safeName)") {
-            elements {
-              ... on Station {
-                hafasID
-                globalID
-                longName
-              }
-            }
-          }
-        }
-        """
+        let query = "{ stations(first: 10, name: \"\(sanitize(name))\") { \(Self.stationQueryFragment) } }"
+        
         guard let data = try? await executeQuery(query: query, accessToken: accessToken) else {
             plog("resolveStation: executeQuery fehlgeschlagen für '\(name)'")
             return nil
         }
-        guard let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
-              let responseData = json["data"] as? [String: Any],
+        guard let responseData = parseResponseData(from: data),
               let stationsObj = responseData["stations"] as? [String: Any],
               let elements = stationsObj["elements"] as? [[String: Any]] else {
-            let snippet = String(data: data.prefix(300), encoding: .utf8) ?? "?"
-            plog("resolveStation: unerwartete JSON-Struktur – \(snippet)")
+            plog("resolveStation: unerwartete JSON-Struktur")
             return nil
         }
 
-        let foundIDs = elements.compactMap { $0["globalID"] as? String }
-        plog("resolveStation: \(elements.count) Stationen, IDs: \(foundIDs.joined(separator: ","))")
+        let stations = parseStationsFromElements(elements)
+        plog("resolveStation: \(stations.count) Stationen gefunden")
 
-        // Exakter Match zuerst
-        for element in elements {
-            guard let hafasID = element["hafasID"] as? String,
-                  let gID = element["globalID"] as? String,
-                  let longName = element["longName"] as? String,
-                  gID == globalID else { continue }
-            plog("resolveStation: exakter Match – hafasID=\(hafasID)")
-            return Station(hafasID: hafasID, globalID: gID, longName: longName, latitude: nil, longitude: nil)
+        // Exakter Match zuerst, dann Fallback auf erste Station
+        if let exact = stations.first(where: { $0.globalID == globalID }) {
+            plog("resolveStation: exakter Match – hafasID=\(exact.hafasID)")
+            return exact
         }
-
-        // Fallback: erstes Ergebnis nutzen (hafasID übernehmen, Watch-globalID behalten)
-        if let first = elements.first,
-           let hafasID = first["hafasID"] as? String,
-           !hafasID.isEmpty {
-            plog("resolveStation: kein exakter Match für '\(globalID)', nutze erstes Ergebnis hafasID=\(hafasID)")
-            return Station(hafasID: hafasID, globalID: globalID, longName: name, latitude: nil, longitude: nil)
+        if let first = stations.first {
+            plog("resolveStation: kein exakter Match, nutze erstes Ergebnis")
+            return first
         }
-
         plog("resolveStation: kein verwendbares Ergebnis gefunden")
         return nil
     }
@@ -196,8 +139,7 @@ extension GraphQLService {
         """
 
         guard let data = try? await executeQuery(query: query, accessToken: accessToken),
-              let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
-              let responseData = json["data"] as? [String: Any],
+              let responseData = parseResponseData(from: data),
               let stationObj = responseData["station"] as? [String: Any],
               let platformsObj = stationObj["platforms"] as? [String: Any],
               let elements = platformsObj["elements"] as? [[String: Any]]

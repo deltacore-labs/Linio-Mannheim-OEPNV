@@ -106,15 +106,13 @@ final class TransportIconHelperTests: XCTestCase {
     
     // MARK: - Transport Colors
     
-    func testGetTransportColor_SBahn_ReturnsGreen() {
-        let color = TransportIconHelper.getTransportColor(for: nil, serviceName: "S5")
-        // S-Bahn Grün: #00975f
+    func testGetLineColor_SBahn_ReturnsGreen() {
+        let color = TransportIconHelper.getLineColor(for: nil, serviceName: "S5")
         XCTAssertNotNil(color)
     }
-    
-    func testGetTransportColor_Bus_ReturnsBlue() {
-        let color = TransportIconHelper.getTransportColor(for: "BUS", serviceName: "64")
-        // Bus Blau: #4a96d1
+
+    func testGetLineColor_Bus_ReturnsBlue() {
+        let color = TransportIconHelper.getLineColor(for: "BUS", serviceName: "64")
         XCTAssertNotNil(color)
     }
 }

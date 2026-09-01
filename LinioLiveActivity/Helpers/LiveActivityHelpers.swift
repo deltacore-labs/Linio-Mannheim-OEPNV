@@ -72,6 +72,19 @@ struct DateCalculationHelper {
         guard delayedArrivalDate > currentTime else { return nil }
         return currentTime...delayedArrivalDate
     }
+
+    // MARK: - Time Formatting
+
+    private static let timeFormatter: DateFormatter = {
+        let f = DateFormatter()
+        f.dateFormat = "HH:mm"
+        return f
+    }()
+
+    static func formatTime(from isoString: String) -> String {
+        guard let date = parseDate(isoString) else { return "--:--" }
+        return timeFormatter.string(from: date)
+    }
 }
 
 // MARK: - Style Helper

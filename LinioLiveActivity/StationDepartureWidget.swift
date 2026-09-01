@@ -378,8 +378,7 @@ struct StationDepartureSmallView: View {
     }
 
     private func departureView(_ dep: WidgetDeparture) -> some View {
-        let mins = max(0, WidgetDataProvider.parseISO8601(dep.effectiveTimeISO)
-            .map { Int($0.timeIntervalSince(entry.date) / 60) } ?? 0)
+        let depDate = WidgetDataProvider.parseISO8601(dep.effectiveTimeISO)
 
         return VStack(alignment: .leading, spacing: 0) {
             HStack(spacing: 4) {
@@ -417,7 +416,7 @@ struct StationDepartureSmallView: View {
                     }
                 }
                 Spacer()
-                Text("\(max(0, mins))'")
+                CountdownText(depDate: depDate, referenceDate: entry.date)
                     .font(.system(size: 18, weight: .heavy, design: .rounded))
                     .foregroundColor(WidgetTheme.primaryColor)
             }
@@ -665,25 +664,25 @@ struct StationAccessoryInlineView: View {
     
     var body: some View {
         if let dep = entry.departures.first {
-            let mins = minutesUntil(dep)
-            Label(
-                "\(dep.serviceName) → \(shortDestination(dep.destination)) · \(mins)'",
-                systemImage: WidgetTheme.lineIcon(for: dep.serviceType, serviceName: dep.serviceName)
-            )
+            let depDate = WidgetDataProvider.parseISO8601(dep.effectiveTimeISO)
+            Label {
+                if let d = depDate, d > entry.date {
+                    Text("\(dep.serviceName) → \(shortDestination(dep.destination)) · ") +
+                    Text(timerInterval: entry.date...d, countsDown: true)
+                } else {
+                    Text("\(dep.serviceName) → \(shortDestination(dep.destination)) · jetzt")
+                }
+            } icon: {
+                Image(systemName: WidgetTheme.lineIcon(for: dep.serviceType, serviceName: dep.serviceName))
+            }
         } else if entry.errorState == .noStation {
             Label("Station wählen", systemImage: "mappin.slash")
         } else {
             Label("Keine Abfahrten", systemImage: "tram.fill")
         }
     }
-    
-    private func minutesUntil(_ dep: WidgetDeparture) -> Int {
-        guard let date = WidgetDataProvider.parseISO8601(dep.effectiveTimeISO) else { return 0 }
-        return max(0, Int(date.timeIntervalSince(entry.date) / 60))
-    }
-    
+
     private func shortDestination(_ dest: String) -> String {
-        // Kürze lange Namen für Inline-Darstellung
         let short = dest.replacingOccurrences(of: " Hbf", with: "")
                         .replacingOccurrences(of: " Hauptbahnhof", with: "")
         return short.count > 12 ? String(short.prefix(10)) + "…" : short
@@ -697,13 +696,13 @@ struct StationAccessoryCircularView: View {
     var body: some View {
         ZStack {
             if let dep = entry.departures.first {
-                let mins = minutesUntil(dep)
+                let depDate = WidgetDataProvider.parseISO8601(dep.effectiveTimeISO)
                 AccessoryWidgetBackground()
                 VStack(spacing: 1) {
                     Text(dep.serviceName)
                         .font(.system(size: 11, weight: .heavy, design: .rounded))
                         .minimumScaleFactor(0.7)
-                    Text("\(mins)'")
+                    CountdownText(depDate: depDate, referenceDate: entry.date)
                         .font(.system(size: 16, weight: .bold, design: .rounded))
                 }
             } else {
@@ -714,11 +713,6 @@ struct StationAccessoryCircularView: View {
             }
         }
     }
-    
-    private func minutesUntil(_ dep: WidgetDeparture) -> Int {
-        guard let date = WidgetDataProvider.parseISO8601(dep.effectiveTimeISO) else { return 0 }
-        return max(0, Int(date.timeIntervalSince(entry.date) / 60))
-    }
 }
 
 /// Rectangular Lock Screen Widget: Linie + Ziel + Zeit
@@ -727,7 +721,7 @@ struct StationAccessoryRectangularView: View {
     
     var body: some View {
         if let dep = entry.departures.first {
-            let mins = minutesUntil(dep)
+            let depDate = WidgetDataProvider.parseISO8601(dep.effectiveTimeISO)
             VStack(alignment: .leading, spacing: 2) {
                 HStack {
                     Image(systemName: WidgetTheme.lineIcon(for: dep.serviceType, serviceName: dep.serviceName))
@@ -735,7 +729,7 @@ struct StationAccessoryRectangularView: View {
                     Text(dep.serviceName)
                         .font(.system(size: 13, weight: .heavy, design: .rounded))
                     Spacer()
-                    Text("\(mins)'")
+                    CountdownText(depDate: depDate, referenceDate: entry.date)
                         .font(.system(size: 15, weight: .heavy, design: .rounded))
                 }
                 Text(entry.stationName)
@@ -756,11 +750,6 @@ struct StationAccessoryRectangularView: View {
                     .foregroundStyle(.secondary)
             }
         }
-    }
-    
-    private func minutesUntil(_ dep: WidgetDeparture) -> Int {
-        guard let date = WidgetDataProvider.parseISO8601(dep.effectiveTimeISO) else { return 0 }
-        return max(0, Int(date.timeIntervalSince(entry.date) / 60))
     }
 }
 

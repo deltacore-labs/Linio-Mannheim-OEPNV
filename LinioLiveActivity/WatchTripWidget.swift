@@ -162,13 +162,12 @@ struct WatchRectangularView: View {
                     }
                     .foregroundColor(.green)
                 } else if isBeforeDeparture, let depDate = departureDate {
-                    let mins = max(0, Int(depDate.timeIntervalSince(entry.date) / 60))
-                    if mins == 0 {
+                    if depDate <= entry.date {
                         Text("Jetzt")
                             .font(.system(size: 10, weight: .heavy, design: .rounded))
                             .foregroundColor(.green)
                     } else {
-                        Text("in \(mins)'")
+                        Text(timerInterval: entry.date...depDate, countsDown: true)
                             .font(.system(size: 10, weight: .heavy, design: .rounded))
                             .foregroundColor(.cyan)
                     }
@@ -297,7 +296,6 @@ struct WatchCircularView: View {
                 }
             } else if isBeforeDeparture, let depDate = departureDate {
                 // Countdown state
-                let mins = max(0, Int(depDate.timeIntervalSince(entry.date) / 60))
                 VStack(spacing: 0) {
                     // Line icon
                     if let leg = firstLeg {
@@ -310,17 +308,15 @@ struct WatchCircularView: View {
                             .foregroundColor(.cyan)
                     }
 
-                    if mins == 0 {
+                    if depDate <= entry.date {
                         Text("Jetzt")
                             .font(.system(size: 12, weight: .heavy, design: .rounded))
                             .foregroundColor(.green)
                     } else {
-                        Text("\(mins)")
+                        Text(timerInterval: entry.date...depDate, countsDown: true)
                             .font(.system(size: 18, weight: .heavy, design: .rounded))
                             .foregroundColor(.primary)
-                        Text("Min")
-                            .font(.system(size: 8, weight: .bold))
-                            .foregroundColor(.secondary)
+                            .minimumScaleFactor(0.5)
                     }
                 }
             } else {
@@ -385,11 +381,10 @@ struct WatchInlineView: View {
         if isArrived {
             return Text(Image(systemName: "checkmark.circle.fill")) + Text(" \(lineName) Angekommen")
         } else if isBeforeDeparture, let depDate = departureDate {
-            let mins = max(0, Int(depDate.timeIntervalSince(entry.date) / 60))
-            if mins == 0 {
+            if depDate <= entry.date {
                 return Text(Image(systemName: "tram.fill")) + Text(" \(lineName) Jetzt · \(depTime)")
             } else {
-                return Text(Image(systemName: "clock.fill")) + Text(" \(lineName) in \(mins)' · \(depTime)")
+                return Text(Image(systemName: "clock.fill")) + Text(" \(lineName) · ") + Text(timerInterval: entry.date...depDate, countsDown: true)
             }
         } else {
             let arrTime = WidgetDataProvider.formatTime(trip.endTime)

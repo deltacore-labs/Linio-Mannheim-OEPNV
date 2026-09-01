@@ -163,73 +163,32 @@ struct LineBadge: View {
     let lineName: String
     let size: LineBadgeSize
 
-    private var resolvedServiceName: String { lineName }
-
     enum LineBadgeSize {
         case small, medium, large
     }
 
     var body: some View {
-        HStack(spacing: iconSpacing) {
-            Image(systemName: StyleHelper.getIcon(for: serviceType, serviceName: resolvedServiceName))
-                .font(.system(size: iconSize, weight: .bold))
+        let m = sizeMetrics
+        HStack(spacing: m.spacing) {
+            Image(systemName: StyleHelper.getIcon(for: serviceType, serviceName: lineName))
+                .font(.system(size: m.icon, weight: .bold))
             Text(StyleHelper.getShortName(from: lineName))
-                .font(.system(size: textSize, weight: .heavy, design: .rounded))
+                .font(.system(size: m.text, weight: .heavy, design: .rounded))
         }
         .foregroundColor(.white)
-        .padding(.horizontal, hPadding)
-        .padding(.vertical, vPadding)
+        .padding(.horizontal, m.hPad)
+        .padding(.vertical, m.vPad)
         .background(
-            RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
-                .fill(StyleHelper.getColor(for: serviceType, serviceName: resolvedServiceName))
+            RoundedRectangle(cornerRadius: m.radius, style: .continuous)
+                .fill(StyleHelper.getColor(for: serviceType, serviceName: lineName))
         )
     }
 
-    private var iconSize: CGFloat {
+    private var sizeMetrics: (icon: CGFloat, text: CGFloat, spacing: CGFloat, hPad: CGFloat, vPad: CGFloat, radius: CGFloat) {
         switch size {
-        case .small: return 9
-        case .medium: return 12
-        case .large: return 14
-        }
-    }
-
-    private var textSize: CGFloat {
-        switch size {
-        case .small: return 10
-        case .medium: return 13
-        case .large: return 15
-        }
-    }
-
-    private var iconSpacing: CGFloat {
-        switch size {
-        case .small: return 3
-        case .medium: return 4
-        case .large: return 5
-        }
-    }
-
-    private var hPadding: CGFloat {
-        switch size {
-        case .small: return 6
-        case .medium: return 9
-        case .large: return 11
-        }
-    }
-
-    private var vPadding: CGFloat {
-        switch size {
-        case .small: return 3
-        case .medium: return 5
-        case .large: return 6
-        }
-    }
-
-    private var cornerRadius: CGFloat {
-        switch size {
-        case .small: return 6
-        case .medium: return 8
-        case .large: return 10
+        case .small:  return (9,  10, 3,  6, 3,  6)
+        case .medium: return (12, 13, 4,  9, 5,  8)
+        case .large:  return (14, 15, 5, 11, 6, 10)
         }
     }
 }
@@ -327,10 +286,7 @@ struct StationTimelineRow: View {
     }
 
     private func formattedTime(from isoString: String) -> String {
-        guard let date = DateCalculationHelper.parseDate(isoString) else { return "--:--" }
-        let fmt = DateFormatter()
-        fmt.dateFormat = "HH:mm"
-        return fmt.string(from: date)
+        DateCalculationHelper.formatTime(from: isoString)
     }
 }
 
@@ -639,10 +595,7 @@ struct ContentMediumView: View {
     }
 
     private func formattedTime(from isoString: String) -> String {
-        guard let date = DateCalculationHelper.parseDate(isoString) else { return "--:--" }
-        let fmt = DateFormatter()
-        fmt.dateFormat = "HH:mm"
-        return fmt.string(from: date)
+        DateCalculationHelper.formatTime(from: isoString)
     }
 
     // MARK: - Header Bar
@@ -1114,10 +1067,7 @@ struct DynamicIslandExpandedBottom: View {
     }
 
     private func formattedTime(from isoString: String) -> String {
-        guard let date = DateCalculationHelper.parseDate(isoString) else { return "--:--" }
-        let fmt = DateFormatter()
-        fmt.dateFormat = "HH:mm"
-        return fmt.string(from: date)
+        DateCalculationHelper.formatTime(from: isoString)
     }
 }
 
@@ -1269,60 +1219,28 @@ typealias JourneyProgressView = JourneyProgressBar
 
 // MARK: - Preview Helpers
 
+private let previewISO: ISO8601DateFormatter = {
+    let f = ISO8601DateFormatter()
+    f.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+    return f
+}()
+
 extension TripLiveActivityAttributes {
-    static var previewBeforeDeparture: TripLiveActivityAttributes {
-        let formatter = ISO8601DateFormatter()
-        formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
-
+    private static func makePreview(depOffset: TimeInterval, arrOffset: TimeInterval) -> TripLiveActivityAttributes {
         let now = Date()
-        let departure = now.addingTimeInterval(180)
-        let arrival = departure.addingTimeInterval(20 * 60)
-
         return TripLiveActivityAttributes(
             tripId: UUID().uuidString,
             startStation: "Mannheim Hbf",
             endStation: "Heidelberg Bismarckplatz",
             totalLegs: 2,
-            departureTimeISO: formatter.string(from: departure),
-            arrivalTimeISO: formatter.string(from: arrival)
+            departureTimeISO: previewISO.string(from: now.addingTimeInterval(depOffset)),
+            arrivalTimeISO: previewISO.string(from: now.addingTimeInterval(arrOffset))
         )
     }
 
-    static var previewDuringJourney: TripLiveActivityAttributes {
-        let formatter = ISO8601DateFormatter()
-        formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
-
-        let now = Date()
-        let departure = now.addingTimeInterval(-300)
-        let arrival = now.addingTimeInterval(900)
-
-        return TripLiveActivityAttributes(
-            tripId: UUID().uuidString,
-            startStation: "Mannheim Hbf",
-            endStation: "Heidelberg Bismarckplatz",
-            totalLegs: 2,
-            departureTimeISO: formatter.string(from: departure),
-            arrivalTimeISO: formatter.string(from: arrival)
-        )
-    }
-
-    static var previewArrived: TripLiveActivityAttributes {
-        let formatter = ISO8601DateFormatter()
-        formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
-
-        let now = Date()
-        let departure = now.addingTimeInterval(-1200)
-        let arrival = now.addingTimeInterval(-60)
-
-        return TripLiveActivityAttributes(
-            tripId: UUID().uuidString,
-            startStation: "Mannheim Hbf",
-            endStation: "Heidelberg Bismarckplatz",
-            totalLegs: 2,
-            departureTimeISO: formatter.string(from: departure),
-            arrivalTimeISO: formatter.string(from: arrival)
-        )
-    }
+    static var previewBeforeDeparture: TripLiveActivityAttributes { makePreview(depOffset: 180,   arrOffset: 180 + 20 * 60) }
+    static var previewDuringJourney:   TripLiveActivityAttributes { makePreview(depOffset: -300,  arrOffset: 900) }
+    static var previewArrived:         TripLiveActivityAttributes { makePreview(depOffset: -1200, arrOffset: -60) }
 }
 
 extension TripLiveActivityAttributes.ContentState {
@@ -1351,15 +1269,13 @@ extension TripLiveActivityAttributes.ContentState {
     }
 
     static var duringJourneyWithTransfer: TripLiveActivityAttributes.ContentState {
-        let transferDate = Date().addingTimeInterval(8 * 60)
-        let fmt = ISO8601DateFormatter()
-        fmt.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+        let transferISO = previewISO.string(from: Date().addingTimeInterval(8 * 60))
         return TripLiveActivityAttributes.ContentState(
             currentLegIndex: 0, nextStopName: "Heidelberg Hbf", nextStopTime: "14:48",
             estimatedTime: nil, delay: nil, destination: "Heidelberg Bismarckplatz",
             lineName: "Linie 5", serviceType: "STRASSENBAHN", phase: .duringJourney,
             nextTransferStopName: "Heidelberg Hbf",
-            nextTransferArrivalISO: fmt.string(from: transferDate)
+            nextTransferArrivalISO: transferISO
         )
     }
 

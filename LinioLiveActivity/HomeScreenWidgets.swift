@@ -217,15 +217,22 @@ struct WidgetLineBadge: View {
 }
 
 struct WidgetCountdownChip: View {
-    let minutes: Int
+    let depDate: Date?
+    let currentDate: Date
     let isActive: Bool
 
     var body: some View {
         HStack(spacing: 3) {
             Image(systemName: isActive ? "location.fill" : "clock.fill")
                 .font(.system(size: 9, weight: .semibold))
-            Text(isActive ? "Unterwegs" : "in \(minutes) Min")
-                .font(.system(size: 11, weight: .bold, design: .rounded))
+            Group {
+                if isActive {
+                    Text("Unterwegs")
+                } else {
+                    CountdownText(depDate: depDate, referenceDate: currentDate, fallback: "Jetzt")
+                }
+            }
+            .font(.system(size: 11, weight: .bold, design: .rounded))
         }
         .foregroundColor(.white)
         .padding(.horizontal, 10)
@@ -233,6 +240,20 @@ struct WidgetCountdownChip: View {
         .background(
             Capsule().fill(isActive ? Color.green : WidgetTheme.primaryColor)
         )
+    }
+}
+
+struct CountdownText: View {
+    let depDate: Date?
+    let referenceDate: Date
+    var fallback: String = "jetzt"
+
+    var body: some View {
+        if let d = depDate, d > referenceDate {
+            Text(timerInterval: referenceDate...d, countsDown: true)
+        } else {
+            Text(fallback)
+        }
     }
 }
 
@@ -278,12 +299,17 @@ struct NextDepartureAccessoryInlineView: View {
 
     var body: some View {
         if let trip = entry.trip, let leg = trip.legs.first(where: { $0.isTimedLeg }) {
-            let mins = WidgetDataProvider.parseISO8601(trip.startTime)
-                .map { max(0, Int($0.timeIntervalSince(entry.date) / 60)) } ?? 0
-            Label(
-                "\(WidgetTheme.shortLineName(from: leg.serviceName)) → \(trip.endStation) · \(mins)'",
-                systemImage: WidgetTheme.lineIcon(for: leg.serviceType, serviceName: leg.serviceName)
-            )
+            let depDate = WidgetDataProvider.parseISO8601(trip.startTime)
+            Label {
+                if let d = depDate, d > entry.date {
+                    Text("\(WidgetTheme.shortLineName(from: leg.serviceName)) → \(trip.endStation) · ") +
+                    Text(timerInterval: entry.date...d, countsDown: true)
+                } else {
+                    Text("\(WidgetTheme.shortLineName(from: leg.serviceName)) → \(trip.endStation) · jetzt")
+                }
+            } icon: {
+                Image(systemName: WidgetTheme.lineIcon(for: leg.serviceType, serviceName: leg.serviceName))
+            }
         } else {
             Label("Keine Fahrten", systemImage: "tram.fill")
         }
@@ -297,15 +323,11 @@ struct NextDepartureAccessoryCircularView: View {
         ZStack {
             AccessoryWidgetBackground()
             if let trip = entry.trip {
-                let mins = WidgetDataProvider.parseISO8601(trip.startTime)
-                    .map { max(0, Int($0.timeIntervalSince(entry.date) / 60)) } ?? 0
+                let depDate = WidgetDataProvider.parseISO8601(trip.startTime)
                 VStack(spacing: 0) {
-                    Text("\(mins)")
+                    CountdownText(depDate: depDate, referenceDate: entry.date)
                         .font(.system(size: 20, weight: .heavy, design: .rounded))
                         .minimumScaleFactor(0.5)
-                    Text("min")
-                        .font(.system(size: 8, weight: .medium))
-                        .foregroundStyle(.secondary)
                 }
             } else {
                 Image(systemName: "tram.fill")
@@ -321,8 +343,7 @@ struct NextDepartureAccessoryRectangularView: View {
 
     var body: some View {
         if let trip = entry.trip, let leg = trip.legs.first(where: { $0.isTimedLeg }) {
-            let mins = WidgetDataProvider.parseISO8601(trip.startTime)
-                .map { max(0, Int($0.timeIntervalSince(entry.date) / 60)) } ?? 0
+            let depDate = WidgetDataProvider.parseISO8601(trip.startTime)
             VStack(alignment: .leading, spacing: 2) {
                 HStack {
                     Image(systemName: WidgetTheme.lineIcon(for: leg.serviceType, serviceName: leg.serviceName))
@@ -330,7 +351,7 @@ struct NextDepartureAccessoryRectangularView: View {
                     Text(WidgetTheme.shortLineName(from: leg.serviceName))
                         .font(.system(size: 13, weight: .heavy, design: .rounded))
                     Spacer()
-                    Text("\(mins)'")
+                    CountdownText(depDate: depDate, referenceDate: entry.date)
                         .font(.system(size: 15, weight: .heavy, design: .rounded))
                 }
                 Text(trip.startStation)
@@ -374,7 +395,6 @@ struct StandByDepartureView: View {
     private func tripView(_ trip: WidgetTripData) -> some View {
         let firstLeg = trip.legs.first(where: { $0.isTimedLeg })
         let depDate = WidgetDataProvider.parseISO8601(trip.startTime)
-        let mins = depDate.map { max(0, Int($0.timeIntervalSince(entry.date) / 60)) } ?? 0
         let isActive = depDate.map { $0 <= entry.date } ?? false
 
         return VStack(spacing: 8) {
@@ -388,9 +408,20 @@ struct StandByDepartureView: View {
                 .minimumScaleFactor(0.7)
                 .lineLimit(1)
 
-            Text(isActive ? "Unterwegs" : "in \(mins) Min")
-                .font(.system(size: 13, weight: .semibold, design: .rounded))
-                .foregroundStyle(mins < 3 && !isActive ? Color.orange : Color.white.opacity(0.6))
+            Group {
+                if isActive {
+                    Text("Unterwegs")
+                } else if let d = depDate, d > entry.date {
+                    Text(timerInterval: entry.date...d, countsDown: true)
+                } else {
+                    Text("Jetzt")
+                }
+            }
+            .font(.system(size: 13, weight: .semibold, design: .rounded))
+            .foregroundStyle(
+                (!isActive && (depDate.map { $0.timeIntervalSince(entry.date) < 180 } ?? false))
+                    ? Color.orange : Color.white.opacity(0.6)
+            )
 
             Text("→ " + trip.endStation)
                 .font(.system(size: 12, weight: .medium))
@@ -523,8 +554,7 @@ struct NextDepartureWidgetSmallView: View {
                 }
                 Spacer()
                 if isBeforeDeparture, let depDate = departureDate {
-                    let mins = max(0, Int(depDate.timeIntervalSince(entry.date) / 60))
-                    Text("\(mins)'")
+                    CountdownText(depDate: depDate, referenceDate: entry.date)
                         .font(.system(size: 20, weight: .heavy, design: .rounded))
                         .foregroundColor(WidgetTheme.primaryColor)
                 } else {
@@ -668,10 +698,9 @@ struct NextDepartureWidgetMediumView: View {
 
                 // Status chip
                 if isBeforeDeparture, let depDate = departureDate {
-                    let mins = max(0, Int(depDate.timeIntervalSince(entry.date) / 60))
-                    WidgetCountdownChip(minutes: mins, isActive: false)
+                    WidgetCountdownChip(depDate: depDate, currentDate: entry.date, isActive: false)
                 } else {
-                    WidgetCountdownChip(minutes: 0, isActive: true)
+                    WidgetCountdownChip(depDate: nil, currentDate: entry.date, isActive: true)
                 }
             }
             .frame(minWidth: 100)
@@ -856,8 +885,7 @@ struct ActiveTripRow: View {
     @ViewBuilder
     private var statusView: some View {
         if let depDate = departureDate, depDate > currentDate {
-            let minutes = max(0, Int(depDate.timeIntervalSince(currentDate) / 60))
-            Text("\(minutes)'")
+            Text(timerInterval: currentDate...depDate, countsDown: true)
                 .font(.system(size: 14, weight: .heavy, design: .rounded))
                 .foregroundColor(WidgetTheme.primaryColor)
         } else if let arrDate = arrivalDate, arrDate > currentDate {

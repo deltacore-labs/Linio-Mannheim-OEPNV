@@ -58,20 +58,23 @@ class AuthService: ObservableObject {
         // Token als ungültig betrachten 60 Sekunden vor Ablauf
         return Date() < expiry.addingTimeInterval(-60)
     }
+    
+    /// Stellt sicher, dass ein gültiger Token vorhanden ist und gibt ihn zurück.
+    /// Führt bei Bedarf automatisch eine Authentifizierung durch.
+    func ensureValidToken() async -> String? {
+        if !isTokenValid { await autoAuthenticate() }
+        return accessToken
+    }
 
     // MARK: - Auto Login
 
     func autoAuthenticate() async {
         if isTokenValid {
-            #if DEBUG
-            print("ℹ️ [AUTH] Token noch gültig, kein erneuter Login nötig")
-            #endif
+            DebugLog.auth("ℹ️ Token noch gültig, kein erneuter Login nötig")
             return
         }
         if isAuthenticated && !isTokenValid {
-            #if DEBUG
-            print("🔄 [AUTH] Token abgelaufen, erneuere...")
-            #endif
+            DebugLog.auth("🔄 Token abgelaufen, erneuere...")
         }
         await authenticate()
     }
@@ -124,19 +127,21 @@ class AuthService: ObservableObject {
             return
         }
 
-        // URL-encode alle Werte, um Sonderzeichen im Request-Body zu vermeiden
-        guard let encodedID     = id.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed),
-              let encodedSecret = secret.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed),
-              let encodedRes    = res.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) else {
-            setError("Fehler beim URL-Encoding der Credentials.")
-            return
-        }
-
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
         request.setValue("application/x-www-form-urlencoded", forHTTPHeaderField: "Content-Type")
 
-        let bodyString = "grant_type=client_credentials&client_id=\(encodedID)&client_secret=\(encodedSecret)&resource=\(encodedRes)"
+        var bodyComponents = URLComponents()
+        bodyComponents.queryItems = [
+            URLQueryItem(name: "grant_type", value: "client_credentials"),
+            URLQueryItem(name: "client_id", value: id),
+            URLQueryItem(name: "client_secret", value: secret),
+            URLQueryItem(name: "resource", value: res),
+        ]
+        guard let bodyString = bodyComponents.percentEncodedQuery else {
+            setError("Fehler beim Kodieren der Credentials.")
+            return
+        }
         request.httpBody = bodyString.data(using: .utf8)
 
         do {
@@ -162,33 +167,26 @@ class AuthService: ObservableObject {
 
                     // Token in Shared Keychain speichern (zugänglich für Widget-Extension)
                     if let tokenData = token.data(using: .utf8) {
-                        let keychainQuery: [String: Any] = [
-                            kSecClass as String: kSecClassGenericPassword,
-                            kSecAttrService as String: AppConfiguration.widgetKeychainService,
-                            kSecAttrAccount as String: AppConfiguration.widgetKeychainTokenKey,
-                            kSecAttrAccessGroup as String: AppConfiguration.widgetKeychainAccessGroup,
-                            kSecValueData as String: tokenData,
-                            kSecAttrAccessible as String: kSecAttrAccessibleWhenUnlockedThisDeviceOnly
-                        ]
+                        var keychainQuery = keychainBaseQuery
+                        keychainQuery[kSecValueData as String] = tokenData
+                        keychainQuery[kSecAttrAccessible as String] = kSecAttrAccessibleWhenUnlockedThisDeviceOnly
                         SecItemDelete(keychainQuery as CFDictionary)
                         SecItemAdd(keychainQuery as CFDictionary, nil)
                     }
                     // Ablaufzeit und URL weiterhin in App Group (nicht sicherheitskritisch)
                     let appGroupDefaults = UserDefaults(suiteName: AppConfiguration.appGroupID)
-                    appGroupDefaults?.set(expiry.timeIntervalSince1970, forKey: "widgetAccessTokenExpiry")
+                    appGroupDefaults?.set(expiry.timeIntervalSince1970, forKey: AppConfiguration.UserDefaultsKey.widgetAccessTokenExpiry.rawValue)
                     let rawGraphQLURL = Bundle.main.object(forInfoDictionaryKey: "RNV_GRAPHQL_URL") as? String
                     let graphqlURL: String
                     if let raw = rawGraphQLURL, !raw.isEmpty, !raw.contains("$(") {
                         graphqlURL = raw
                     } else {
-                        graphqlURL = "https://graphql-sandbox-dds.rnv-online.de/"
+                        graphqlURL = AppConfiguration.fallbackGraphQLURL
                     }
-                    appGroupDefaults?.set(graphqlURL, forKey: "widgetGraphQLURL")
+                    appGroupDefaults?.set(graphqlURL, forKey: AppConfiguration.UserDefaultsKey.widgetGraphQLURL.rawValue)
 
                     PhoneConnectivityManager.shared.pushCredentialsToWatch(token: token, tokenExpiry: expiry)
-                    #if DEBUG
-                    print("✅ [AUTH] Anmeldung erfolgreich. Token läuft ab um: \(expiry)")
-                    #endif
+                    DebugLog.auth("✅ Anmeldung erfolgreich. Token läuft ab um: \(expiry)")
                 } else if let errorDesc = json["error_description"] as? String {
                     setError("Auth-Fehler: \(errorDesc)")
                 } else {
@@ -205,10 +203,17 @@ class AuthService: ObservableObject {
 
     // MARK: - Hilfsfunktionen
 
+    private var keychainBaseQuery: [String: Any] {
+        [
+            kSecClass as String: kSecClassGenericPassword,
+            kSecAttrService as String: AppConfiguration.widgetKeychainService,
+            kSecAttrAccount as String: AppConfiguration.widgetKeychainTokenKey,
+            kSecAttrAccessGroup as String: AppConfiguration.widgetKeychainAccessGroup
+        ]
+    }
+
     private func setError(_ message: String) {
-        #if DEBUG
-        print("❌ [AUTH] \(message)")
-        #endif
+        DebugLog.auth("❌ \(message)")
         self.authError = message
         self.isAuthenticating = false
         self.isAuthenticated = false
@@ -223,20 +228,12 @@ class AuthService: ObservableObject {
         authError = nil
 
         // Token aus Keychain löschen
-        let keychainQuery: [String: Any] = [
-            kSecClass as String: kSecClassGenericPassword,
-            kSecAttrService as String: AppConfiguration.widgetKeychainService,
-            kSecAttrAccount as String: AppConfiguration.widgetKeychainTokenKey,
-            kSecAttrAccessGroup as String: AppConfiguration.widgetKeychainAccessGroup
-        ]
-        SecItemDelete(keychainQuery as CFDictionary)
+        SecItemDelete(keychainBaseQuery as CFDictionary)
         // Ablaufzeit und URL aus App Group löschen
         let appGroupDefaults = UserDefaults(suiteName: AppConfiguration.appGroupID)
-        appGroupDefaults?.removeObject(forKey: "widgetAccessTokenExpiry")
-        appGroupDefaults?.removeObject(forKey: "widgetGraphQLURL")
+        appGroupDefaults?.removeObject(forKey: AppConfiguration.UserDefaultsKey.widgetAccessTokenExpiry.rawValue)
+        appGroupDefaults?.removeObject(forKey: AppConfiguration.UserDefaultsKey.widgetGraphQLURL.rawValue)
 
-        #if DEBUG
-        print("🔓 [AUTH] Abgemeldet")
-        #endif
+        DebugLog.auth("🔓 Abgemeldet")
     }
 }

@@ -19,13 +19,12 @@ struct AppConfiguration {
     static let widgetKeychainTokenKey = "widgetAccessToken"
     
     // MARK: - Feature Flags
-    static let enableOfflineMode = false
     static let enableAutoBackup = true
-    static let enableDetailedLogging = false
     
     // MARK: - API Configuration
     static let requestTimeout: TimeInterval = 30.0
     static let resourceTimeout: TimeInterval = 60.0
+    static let fallbackGraphQLURL = "https://graphql-sandbox-dds.rnv-online.de/"
     
     // MARK: - Hub-Stationen (Hauptknotenpunkte für Direktabfragen)
     static let hubStationNames: [String] = [
@@ -41,16 +40,26 @@ struct AppConfiguration {
     
     // MARK: - Validation
     static func validateConfiguration() -> [String] {
-        var errors: [String] = []
-        
-        if teamID == "YOUR_TEAM_ID" {
-            let msg = "⚠️ teamID nicht konfiguriert - App Group wird nicht funktionieren"
-            errors.append(msg)
-            #if DEBUG
-            print("[AppConfiguration] WARNING: \(msg)")
-            #endif
+        var issues: [String] = []
+        let info = Bundle.main.infoDictionary ?? [:]
+        func isUnresolved(_ key: String) -> Bool {
+            guard let val = info[key] as? String, !val.isEmpty else { return true }
+            return val.contains("$(")
         }
-        
-        return errors
+        if isUnresolved("RNV_GRAPHQL_URL")   { issues.append("RNV_GRAPHQL_URL fehlt oder nicht aufgelöst") }
+        if isUnresolved("RNV_CLIENT_ID")     { issues.append("RNV_CLIENT_ID fehlt oder nicht aufgelöst") }
+        if isUnresolved("RNV_CLIENT_SECRET") { issues.append("RNV_CLIENT_SECRET fehlt oder nicht aufgelöst") }
+        return issues
+    }
+
+    // MARK: - UserDefaults Keys
+    enum UserDefaultsKey: String {
+        case activeTrips
+        case savedTripData
+        case widgetAccessTokenExpiry
+        case widgetGraphQLURL
+        case widgetFavoriteStations
+        case favoriteStations
+        case occupancyTrendRecords
     }
 }

@@ -44,6 +44,15 @@ enum TripPhase: String, Codable, Hashable, Sendable {
     case arrived
 }
 
+// MARK: - Widget Kinds
+
+enum WidgetKind: String {
+    case nextDeparture = "NextDepartureWidget"
+    case activeTrips   = "ActiveTripsWidget"
+    case quickSearch   = "QuickSearchWidget"
+    case stationDeparture = "StationDepartureWidget"
+}
+
 // MARK: - Live Activity State (App Group UserDefaults)
 
 class LiveActivityState {
@@ -58,9 +67,6 @@ class LiveActivityState {
     /// Gecachte UserDefaults-Instanz (einmal erstellt statt bei jedem Zugriff)
     private let userDefaults: UserDefaults?
     
-    /// Debounce-WorkItem für Widget-Reloads
-    private var widgetReloadWorkItem: DispatchWorkItem?
-    
     /// Notification die gepostet wird wenn sich aktive Trips ändern
     static let activeTripsDidChangeNotification = Notification.Name("LiveActivityStateActiveTripsDidChange")
     
@@ -70,19 +76,18 @@ class LiveActivityState {
     
     // MARK: - Widget-Aktualisierung (debounced)
     
+    private static var widgetReloadWorkItem: DispatchWorkItem?
+    
     private func scheduleWidgetReload() {
-        widgetReloadWorkItem?.cancel()
-        let workItem = DispatchWorkItem {
-            WidgetCenter.shared.reloadTimelines(ofKind: "NextDepartureWidget")
-            WidgetCenter.shared.reloadTimelines(ofKind: "ActiveTripsWidget")
-            WidgetCenter.shared.reloadTimelines(ofKind: "QuickSearchWidget")
-            WidgetCenter.shared.reloadTimelines(ofKind: "StationDepartureWidget")
-            #if DEBUG
-            print("🔄 [WIDGET] Alle Widget-Timelines neu geladen (State-Änderung)")
-            #endif
+        Self.widgetReloadWorkItem?.cancel()
+        let item = DispatchWorkItem {
+            WidgetCenter.shared.reloadTimelines(ofKind: WidgetKind.nextDeparture.rawValue)
+            WidgetCenter.shared.reloadTimelines(ofKind: WidgetKind.activeTrips.rawValue)
+            WidgetCenter.shared.reloadTimelines(ofKind: WidgetKind.quickSearch.rawValue)
+            WidgetCenter.shared.reloadTimelines(ofKind: WidgetKind.stationDeparture.rawValue)
         }
-        widgetReloadWorkItem = workItem
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5, execute: workItem)
+        Self.widgetReloadWorkItem = item
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5, execute: item)
     }
     
     /// Benachrichtigt Beobachter über Änderungen an aktiven Trips

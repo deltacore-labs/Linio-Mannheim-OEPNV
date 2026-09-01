@@ -100,7 +100,23 @@ final class DateFormattingHelper: @unchecked Sendable {
     }()
 
     func formatDateShort(_ date: Date) -> String {
+        lock.lock()
+        defer { lock.unlock() }
         return Self.shortDateFormatter.string(from: date)
+    }
+
+    private static let dateTimeShortFormatter: DateFormatter = {
+        let f = DateFormatter()
+        f.locale = Locale(identifier: "de_DE")
+        f.dateStyle = .short
+        f.timeStyle = .short
+        return f
+    }()
+
+    func formatDateTimeShort(_ date: Date) -> String {
+        lock.lock()
+        defer { lock.unlock() }
+        return Self.dateTimeShortFormatter.string(from: date)
     }
 
     func parseGermanDate(_ raw: String) -> Date? {
@@ -196,7 +212,7 @@ struct TransportIconHelper {
         if name.count >= 3,
            (name.hasPrefix("RE") || name.hasPrefix("RB")),
            let digitChar = name.dropFirst(2).first,
-           digitChar.isNumber {
+           (digitChar.isNumber || digitChar == " ") {
             return true
         }
         // MEX-Sonderfall: Präfix ist 3 Zeichen lang (z. B. "MEX12", "MEX16a")
@@ -302,6 +318,26 @@ struct ShareSheet: UIViewControllerRepresentable {
     }
 
     func updateUIViewController(_ uiViewController: UIActivityViewController, context: Context) {}
+}
+
+// MARK: - DebugLog
+
+/// Zentrales Debug-Logging – nur in DEBUG-Builds aktiv
+enum DebugLog {
+    static func log(_ message: String, category: String = "APP") {
+        #if DEBUG
+        print("[\(category)] \(message)")
+        #endif
+    }
+    
+    static func auth(_ message: String) { log(message, category: "AUTH") }
+    static func graphql(_ message: String) { log(message, category: "GraphQL") }
+    static func widget(_ message: String) { log(message, category: "WIDGET") }
+    static func state(_ message: String) { log(message, category: "STATE") }
+    static func tripdata(_ message: String) { log(message, category: "TRIPDATA") }
+    static func wallet(_ message: String) { log(message, category: "WALLET") }
+    static func live(_ message: String) { log(message, category: "LIVE") }
+    static func bg(_ message: String) { log(message, category: "BG") }
 }
 
 // MARK: - HapticHelper

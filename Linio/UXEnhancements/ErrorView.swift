@@ -120,29 +120,10 @@ struct ErrorInlineView: View {
 
 // MARK: - Preview
 
-#Preview("Error Banner") {
+#Preview("Error Views") {
     VStack(spacing: 20) {
-        ErrorBannerView(
-            error: .noInternet,
-            onRetry: { print("Retry") },
-            onDismiss: { print("Dismiss") }
-        )
-        
-        ErrorBannerView(
-            error: .serverError,
-            onRetry: { print("Retry") }
-        )
-        
-        ErrorBannerView(
-            error: .graphQLError(message: "Station nicht gefunden")
-        )
+        ErrorBannerView(error: .noInternet, onRetry: {}, onDismiss: {})
+        ErrorBannerView(error: .serverError, onRetry: {})
     }
     .padding()
-}
-
-#Preview("Error Page") {
-    ErrorPageView(
-        error: .noInternet,
-        onRetry: { print("Retry") }
-    )
 }

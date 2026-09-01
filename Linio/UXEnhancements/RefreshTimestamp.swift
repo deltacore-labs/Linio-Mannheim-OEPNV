@@ -90,19 +90,38 @@ extension View {
 
 // MARK: - Auto-Updating Timestamp
 
+/// Performance-optimierte Version: Timer startet nur wenn View sichtbar ist
+/// und stoppt automatisch beim Verschwinden der View.
 struct AutoUpdatingTimestamp: View {
     let date: Date?
     
     @State private var refreshTrigger = false
-    
-    private let timer = Timer.publish(every: 30, on: .main, in: .common).autoconnect()
+    @State private var timerSubscription: AnyCancellable?
     
     var body: some View {
         RefreshTimestampView(lastRefresh: date, isRefreshing: false)
             .id(refreshTrigger)
-            .onReceive(timer) { _ in
+            .onAppear {
+                startTimer()
+            }
+            .onDisappear {
+                stopTimer()
+            }
+    }
+    
+    private func startTimer() {
+        // Nur starten wenn noch nicht aktiv
+        guard timerSubscription == nil else { return }
+        timerSubscription = Timer.publish(every: 30, on: .main, in: .common)
+            .autoconnect()
+            .sink { _ in
                 refreshTrigger.toggle()
             }
+    }
+    
+    private func stopTimer() {
+        timerSubscription?.cancel()
+        timerSubscription = nil
     }
 }
 

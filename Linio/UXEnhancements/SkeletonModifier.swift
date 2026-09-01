@@ -471,100 +471,14 @@ struct SkeletonLoadingContainer<Skeleton: View, Content: View>: View {
     }
 }
 
-// MARK: - Previews
+// MARK: - Preview
 
-#Preview("TripCard Skeleton") {
-    VStack(spacing: 12) {
-        TripCardSkeleton()
-        TripCardSkeleton()
-        TripCardSkeleton()
-    }
-    .padding(.vertical)
-    .background(AppTheme.canvas)
-}
-
-#Preview("Connections Skeleton List") {
+#Preview("Skeleton Components") {
     ScrollView {
-        ConnectionsSkeletonList(count: 5)
-            .padding(.vertical)
-    }
-    .background(AppTheme.canvas)
-}
-
-#Preview("Departure Board Skeleton") {
-    ScrollView {
-        DepartureBoardSkeletonList(count: 6)
-            .padding(.vertical)
-    }
-    .background(AppTheme.canvas)
-}
-
-#Preview("Station List Skeleton") {
-    ScrollView {
-        StationListSkeleton(count: 5)
-            .padding(.vertical)
-    }
-    .background(AppTheme.canvas)
-}
-
-#Preview("Trip Detail Skeleton") {
-    ScrollView {
-        TripDetailSkeleton()
-            .padding(.vertical)
-    }
-    .background(AppTheme.canvas)
-}
-
-#Preview("All Skeleton Components") {
-    ScrollView {
-        VStack(spacing: 32) {
-            // Section Header
-            Text("Skeleton Components")
-                .font(.headline)
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(.horizontal)
-            
-            // Basic Shapes
-            VStack(alignment: .leading, spacing: 12) {
-                Text("Basic Shapes").font(.caption).foregroundStyle(.secondary)
-                HStack(spacing: 12) {
-                    SkeletonCircle(size: 40)
-                    SkeletonCircle(size: 32)
-                    SkeletonCircle(size: 24)
-                }
-                SkeletonShape(width: 200, height: 20, cornerRadius: 6)
-                SkeletonShape(width: 150, height: 14, cornerRadius: 4)
-                SkeletonShape(width: 100, height: 10, cornerRadius: 3)
-            }
-            .padding()
-            .background(AppTheme.surfaceCard)
-            .clipShape(RoundedRectangle(cornerRadius: 16))
-            .padding(.horizontal)
-            
-            // Text Lines
-            VStack(alignment: .leading, spacing: 12) {
-                Text("Text Lines").font(.caption).foregroundStyle(.secondary)
-                SkeletonTextLine(length: .full)
-                SkeletonTextLine(length: .long)
-                SkeletonTextLine(length: .medium)
-                SkeletonTextLine(length: .short)
-            }
-            .padding()
-            .background(AppTheme.surfaceCard)
-            .clipShape(RoundedRectangle(cornerRadius: 16))
-            .padding(.horizontal)
-            
-            // Departure Row
-            Text("Departure Row").font(.caption).foregroundStyle(.secondary).padding(.horizontal)
-            DepartureRowSkeleton().padding(.horizontal)
-            
-            // Station Card
-            Text("Station Card").font(.caption).foregroundStyle(.secondary).padding(.horizontal)
-            StationCardSkeleton().padding(.horizontal)
-            
-            // Trip Card
-            Text("Trip Card").font(.caption).foregroundStyle(.secondary).padding(.horizontal)
+        VStack(spacing: 16) {
             TripCardSkeleton()
+            DepartureRowSkeleton().padding(.horizontal)
+            StationCardSkeleton().padding(.horizontal)
         }
         .padding(.vertical)
     }

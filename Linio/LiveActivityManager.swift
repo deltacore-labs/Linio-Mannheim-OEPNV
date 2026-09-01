@@ -438,6 +438,11 @@ class LiveActivityManager: ObservableObject {
     
     // MARK: - Automatische Updates mit adaptivem Intervall
     
+    /// Performance-optimiert: Verwendet einen einzelnen konsolidierten Timer
+    /// anstatt separate Timer pro Trip, um CPU-Wakeups zu reduzieren.
+    private var consolidatedTimer: Timer?
+    private var lastConsolidatedUpdate: Date?
+    
     private func startAutoUpdates(for trip: DetailedTrip) {
         let tripId = trip.id.uuidString
 
@@ -445,16 +450,82 @@ class LiveActivityManager: ObservableObject {
         print("⏰ [DEBUG] Starte Auto-Update für Trip: \(String(tripId.prefix(8)))")
         #endif
 
+        // Alten Timer für diesen Trip invalidieren falls vorhanden
         updateTimers[tripId]?.invalidate()
         updateTimers.removeValue(forKey: tripId)
 
-        let startTimer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: false) { [weak self] _ in
+        // Initiales Update sofort ausführen
+        Task { @MainActor in
+            await self.fetchAndUpdateLiveActivity(trip: trip)
+        }
+        
+        // Konsolidierten Timer starten falls noch nicht aktiv
+        startConsolidatedTimerIfNeeded()
+    }
+    
+    /// Startet einen einzelnen Timer der alle aktiven Activities updated
+    private func startConsolidatedTimerIfNeeded() {
+        guard consolidatedTimer == nil, !isInBackground else { return }
+        
+        // Minimales Intervall unter allen aktiven Trips berechnen
+        let minInterval = calculateMinimumUpdateInterval()
+        
+        consolidatedTimer = Timer.scheduledTimer(withTimeInterval: minInterval, repeats: true) { [weak self] _ in
             Task { @MainActor in
-                await self?.fetchAndUpdateLiveActivity(trip: trip)
+                await self?.updateAllActiveActivities()
             }
         }
-        RunLoop.main.add(startTimer, forMode: .common)
-        updateTimers[tripId] = startTimer
+        RunLoop.main.add(consolidatedTimer!, forMode: .common)
+        
+        #if DEBUG
+        print("⏰ [CONSOLIDATED] Timer gestartet mit Intervall: \(Int(minInterval))s")
+        #endif
+    }
+    
+    /// Stoppt den konsolidierten Timer
+    private func stopConsolidatedTimer() {
+        consolidatedTimer?.invalidate()
+        consolidatedTimer = nil
+        #if DEBUG
+        print("⏰ [CONSOLIDATED] Timer gestoppt")
+        #endif
+    }
+    
+    /// Berechnet das minimale Update-Intervall basierend auf allen aktiven Trips
+    private func calculateMinimumUpdateInterval() -> TimeInterval {
+        let now = Date()
+        var minInterval: TimeInterval = 60 // Default
+        
+        for trip in activeTrips.values {
+            let interval = getUpdateInterval(
+                departureTimeISO: trip.startTime,
+                arrivalTimeISO: trip.endTime,
+                currentTime: now
+            )
+            minInterval = min(minInterval, interval)
+        }
+        
+        return max(15, minInterval) // Mindestens 15 Sekunden
+    }
+    
+    /// Updated alle aktiven Activities in einem Durchlauf
+    private func updateAllActiveActivities() async {
+        guard !activeTrips.isEmpty else {
+            stopConsolidatedTimer()
+            return
+        }
+        
+        // Alle aktiven Trips updaten
+        for trip in activeTrips.values {
+            await fetchAndUpdateLiveActivity(trip: trip)
+        }
+        
+        // Timer-Intervall anpassen falls nötig
+        let newInterval = calculateMinimumUpdateInterval()
+        if let timer = consolidatedTimer, abs(timer.timeInterval - newInterval) > 5 {
+            stopConsolidatedTimer()
+            startConsolidatedTimerIfNeeded()
+        }
     }
     
     private func fetchAndUpdateLiveActivity(trip: DetailedTrip) async {
@@ -564,31 +635,20 @@ class LiveActivityManager: ObservableObject {
         Self.activityState.saveTripDataForWidget(widgetData)
         PhoneConnectivityManager.shared.notifyTripUpdate()
 
-        // Timer-Intervall für den nächsten Update
+        // Performance: Kein separater Timer mehr pro Trip!
+        // Der konsolidierte Timer übernimmt alle Updates.
+        // Nur im Hintergrund stoppen wir den Timer komplett.
+        if isInBackground {
+            stopConsolidatedTimer()
+        }
+        
+        #if DEBUG
         let nextInterval = getUpdateInterval(
             departureTimeISO: departureISO,
             arrivalTimeISO: arrivalISO,
             currentTime: now
         )
-        
-        let tripId = trip.id.uuidString
-        updateTimers[tripId]?.invalidate()
-
-        guard !isInBackground else {
-            updateTimers.removeValue(forKey: tripId)
-            return
-        }
-
-        let nextTimer = Timer.scheduledTimer(withTimeInterval: nextInterval, repeats: false) { [weak self] _ in
-            Task { @MainActor in
-                await self?.fetchAndUpdateLiveActivity(trip: trip)
-            }
-        }
-        RunLoop.main.add(nextTimer, forMode: .common)
-        updateTimers[tripId] = nextTimer
-        
-        #if DEBUG
-        print("⏰ [UPDATE] Phase: \(currentPhase) | Nächster Update in \(Int(nextInterval))s | Stale: \(staleDate?.description ?? "nil")")
+        print("⏰ [UPDATE] Phase: \(currentPhase) | Konsolidierter Timer aktiv | Intervall: \(Int(nextInterval))s | Stale: \(staleDate?.description ?? "nil")")
         #endif
     }
     
@@ -633,11 +693,12 @@ class LiveActivityManager: ObservableObject {
         print("📱 [LIFECYCLE] App kommt in den Vordergrund")
         #endif
 
+        // Konsolidierten Timer neu starten
+        startConsolidatedTimerIfNeeded()
+        
         // Sofort alle Activities aktualisieren
         Task {
-            for (_, trip) in activeTrips {
-                await fetchAndUpdateLiveActivity(trip: trip)
-            }
+            await updateAllActiveActivities()
         }
     }
     
@@ -669,6 +730,11 @@ class LiveActivityManager: ObservableObject {
         }
 
         self.lastError = nil
+        
+        // Konsolidierten Timer stoppen wenn keine Activities mehr aktiv
+        if activeTrips.isEmpty && pendingTrips.isEmpty {
+            stopConsolidatedTimer()
+        }
 
         // Nächsten anstehenden Trip aktivieren falls vorhanden
         await reEvaluateNearestActivity()

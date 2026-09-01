@@ -194,6 +194,12 @@ struct ConnectionsView: View {
                 }
             }
         }
+        .onDisappear {
+            // Performance: Animation stoppen wenn View nicht sichtbar ist
+            // um GPU-Ressourcen zu sparen
+            pulseScale = 1.0
+            headerAppeared = false
+        }
     }
 
     // MARK: - Header Background
@@ -946,56 +952,20 @@ struct ConnectionsView: View {
     private func setNearestStationAsStart() async {
         isLoadingNearbyStation = true
         HapticHelper.impact(.light)
+        defer { isLoadingNearbyStation = false }
         
-        defer { 
-            Task { @MainActor in
-                isLoadingNearbyStation = false
-            }
-        }
+        let result = await NearbyStationFinder.find(locationManager: locationManager, graphQLService: graphQLService, authService: authService)
         
-        // Standort prüfen/anfordern
-        if locationManager.location == nil {
-            locationManager.startLocationUpdates()
-            try? await Task.sleep(nanoseconds: 1_500_000_000)
-            guard locationManager.location != nil else {
-                HapticHelper.notification(.warning)
-                return
-            }
-        }
-        
-        guard let currentLocation = locationManager.location else {
-            HapticHelper.notification(.warning)
-            return
-        }
-        
-        // Token sicherstellen
-        if !authService.isTokenValid {
-            await authService.autoAuthenticate()
-        }
-        
-        guard let token = authService.accessToken, !token.isEmpty else {
-            HapticHelper.notification(.error)
-            return
-        }
-        
-        // Stationen in der Nähe laden
-        await graphQLService.searchStations(
-            lat: currentLocation.latitude,
-            lon: currentLocation.longitude,
-            accessToken: token
-        )
-        
-        // Nächste Station als Start setzen
-        guard let nearest = graphQLService.stations.first else {
-            HapticHelper.notification(.warning)
-            return
-        }
-        
-        await MainActor.run {
+        switch result {
+        case .success(let station):
             withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
-                selectedStartStation = nearest
+                selectedStartStation = station
             }
             HapticHelper.success()
+        case .locationUnavailable, .noStationsFound:
+            HapticHelper.notification(.warning)
+        case .authFailed:
+            HapticHelper.notification(.error)
         }
     }
 }

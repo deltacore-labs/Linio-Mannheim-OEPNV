@@ -230,14 +230,14 @@ struct TimedLegCard: View {
     private func intermediateStopRow(_ stop: IntermediateStop) -> some View {
         let delay: Int? = {
             guard let est = stop.estimatedTime else { return nil }
-            return formatter.calculateDelay(timetabled: stop.scheduledTime, estimated: est)
+            return formatter.calculateDelay(timetabled: stop.scheduledTime ?? "", estimated: est)
         }()
         let hasDelay = (delay ?? 0) > 0
 
         HStack(spacing: 10) {
             VStack(alignment: .trailing, spacing: 1) {
                 if hasDelay, let est = stop.estimatedTime {
-                    Text(formatter.formatTime(stop.scheduledTime))
+                    Text(formatter.formatTime(stop.scheduledTime ?? ""))
                         .font(.caption2)
                         .foregroundColor(AppTheme.mutedSoft)
                         .strikethrough(true, color: AppTheme.mutedSoft)
@@ -246,7 +246,7 @@ struct TimedLegCard: View {
                         .fontWeight(.medium)
                         .foregroundColor(.red)
                 } else {
-                    Text(formatter.formatTime(stop.scheduledTime))
+                    Text(formatter.formatTime(stop.scheduledTime ?? ""))
                         .font(.caption)
                         .foregroundColor(AppTheme.muted)
                 }
@@ -268,7 +268,7 @@ struct TimedLegCard: View {
         .accessibilityElement(children: .combine)
         .accessibilityLabel({
             var text = stop.name
-            text += ", \(formatter.formatTime(stop.scheduledTime))"
+            text += ", \(formatter.formatTime(stop.scheduledTime ?? ""))"
             if let d = delay, d > 0 { text += ", +\(d) Minuten Verspätung" }
             return text
         }())

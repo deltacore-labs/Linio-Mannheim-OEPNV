@@ -51,6 +51,7 @@
 		FA3B4C5D6E7F8A9B0C1D2E3A /* WatchComplication.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB3B4C5D6E7F8A9B0C1D2E3B /* WatchComplication.swift */; };
 		FB6B7C8D9E0F1A2B3C4D5E6B /* WatchLocalization.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB6B7C8D9E0F1A2B3C4D5E6C /* WatchLocalization.swift */; };
 		FC7B8C9D0E1F2A3B4C5D6E7A /* WatchCacheManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC7B8C9D0E1F2A3B4C5D6E7B /* WatchCacheManager.swift */; };
+		FD8C9DAE0B1F2A3B4C5D6E7A /* WatchLocationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = FD8C9DAE0B1F2A3B4C5D6E7B /* WatchLocationManager.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -179,6 +180,7 @@
 		FB3B4C5D6E7F8A9B0C1D2E3B /* WatchComplication.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = WatchComplication.swift; sourceTree = "<group>"; };
 		FB6B7C8D9E0F1A2B3C4D5E6C /* WatchLocalization.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = WatchLocalization.swift; sourceTree = "<group>"; };
 		FC7B8C9D0E1F2A3B4C5D6E7B /* WatchCacheManager.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = WatchCacheManager.swift; sourceTree = "<group>"; };
+		FD8C9DAE0B1F2A3B4C5D6E7B /* WatchLocationManager.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = WatchLocationManager.swift; sourceTree = "<group>"; };
 		FED4DB111CF266B7B0CE55D6 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.0.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
 /* End PBXFileReference section */
 
@@ -400,6 +402,7 @@
 				FB3B4C5D6E7F8A9B0C1D2E3B /* WatchComplication.swift */,
 				FB6B7C8D9E0F1A2B3C4D5E6C /* WatchLocalization.swift */,
 				FC7B8C9D0E1F2A3B4C5D6E7B /* WatchCacheManager.swift */,
+				FD8C9DAE0B1F2A3B4C5D6E7B /* WatchLocationManager.swift */,
 				8A6B3F591AE6C55A16B2746B /* LinioWatch.entitlements */,
 			);
 			path = LinioWatch;
@@ -647,6 +650,7 @@
 				FA3B4C5D6E7F8A9B0C1D2E3A /* WatchComplication.swift in Sources */,
 				FB6B7C8D9E0F1A2B3C4D5E6B /* WatchLocalization.swift in Sources */,
 				FC7B8C9D0E1F2A3B4C5D6E7A /* WatchCacheManager.swift in Sources */,
+				FD8C9DAE0B1F2A3B4C5D6E7A /* WatchLocationManager.swift in Sources */,
 				B802ECD0D273B8378428D900 /* ContentView.swift in Sources */,
 				EBED6334CFBEED0A06A3FDAD /* ActiveTripView.swift in Sources */,
 				C711471A5C4F81491F9F7149 /* SavedTripsView.swift in Sources */,

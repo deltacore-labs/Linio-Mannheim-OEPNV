@@ -7,18 +7,21 @@ import SwiftUI
 import CoreLocation
 
 struct ConnectionsView: View {
+    // MARK: - Dependencies (injected)
     @ObservedObject var authService: AuthService
     @ObservedObject var graphQLService: GraphQLService
     @ObservedObject var locationManager: LocationManager
 
     @EnvironmentObject var liveActivityManager: LiveActivityManager
 
+    // MARK: - User Preferences (AppStorage)
     @AppStorage("showDelaysOnly") private var showDelaysOnly = false
     @AppStorage("maxConnections") private var maxConnections = 5
     @AppStorage("enableTram") private var enableTram = true
     @AppStorage("enableBus") private var enableBus = true
     @AppStorage("enableSBahn") private var enableSBahn = true
 
+    // MARK: - View State
     @State private var selectedStartStation: Station?
     @State private var selectedEndStation: Station?
     @State private var showingStationPicker = false
@@ -35,15 +38,17 @@ struct ConnectionsView: View {
     @State private var lastRefresh: Date?
     @State private var isLoadingNearbyStation = false
 
-    // Performance: @StateObject für Singleton
+    // MARK: - Singletons & Environment
     @StateObject private var network = NetworkMonitor.shared
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
+    // MARK: - Constants & Formatters
     private let formatter = DateFormattingHelper.shared
-
     private let maxHeaderHeight: CGFloat = 248
     private let minHeaderHeight: CGFloat = 62
 
+    // MARK: - Computed Properties
+    
     private var collapseProgress: CGFloat {
         min(1, max(0, scrollOffset / (maxHeaderHeight - minHeaderHeight)))
     }

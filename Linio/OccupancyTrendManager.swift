@@ -96,7 +96,8 @@ class OccupancyTrendManager: ObservableObject {
         
         let relevantRecords = records.filter {
             $0.lineName.lowercased() == lineName.lowercased() &&
-            $0.direction.lowercased().contains(direction.lowercased().prefix(10)) &&
+            $0.direction.lowercased().contains(direction.lowercased()) &&
+            $0.stationName.lowercased() == stationName.lowercased() &&
             $0.dayOfWeek == dayOfWeek && $0.hourOfDay == hourOfDay
         }
         guard !relevantRecords.isEmpty else { return nil }
@@ -126,7 +127,13 @@ class OccupancyTrendManager: ObservableObject {
     }
     
     private func saveRecords() {
-        if let encoded = try? JSONEncoder().encode(records) { UserDefaults.standard.set(encoded, forKey: storageKey) }
+        let snapshot = records
+        let key = storageKey
+        Task.detached(priority: .utility) {
+            if let encoded = try? JSONEncoder().encode(snapshot) {
+                UserDefaults.standard.set(encoded, forKey: key)
+            }
+        }
     }
     
     private func loadRecords() {

@@ -25,9 +25,6 @@ class TripDataManager {
     private var cachedTrips: [TripData]?
     private var cachedArchivedTrips: [ArchivedTripData]?
 
-    /// Debounce-WorkItem für Widget-Reloads
-    private var widgetReloadWorkItem: DispatchWorkItem?
-
     static let archivedTripsDidChangeNotification = Notification.Name("TripDataManagerArchivedTripsDidChange")
     
     private init() {
@@ -36,19 +33,18 @@ class TripDataManager {
     
     // MARK: - Widget-Aktualisierung (debounced)
     
+    private static var widgetReloadWorkItem: DispatchWorkItem?
+    
     private func scheduleWidgetReload() {
-        widgetReloadWorkItem?.cancel()
-        let workItem = DispatchWorkItem {
-            WidgetCenter.shared.reloadTimelines(ofKind: "NextDepartureWidget")
-            WidgetCenter.shared.reloadTimelines(ofKind: "ActiveTripsWidget")
-            WidgetCenter.shared.reloadTimelines(ofKind: "QuickSearchWidget")
-            WidgetCenter.shared.reloadTimelines(ofKind: "StationDepartureWidget")
-            #if DEBUG
-            print("🔄 [WIDGET] Alle Widget-Timelines neu geladen")
-            #endif
+        Self.widgetReloadWorkItem?.cancel()
+        let item = DispatchWorkItem {
+            WidgetCenter.shared.reloadTimelines(ofKind: WidgetKind.nextDeparture.rawValue)
+            WidgetCenter.shared.reloadTimelines(ofKind: WidgetKind.activeTrips.rawValue)
+            WidgetCenter.shared.reloadTimelines(ofKind: WidgetKind.quickSearch.rawValue)
+            WidgetCenter.shared.reloadTimelines(ofKind: WidgetKind.stationDeparture.rawValue)
         }
-        widgetReloadWorkItem = workItem
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5, execute: workItem)
+        Self.widgetReloadWorkItem = item
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5, execute: item)
     }
     
     // MARK: - Trip speichern
@@ -57,9 +53,7 @@ class TripDataManager {
         queue.async { [weak self] in
             guard let self = self else { return }
             guard let defaults = self.userDefaults else {
-                #if DEBUG
-                print("❌ [TRIPDATA] UserDefaults konnte nicht geladen werden")
-                #endif
+                DebugLog.tripdata("❌ UserDefaults konnte nicht geladen werden")
                 return
             }
             
@@ -100,14 +94,10 @@ class TripDataManager {
                     NotificationService.shared.schedule(trip: tripData, minutesBefore: minutes == 0 ? 10 : minutes)
                 }
 
-                #if DEBUG
-                print("✅ [TRIPDATA] Trip gespeichert: \(String(trip.id.uuidString.prefix(8)))")
-                #endif
+                DebugLog.tripdata("✅ Trip gespeichert: \(String(trip.id.uuidString.prefix(8)))")
                 
             } catch {
-                #if DEBUG
-                print("❌ [TRIPDATA] Fehler beim Speichern: \(error)")
-                #endif
+                DebugLog.tripdata("❌ Fehler beim Speichern: \(error)")
             }
             
             self.scheduleWidgetReload()

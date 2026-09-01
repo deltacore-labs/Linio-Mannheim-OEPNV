@@ -32,7 +32,7 @@ struct FavoriteStation: Identifiable, Codable, Equatable {
     }
     
     var icon: String {
-        if customLabel != nil && !customLabel!.isEmpty { return "star.fill" }
+        if let custom = customLabel, !custom.isEmpty { return "star.fill" }
         return label.icon
     }
     
@@ -87,6 +87,7 @@ enum FavoriteLabel: String, Codable, CaseIterable, Identifiable {
 
 // MARK: - FavoriteStationsManager
 
+@MainActor
 class FavoriteStationsManager: ObservableObject {
     static let shared = FavoriteStationsManager()
     
@@ -145,10 +146,14 @@ class FavoriteStationsManager: ObservableObject {
     // MARK: - Persistence
     
     private func saveFavorites() {
-        guard let data = try? JSONEncoder().encode(favorites) else { return }
-        UserDefaults.standard.set(data, forKey: userDefaultsKey)
-        if let groupDefaults = UserDefaults(suiteName: AppConfiguration.appGroupID) {
-            groupDefaults.set(data, forKey: "widgetFavoriteStations")
+        do {
+            let data = try JSONEncoder().encode(favorites)
+            if let groupDefaults = UserDefaults(suiteName: AppConfiguration.appGroupID) {
+                groupDefaults.set(data, forKey: AppConfiguration.UserDefaultsKey.widgetFavoriteStations.rawValue)
+            }
+            UserDefaults.standard.set(data, forKey: userDefaultsKey)
+        } catch {
+            plog("FavoriteStationsManager: Fehler beim Speichern der Favoriten: \(error)")
         }
     }
     

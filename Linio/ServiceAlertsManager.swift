@@ -31,13 +31,10 @@ struct ServiceAlert: Identifiable, Codable, Equatable {
     }
     
     var formattedValidityPeriod: String {
-        let df = DateFormatter()
-        df.dateStyle = .short
-        df.timeStyle = .short
-        df.locale = Locale(identifier: "de_DE")
-        let from = df.string(from: validFrom)
+        let formatter = DateFormattingHelper.shared
+        let from = formatter.formatDateTimeShort(validFrom)
         if let until = validUntil {
-            return "\(from) – \(df.string(from: until))"
+            return "\(from) – \(formatter.formatDateTimeShort(until))"
         }
         return "Ab \(from)"
     }

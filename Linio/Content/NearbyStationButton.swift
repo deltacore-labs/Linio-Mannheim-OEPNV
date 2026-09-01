@@ -8,6 +8,26 @@
 import SwiftUI
 import CoreLocation
 
+// MARK: - Gemeinsame Such-Logik
+
+enum NearbyStationFinder {
+    enum Result { case success(Station), locationUnavailable, authFailed, noStationsFound }
+    
+    static func find(locationManager: LocationManager, graphQLService: GraphQLService, authService: AuthService) async -> Result {
+        if locationManager.location == nil {
+            locationManager.startLocationUpdates()
+            try? await Task.sleep(nanoseconds: 1_500_000_000)
+        }
+        guard let loc = locationManager.location else { return .locationUnavailable }
+        guard let token = await authService.ensureValidToken(), !token.isEmpty else { return .authFailed }
+        await graphQLService.searchStations(lat: loc.latitude, lon: loc.longitude, accessToken: token)
+        guard let nearest = graphQLService.stations.first else { return .noStationsFound }
+        return .success(nearest)
+    }
+}
+
+// MARK: - Hauptbutton
+
 struct NearbyStationButton: View {
     @ObservedObject var locationManager: LocationManager
     @ObservedObject var graphQLService: GraphQLService
@@ -63,61 +83,27 @@ struct NearbyStationButton: View {
     private func findNearestStation() async {
         isLoading = true
         HapticHelper.impact(.light)
-        
         defer { isLoading = false }
         
-        if locationManager.location == nil {
-            locationManager.startLocationUpdates()
-            // Warte kurz auf Standort
-            try? await Task.sleep(nanoseconds: 1_500_000_000)
-            guard locationManager.location != nil else {
-                errorMessage = "Standort nicht verfügbar. Bitte Standortzugriff erlauben."
-                showError = true
-                HapticHelper.notification(.warning)
-                return
-            }
-        }
-        
-        guard let currentLocation = locationManager.location else {
-            errorMessage = "Standort konnte nicht ermittelt werden"
-            showError = true
-            HapticHelper.notification(.warning)
-            return
-        }
-        
-        // Token sicherstellen
-        if !authService.isTokenValid {
-            await authService.autoAuthenticate()
-        }
-        
-        guard let token = authService.accessToken, !token.isEmpty else {
+        let result = await NearbyStationFinder.find(locationManager: locationManager, graphQLService: graphQLService, authService: authService)
+        switch result {
+        case .success(let station):
+            HapticHelper.impact(.medium)
+            onStationSelected(station)
+        case .locationUnavailable:
+            errorMessage = "Standort nicht verfügbar. Bitte Standortzugriff erlauben."
+            showError = true; HapticHelper.notification(.warning)
+        case .authFailed:
             errorMessage = "Authentifizierung fehlgeschlagen"
-            showError = true
-            HapticHelper.notification(.error)
-            return
-        }
-        
-        // Stationen in der Nähe laden
-        await graphQLService.searchStations(
-            lat: currentLocation.latitude,
-            lon: currentLocation.longitude,
-            accessToken: token
-        )
-        
-        // Nächste Station finden
-        guard let nearest = graphQLService.stations.first else {
+            showError = true; HapticHelper.notification(.error)
+        case .noStationsFound:
             errorMessage = "Keine Haltestellen in der Nähe gefunden"
-            showError = true
-            HapticHelper.notification(.warning)
-            return
+            showError = true; HapticHelper.notification(.warning)
         }
-        
-        HapticHelper.impact(.medium)
-        onStationSelected(nearest)
     }
 }
 
-// MARK: - Kompakte Version für Header
+// MARK: - Kompakte Version
 
 struct NearbyStationCompactButton: View {
     @ObservedObject var locationManager: LocationManager
@@ -133,55 +119,28 @@ struct NearbyStationCompactButton: View {
         } label: {
             HStack(spacing: 6) {
                 if isLoading {
-                    ProgressView()
-                        .scaleEffect(0.65)
-                        .tint(AppTheme.primaryColor)
+                    ProgressView().scaleEffect(0.65).tint(AppTheme.primaryColor)
                 } else {
-                    Image(systemName: "location.fill")
-                        .font(.system(size: 11, weight: .semibold))
+                    Image(systemName: "location.fill").font(.system(size: 11, weight: .semibold))
                 }
-                Text("In der Nähe")
-                    .font(.system(size: 12, weight: .semibold))
+                Text("In der Nähe").font(.system(size: 12, weight: .semibold))
             }
             .foregroundColor(AppTheme.primaryColor)
             .padding(.horizontal, 12)
             .padding(.vertical, 6)
-            .background(
-                Capsule()
-                    .fill(AppTheme.primaryColor.opacity(0.1))
-            )
+            .background(Capsule().fill(AppTheme.primaryColor.opacity(0.1)))
         }
         .disabled(isLoading)
     }
     
     private func findNearestStation() async {
-        if locationManager.location == nil {
-            locationManager.startLocationUpdates()
-            try? await Task.sleep(nanoseconds: 1_500_000_000)
-            guard locationManager.location != nil else { return }
-        }
-        
-        guard let currentLocation = locationManager.location else { return }
-        
         isLoading = true
         HapticHelper.impact(.light)
         defer { isLoading = false }
         
-        if !authService.isTokenValid {
-            await authService.autoAuthenticate()
+        if case .success(let station) = await NearbyStationFinder.find(locationManager: locationManager, graphQLService: graphQLService, authService: authService) {
+            HapticHelper.impact(.medium)
+            onStationSelected(station)
         }
-        
-        guard let token = authService.accessToken, !token.isEmpty else { return }
-        
-        await graphQLService.searchStations(
-            lat: currentLocation.latitude,
-            lon: currentLocation.longitude,
-            accessToken: token
-        )
-        
-        guard let nearest = graphQLService.stations.first else { return }
-        
-        HapticHelper.impact(.medium)
-        onStationSelected(nearest)
     }
 }

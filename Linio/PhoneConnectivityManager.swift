@@ -87,7 +87,7 @@ final class PhoneConnectivityManager: NSObject {
               WCSession.default.isWatchAppInstalled
         else { return }
 
-        let defaults = UserDefaults(suiteName: "group.com.stefanfriedrich.rnvapp")
+        let defaults = UserDefaults(suiteName: AppConfiguration.appGroupID)
 
         var context = WCSession.default.applicationContext
         if let tripData = defaults?.data(forKey: "plannedTripData") {
@@ -165,7 +165,7 @@ extension PhoneConnectivityManager: WCSessionDelegate {
                   let lon = message[WatchMessageKey.longitude] as? Double {
             Task { await searchNearbyStationsAndReply(lat: lat, lon: lon, replyHandler: replyHandler) }
         } else if message["requestTripData"] != nil {
-            let defaults = UserDefaults(suiteName: "group.com.stefanfriedrich.rnvapp")
+            let defaults = UserDefaults(suiteName: AppConfiguration.appGroupID)
             var reply: [String: Any] = [:]
             if let tripData = defaults?.data(forKey: "plannedTripData") {
                 reply["plannedTripData"] = tripData

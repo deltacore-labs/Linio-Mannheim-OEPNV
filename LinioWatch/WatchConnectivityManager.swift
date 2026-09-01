@@ -124,7 +124,8 @@ class WatchConnectivityManager: NSObject, ObservableObject {
             if retryCount < maxRetries {
                 retryCount += 1
                 log("→ Retry in 2 Sekunden...")
-                DispatchQueue.main.asyncAfter(deadline: .now() + 2) { [weak self] in
+                Task { @MainActor [weak self] in
+                    try? await Task.sleep(nanoseconds: 2_000_000_000)
                     guard let self, let id = self.pendingStationID, let name = self.pendingStationName else { return }
                     self.requestDeparturesInternal(stationID: id, stationName: name)
                 }
@@ -299,8 +300,11 @@ class WatchConnectivityManager: NSObject, ObservableObject {
             log("requestDirectly: \(result.count) Abfahrten erhalten")
             departures = result
         } else {
-            log("requestDirectly: Fehler – keine Daten zurückgekommen")
-            lastError = "Keine Verbindung"
+            let errMsg = WatchDirectService.shared.isTokenExpired
+                ? "Token abgelaufen – iPhone verbinden"
+                : "Keine Verbindung"
+            log("requestDirectly: Fehler – \(errMsg)")
+            lastError = errMsg
         }
         isLoading = false
     }
@@ -409,19 +413,14 @@ extension WatchConnectivityManager: WCSessionDelegate {
             }
         }
 
-        // Trip-Daten vom iPhone in lokale UserDefaults speichern
-        let defaults = UserDefaults(suiteName: "group.com.stefanfriedrich.rnvapp")
-        var tripDataUpdated = false
-        if let tripData = applicationContext["plannedTripData"] as? Data {
-            defaults?.set(tripData, forKey: "plannedTripData")
-            tripDataUpdated = true
-        }
-        if let savedData = applicationContext["savedTripData"] as? Data {
-            defaults?.set(savedData, forKey: "savedTripData")
-            tripDataUpdated = true
-        }
-        if tripDataUpdated {
+        // Trip-Daten vom iPhone in lokale UserDefaults speichern (atomar auf MainActor)
+        let plannedTripData = applicationContext["plannedTripData"] as? Data
+        let savedTripData = applicationContext["savedTripData"] as? Data
+        if plannedTripData != nil || savedTripData != nil {
             Task { @MainActor in
+                let defaults = UserDefaults(suiteName: "group.com.stefanfriedrich.rnvapp")
+                if let data = plannedTripData { defaults?.set(data, forKey: "plannedTripData") }
+                if let data = savedTripData   { defaults?.set(data, forKey: "savedTripData") }
                 self.log("appContext: Fahrtdaten gespeichert")
                 self.onContextUpdated?()
             }

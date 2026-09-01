@@ -13,10 +13,6 @@ struct WidgetTripData: Codable, Identifiable, Equatable {
     let startStation: String
     let endStation: String
     let legs: [WidgetTripLegData]
-    
-    static func == (lhs: WidgetTripData, rhs: WidgetTripData) -> Bool {
-        lhs.id == rhs.id && lhs.startTime == rhs.startTime && lhs.endTime == rhs.endTime
-    }
 }
 
 struct WidgetTripLegData: Codable, Equatable {
@@ -68,10 +64,6 @@ struct WatchDeparture: Identifiable, Codable, Equatable {
     let estimatedTime: String?
     let serviceType: String?
     let delayMinutes: Int?
-    
-    static func == (lhs: WatchDeparture, rhs: WatchDeparture) -> Bool {
-        lhs.id == rhs.id && lhs.scheduledTime == rhs.scheduledTime
-    }
 }
 
 // MARK: - Trip Phase
@@ -141,7 +133,7 @@ struct WatchDateHelper {
 
     static func durationString(start: String, end: String) -> String {
         guard let s = parse(start), let e = parse(end) else { return "?" }
-        let mins = Int(e.timeIntervalSince(s) / 60)
+        let mins = max(0, Int(e.timeIntervalSince(s) / 60))
         return "\(mins) min"
     }
 
@@ -189,20 +181,26 @@ struct WatchStyleHelper {
     }
 
     static func shortName(_ name: String?) -> String {
-        (name ?? "?")
+        let stripped = (name ?? "?")
             .replacingOccurrences(of: "RNV ", with: "")
             .replacingOccurrences(of: "rnv ", with: "")
             .replacingOccurrences(of: "Linie ", with: "")
+        // Richtungssuffix entfernen: z.B. "3-3" → "3" (wie TransportIconHelper.getShortLineName)
+        return stripped.replacingOccurrences(of: "-\\d+$", with: "", options: .regularExpression)
     }
 
+    // Analog zu TransportIconHelper in Linio/Helpers.swift – bei Änderungen dort auch hier anpassen
     private static func isSBahn(_ t: String, _ n: String) -> Bool {
         if t.contains("S_BAHN") || t.contains("SBAHN") || t.contains("SUBURBAN") { return true }
         return n.count >= 2 && n.hasPrefix("S") && n.dropFirst().first?.isNumber == true
     }
 
+    // Analog zu TransportIconHelper.isLongDistanceLine in Linio/Helpers.swift
     private static func isLongDistance(_ t: String, _ n: String) -> Bool {
         if t.contains("ICE") || t.contains("INTERCITY") || t.contains("FERNVERKEHR") { return true }
-        return n.hasPrefix("ICE") || n.hasPrefix("IC") || n.hasPrefix("EC")
+        // Analog zu TransportIconHelper.isLongDistanceLine in Linio/Helpers.swift
+        return n.hasPrefix("ICE") || n.hasPrefix("IC") || n.hasPrefix("EC") ||
+               n.hasPrefix("TGV") || n.hasPrefix("RJX") || n.hasPrefix("FLX")
     }
 
     private static func isRegional(_ t: String, _ n: String) -> Bool {

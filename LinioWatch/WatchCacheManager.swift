@@ -43,15 +43,16 @@ final class WatchCacheManager: ObservableObject {
         }
     }
     
-    private let defaults = UserDefaults.standard
+    private let defaults = UserDefaults(suiteName: "group.com.stefanfriedrich.rnvapp") ?? .standard
     private init() { loadFavorites(); loadLastSelectedStation() }
     
     // MARK: - Departures Cache
     
     func cacheDepartures(_ departures: [WatchDeparture], forStation stationID: String) {
-        let entry = CacheEntry(data: departures, timestamp: Date(), ttlSeconds: TTL.departures)
+        let now = Date()
+        let entry = CacheEntry(data: departures, timestamp: now, ttlSeconds: TTL.departures)
         save(entry, forKey: "\(CacheKey.departures.rawValue)_\(stationID)")
-        let offline = CacheEntry(data: departures, timestamp: Date(), ttlSeconds: TTL.offlineData)
+        let offline = CacheEntry(data: departures, timestamp: now, ttlSeconds: TTL.offlineData)
         save(offline, forKey: "\(CacheKey.offlineDepartures.rawValue)_\(stationID)")
     }
     
@@ -125,7 +126,11 @@ final class WatchCacheManager: ObservableObject {
     
     func clearAllCaches() {
         defaults.dictionaryRepresentation().keys
-            .filter { $0.hasPrefix(CacheKey.departures.rawValue) || $0.hasPrefix(CacheKey.connections.rawValue) }
+            .filter {
+                $0.hasPrefix(CacheKey.departures.rawValue) ||
+                $0.hasPrefix(CacheKey.connections.rawValue) ||
+                $0.hasPrefix(CacheKey.offlineDepartures.rawValue)
+            }
             .forEach { defaults.removeObject(forKey: $0) }
         cacheStats = CacheStats()
     }

@@ -12,28 +12,36 @@ import Security
 /// Verschlüsselungsservice mit AES-256-GCM (Standard-Algorithmus)
 /// Verwendet zusätzlich zur nativen Apple Keychain-Verschlüsselung
 class EncryptionService {
-    
+
     static let shared = EncryptionService()
-    
+
     private let keychainService = "com.stefanfriedrich.rnvapp.encryption"
     private let masterKeyTag = "masterEncryptionKey"
-    
+    private let lock = NSLock()
+    private var cachedKey: SymmetricKey?
+
     private init() {}
-    
+
     // MARK: - Master Key Management
-    
+
     /// Generiert oder lädt den Master-Verschlüsselungsschlüssel aus dem Keychain
     func getMasterKey() throws -> SymmetricKey {
+        lock.lock()
+        defer { lock.unlock() }
+        if let key = cachedKey { return key }
+        let key: SymmetricKey
         do {
-            return try loadKeyFromKeychain()
+            key = try loadKeyFromKeychain()
         } catch EncryptionError.keychainError(let status) where status == errSecItemNotFound {
             // Kein Key vorhanden — erstmalig generieren
             let newKey = SymmetricKey(size: .bits256)
             try saveKeyToKeychain(newKey)
-            return newKey
+            key = newKey
         }
         // Alle anderen Keychain-Fehler (z.B. errSecInteractionNotAllowed) werden nach oben weitergegeben,
         // damit kein neuer Key den vorhandenen überschreibt.
+        cachedKey = key
+        return key
     }
     
     /// Speichert einen Schlüssel sicher im Keychain (Apple's native Verschlüsselung)
@@ -146,7 +154,8 @@ enum EncryptionError: LocalizedError {
     case encryptionFailed
     case invalidCiphertext
     case decodingFailed
-    
+    case encodingFailed
+
     var errorDescription: String? {
         switch self {
         case .keychainError(let status):
@@ -157,6 +166,8 @@ enum EncryptionError: LocalizedError {
             return "Ungültiger verschlüsselter Text"
         case .decodingFailed:
             return "Dekodierung fehlgeschlagen"
+        case .encodingFailed:
+            return "Kodierung fehlgeschlagen"
         }
     }
 }

@@ -158,9 +158,10 @@ class SecureConfigurationManager {
     }
     
     // MARK: - Encryption Helper (für Entwickler)
-    
+
     /// Hilfsfunktion: Verschlüsselt die aktuellen Secrets aus Info.plist
     /// Nur für Setup - nicht in Production verwenden!
+    #if DEBUG
     func generateEncryptedSecretsFile() throws -> String {
         let secrets = [
             // RNV Secrets
@@ -187,8 +188,5 @@ class SecureConfigurationManager {
         
         return jsonString
     }
-}
-
-extension EncryptionError {
-    static let encodingFailed = EncryptionError.decodingFailed
+    #endif
 }

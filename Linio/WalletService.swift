@@ -152,9 +152,15 @@ final class WalletPassGenerator {
             files["background@3x.png"] = bg
         }
         
-        // strip.png (optional — shown behind primary fields on Apple Watch)
-        // Apple Watch 38mm: 312x123 @2x (624x246 pixels)
-        // Apple Watch 42mm+: 375x144 @2x (750x288 pixels)
+        // thumbnail.png (für generic Pass-Typ auf iPhone und Apple Watch)
+        // iPhone: 90x90 @1x, 180x180 @2x, 270x270 @3x
+        // Apple Watch: 80x80 @2x (160x160 pixels)
+        if let thumb1x = makeThumbnailData(size: 90)  { files["thumbnail.png"]    = thumb1x }
+        if let thumb2x = makeThumbnailData(size: 180) { files["thumbnail@2x.png"] = thumb2x }
+        if let thumb3x = makeThumbnailData(size: 270) { files["thumbnail@3x.png"] = thumb3x }
+        
+        // strip.png (für boarding pass, coupon, event ticket auf Apple Watch)
+        // Nicht für generic Pass-Typ, aber wir fügen es trotzdem hinzu für Kompatibilität
         if let strip = makeStripImageData() {
             files["strip.png"]    = strip
             files["strip@2x.png"] = strip
@@ -273,6 +279,8 @@ final class WalletPassGenerator {
             "labelColor":         "rgb(170, 170, 170)",
             "webServiceURL":      WalletConfig.webServiceURL,
             "authenticationToken": WalletConfig.authToken,
+            // Apple Watch Sync - muss false sein damit Pass auf Watch erscheint
+            "sharingProhibited":  false,
         ]
 
         var primaryFields: [[String: Any]] = []
@@ -601,6 +609,18 @@ final class WalletPassGenerator {
             cornerRadius: 0,
             xOrigin: 20,
             background: .clear
+        )?.pngData()
+    }
+    
+    /// Thumbnail image for generic pass type (shown on iPhone and Apple Watch)
+    private func makeThumbnailData(size: CGFloat) -> Data? {
+        let scale = size / 90
+        return renderDTicketBars(
+            canvasSize: CGSize(width: size, height: size),
+            vPadding: 10 * scale,
+            cornerRadius: 16 * scale,
+            xOrigin: nil,
+            background: UIColor(red: 44/255, green: 44/255, blue: 44/255, alpha: 1)
         )?.pngData()
     }
     

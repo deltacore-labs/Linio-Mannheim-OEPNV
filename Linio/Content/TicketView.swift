@@ -430,6 +430,7 @@ struct TicketView: View {
     @State private var showRenewalWalletHint = false
     @State private var showWalletUpdatedBanner = false
     @State private var showWalletUpdatedAlert = false
+    @State private var showAddToWalletBanner = false
 
     private let scanner = TicketScanService()
 
@@ -447,6 +448,7 @@ struct TicketView: View {
             }
             .overlay(alignment: .top) {
                 if showWalletUpdatedBanner { walletUpdatedBanner }
+                if showAddToWalletBanner { addToWalletBanner }
             }
             .navigationTitle("Tickets")
             .navigationBarTitleDisplayMode(.large)
@@ -519,13 +521,6 @@ struct TicketView: View {
             if let ticket {
                 TicketRenewalSheet(
                     ticket: ticket,
-                    onRenewed: {
-                        let renewed = TicketRenewalService.shared.advanceToNextMonth(ticket)
-                        TicketRenewalService.shared.clearSnooze()
-                        applyTicket(renewed, barcode: barcodeImage)
-                        Task { await TicketRenewalService.shared.scheduleRenewalNotification(for: renewed) }
-                        Task { await silentlyRenewWalletPass(for: renewed) }
-                    },
                     onSnoozed: {
                         TicketRenewalService.shared.snooze()
                     },
@@ -729,6 +724,36 @@ struct TicketView: View {
             }
         }
     }
+    
+    private var addToWalletBanner: some View {
+        Button {
+            withAnimation(.easeInOut(duration: 0.3)) { showAddToWalletBanner = false }
+            Task { await addToWallet() }
+        } label: {
+            HStack(spacing: 8) {
+                Image(systemName: "wallet.pass")
+                Text("Zu Apple Wallet hinzufügen")
+                    .font(.subheadline.weight(.medium))
+                Image(systemName: "chevron.right")
+                    .font(.caption.weight(.semibold))
+            }
+            .foregroundStyle(.white)
+            .padding(.horizontal, 16)
+            .padding(.vertical, 10)
+            .background(Color.black.opacity(0.85))
+            .clipShape(Capsule())
+            .shadow(color: .black.opacity(0.2), radius: 6, y: 3)
+        }
+        .buttonStyle(.plain)
+        .padding(.top, 8)
+        .transition(.move(edge: .top).combined(with: .opacity))
+        .onAppear {
+            Task { @MainActor in
+                try? await Task.sleep(nanoseconds: 5_000_000_000) // 5 Sekunden
+                withAnimation(.easeInOut(duration: 0.3)) { showAddToWalletBanner = false }
+            }
+        }
+    }
 
     @MainActor
     private func autoRenewWalletPassIfPresent(for ticket: DeutschlandTicket) async {
@@ -738,17 +763,26 @@ struct TicketView: View {
             let passData  = try generator.generatePass(for: ticket, barcodeImage: barcodeImage)
             let newPass   = try PKPass(data: passData)
             let library   = PKPassLibrary()
-            guard library.passes().contains(where: {
+            let passExists = library.passes().contains(where: {
                 $0.serialNumber == newPass.serialNumber &&
                 $0.passTypeIdentifier == newPass.passTypeIdentifier
-            }) else { return }
-            library.replacePass(with: newPass)
-            try? await generator.uploadPass(passData, passTypeIdentifier: newPass.passTypeIdentifier, serialNumber: newPass.serialNumber)
-            withAnimation(.easeInOut(duration: 0.3)) { showWalletUpdatedBanner = true }
+            })
+            
+            if passExists {
+                // Pass existiert bereits → aktualisieren
+                library.replacePass(with: newPass)
+                try? await generator.uploadPass(passData, passTypeIdentifier: newPass.passTypeIdentifier, serialNumber: newPass.serialNumber)
+                withAnimation(.easeInOut(duration: 0.3)) { showWalletUpdatedBanner = true }
+            } else {
+                // Kein Pass vorhanden → Hinweis zum Hinzufügen anzeigen
+                withAnimation(.easeInOut(duration: 0.3)) { showAddToWalletBanner = true }
+            }
         } catch {
             #if DEBUG
             print("❌ [WALLET] Auto-Renewal-Fehler: \(error)")
             #endif
+            // Bei Fehler trotzdem Banner anzeigen (z.B. wenn Barcode fehlt)
+            withAnimation(.easeInOut(duration: 0.3)) { showAddToWalletBanner = true }
         }
     }
 
@@ -902,6 +936,12 @@ struct TicketView: View {
     }
 
     private func deleteTicket() {
+        // Entferne den Pass aus dem Wallet, falls vorhanden
+        if let ticket = ticket {
+            let generator = WalletPassGenerator()
+            generator.removePass(for: ticket)
+        }
+        
         ticket = nil
         barcodeImage = nil
         storedJSON = ""
@@ -1402,7 +1442,6 @@ private struct AddToWalletButton: UIViewRepresentable {
 
 struct TicketRenewalSheet: View {
     let ticket: DeutschlandTicket
-    let onRenewed: () -> Void
     let onSnoozed: () -> Void
     let onRescan: () -> Void
     @Environment(\.dismiss) private var dismiss
@@ -1431,31 +1470,18 @@ struct TicketRenewalSheet: View {
             }
 
             VStack(spacing: 12) {
+                // Hauptaktion: Neues Ticket scannen (QR-Code ändert sich bei Verlängerung)
                 Button {
-                    onRenewed()
+                    onRescan()
                     dismiss()
                 } label: {
-                    Text("Ja, Ticket aktualisieren")
+                    Text("Ja, neues Ticket scannen")
                         .font(.headline)
                         .foregroundStyle(.white)
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 15)
                         .background(AppTheme.primary)
                         .clipShape(RoundedRectangle(cornerRadius: 14))
-                }
-
-                Button {
-                    onRescan()
-                    dismiss()
-                } label: {
-                    Text("Neu einscannen")
-                        .font(.subheadline.weight(.medium))
-                        .foregroundStyle(AppTheme.ink)
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 13)
-                        .background(AppTheme.surfaceCard)
-                        .clipShape(RoundedRectangle(cornerRadius: 14))
-                        .overlay(RoundedRectangle(cornerRadius: 14).stroke(AppTheme.hairline, lineWidth: 1))
                 }
 
                 Button("Nicht jetzt") {

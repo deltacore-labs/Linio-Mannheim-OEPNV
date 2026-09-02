@@ -131,11 +131,15 @@ final class WalletPassGenerator {
         #endif
 
         // icon.png (required by PassKit — must be present)
+        // iPhone: 29x29 @1x, 58x58 @2x, 87x87 @3x
+        // Apple Watch: 29x29 @2x (58x58 pixels)
         if let icon1x = makeIconData(size: 29) { files["icon.png"]    = icon1x }
         if let icon2x = makeIconData(size: 58) { files["icon@2x.png"] = icon2x }
         if let icon3x = makeIconData(size: 87) { files["icon@3x.png"] = icon3x }
 
         // logo.png (some PassKit implementations require it alongside logoText)
+        // iPhone: 160x50 @1x, 320x100 @2x
+        // Apple Watch: 150x40 @2x (300x80 pixels)
         if let logo = makeLogoImageData() {
             files["logo.png"]    = logo
             files["logo@2x.png"] = logo
@@ -146,6 +150,14 @@ final class WalletPassGenerator {
             files["background.png"]    = bg
             files["background@2x.png"] = bg
             files["background@3x.png"] = bg
+        }
+        
+        // strip.png (optional — shown behind primary fields on Apple Watch)
+        // Apple Watch 38mm: 312x123 @2x (624x246 pixels)
+        // Apple Watch 42mm+: 375x144 @2x (750x288 pixels)
+        if let strip = makeStripImageData() {
+            files["strip.png"]    = strip
+            files["strip@2x.png"] = strip
         }
 
 
@@ -185,6 +197,33 @@ final class WalletPassGenerator {
         return try packageAsZip(files)
     }
 
+    /// Removes the Wallet pass for the given ticket from PKPassLibrary.
+    /// Returns true if a pass was found and removed.
+    @discardableResult
+    func removePass(for ticket: DeutschlandTicket) -> Bool {
+        let serial = stableSerial(for: ticket)
+        let library = PKPassLibrary()
+        let passes = library.passes()
+        
+        guard let passToRemove = passes.first(where: {
+            $0.serialNumber == serial &&
+            $0.passTypeIdentifier == WalletConfig.passTypeIdentifier
+        }) else {
+            #if DEBUG
+            print("🗑️ [WALLET] Kein Pass gefunden für Serial: \(serial)")
+            #endif
+            WalletDebugLogger.shared.debug("Kein Pass zum Entfernen gefunden", details: "Serial: \(serial)")
+            return false
+        }
+        
+        library.removePass(passToRemove)
+        #if DEBUG
+        print("🗑️ [WALLET] Pass entfernt: \(serial)")
+        #endif
+        WalletDebugLogger.shared.success("Pass aus Wallet entfernt", details: "Serial: \(serial)")
+        return true
+    }
+    
     /// Uploads the signed .pkpass to the Linio Wallet API so Wallet can fetch updates.
     /// Best-effort — errors are silently ignored by callers.
     func uploadPass(_ data: Data, passTypeIdentifier: String, serialNumber: String) async throws {
@@ -563,6 +602,51 @@ final class WalletPassGenerator {
             xOrigin: 20,
             background: .clear
         )?.pngData()
+    }
+    
+    /// Strip image for Apple Watch - shown behind primary fields
+    /// Size: 375x144 @2x = 750x288 pixels (for 42mm+ watches)
+    private func makeStripImageData() -> Data? {
+        let size = CGSize(width: 750, height: 288)
+        let format = UIGraphicsImageRendererFormat()
+        format.scale = 1.0
+        let renderer = UIGraphicsImageRenderer(size: size, format: format)
+        
+        return renderer.image { ctx in
+            let cgCtx = ctx.cgContext
+            
+            // Dunkler Hintergrund passend zum Pass
+            UIColor(red: 44/255, green: 44/255, blue: 44/255, alpha: 1).setFill()
+            UIBezierPath(rect: CGRect(origin: .zero, size: size)).fill()
+            
+            // DTicket-Balken oben links (dezent)
+            if let barsImage = renderDTicketBars(
+                canvasSize: CGSize(width: 200, height: 80),
+                vPadding: 8,
+                cornerRadius: 0,
+                xOrigin: 10,
+                background: .clear
+            ) {
+                barsImage.draw(at: CGPoint(x: 20, y: 20))
+            }
+            
+            // Subtiler Gradient-Overlay von unten
+            let gradientColors = [
+                UIColor.clear.cgColor,
+                UIColor(white: 0, alpha: 0.3).cgColor
+            ]
+            let gradient = CGGradient(
+                colorsSpace: CGColorSpaceCreateDeviceRGB(),
+                colors: gradientColors as CFArray,
+                locations: [0.0, 1.0]
+            )!
+            cgCtx.drawLinearGradient(
+                gradient,
+                start: CGPoint(x: size.width / 2, y: 0),
+                end: CGPoint(x: size.width / 2, y: size.height),
+                options: []
+            )
+        }.pngData()
     }
 
     /// Renders the nine DTicket gradient bars. Bar specs match DTicketLogoView exactly.

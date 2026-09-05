@@ -351,103 +351,68 @@ struct TripCard: View {
     }
 }
 
-// MARK: - Swipeable Trip Card
+// MARK: - Swipeable Trip Card (UIKit-basiert)
 
-/// Eine TripCard mit Swipe-Gesten für Live Activity und Teilen
-struct SwipeableTripCard: View {
+/// Eine TripCard mit UIKit SwipeGestureRecognizer für zuverlässige Swipe-Erkennung
+struct SwipeableTripCard: UIViewControllerRepresentable {
     let trip: DetailedTrip
     let onTap: () -> Void
     let onLiveActivity: () -> Void
     let onShare: () -> Void
     
-    @State private var offset: CGFloat = 0
-    @State private var isSwiping = false
-    
-    private let actionThreshold: CGFloat = 70
-    private let maxOffset: CGFloat = 90
-    
-    var body: some View {
-        ZStack(alignment: .leading) {
-            // Hintergrund-Aktionen
-            HStack(spacing: 0) {
-                // Linke Aktion (Teilen)
-                actionButton(icon: "square.and.arrow.up", text: "Teilen", 
-                           color: AppTheme.primaryColor, isActive: offset > actionThreshold)
-                    .frame(width: max(offset, 0))
-                    .clipped()
-                
-                Spacer()
-                
-                // Rechte Aktion (Live Activity)
-                actionButton(icon: "bolt.fill", text: "Live",
-                           color: .green, isActive: offset < -actionThreshold)
-                    .frame(width: max(-offset, 0))
-                    .clipped()
-            }
-            
-            // Die eigentliche TripCard
-            Button(action: {
-                if !isSwiping { onTap() }
-            }) {
-                TripCard(trip: trip)
-            }
-            .buttonStyle(.plain)
-            .offset(x: offset)
-            .gesture(
-                DragGesture(minimumDistance: 15)
-                    .onChanged { value in
-                        isSwiping = true
-                        let translation = value.translation.width
-                        // Nur horizontale Swipes verarbeiten
-                        guard abs(translation) > abs(value.translation.height) else { return }
-                        // Elastischer Widerstand
-                        withAnimation(.interactiveSpring(response: 0.15, dampingFraction: 0.86)) {
-                            if translation > 0 {
-                                offset = min(translation * 0.7, maxOffset)
-                            } else {
-                                offset = max(translation * 0.7, -maxOffset)
-                            }
-                        }
-                    }
-                    .onEnded { value in
-                        let velocity = value.predictedEndTranslation.width - value.translation.width
-                        withAnimation(.spring(response: 0.32, dampingFraction: 0.72)) {
-                            if offset > actionThreshold || (offset > 25 && velocity > 80) {
-                                offset = 0
-                                onShare()
-                            } else if offset < -actionThreshold || (offset < -25 && velocity < -80) {
-                                offset = 0
-                                onLiveActivity()
-                            } else {
-                                offset = 0
-                            }
-                        }
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.12) { isSwiping = false }
-                    }
-            )
-        }
+    func makeUIViewController(context: Context) -> SwipeableHostingController<TripCard> {
+        let hostingController = SwipeableHostingController(rootView: TripCard(trip: trip))
+        hostingController.onTap = onTap
+        hostingController.onSwipeLeft = onLiveActivity
+        hostingController.onSwipeRight = onShare
+        return hostingController
     }
     
-    @ViewBuilder
-    private func actionButton(icon: String, text: String, color: Color, isActive: Bool) -> some View {
-        VStack(spacing: 5) {
-            ZStack {
-                Circle()
-                    .fill(Color.white.opacity(isActive ? 0.25 : 0.15))
-                    .frame(width: isActive ? 44 : 36)
-                Image(systemName: icon)
-                    .font(.system(size: isActive ? 20 : 16, weight: .semibold))
-                    .foregroundColor(.white)
-            }
-            Text(text)
-                .font(.system(size: 10, weight: .semibold, design: .rounded))
-                .foregroundColor(.white.opacity(0.95))
-        }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(
-            LinearGradient(colors: [color.opacity(isActive ? 1 : 0.85), color.opacity(isActive ? 0.9 : 0.75)],
-                          startPoint: .topLeading, endPoint: .bottomTrailing)
-        )
-        .animation(.spring(response: 0.2), value: isActive)
+    func updateUIViewController(_ uiViewController: SwipeableHostingController<TripCard>, context: Context) {
+        uiViewController.rootView = TripCard(trip: trip)
+    }
+}
+
+/// UIHostingController mit Swipe-Gesten-Unterstützung
+class SwipeableHostingController<Content: View>: UIHostingController<Content> {
+    var onTap: (() -> Void)?
+    var onSwipeLeft: (() -> Void)?
+    var onSwipeRight: (() -> Void)?
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        view.backgroundColor = .clear
+        setupGestures()
+    }
+    
+    private func setupGestures() {
+        // Tap-Geste
+        let tap = UITapGestureRecognizer(target: self, action: #selector(handleTap))
+        view.addGestureRecognizer(tap)
+        
+        // Swipe nach links → Live Activity
+        let swipeLeft = UISwipeGestureRecognizer(target: self, action: #selector(handleSwipeLeft))
+        swipeLeft.direction = .left
+        view.addGestureRecognizer(swipeLeft)
+        
+        // Swipe nach rechts → Teilen
+        let swipeRight = UISwipeGestureRecognizer(target: self, action: #selector(handleSwipeRight))
+        swipeRight.direction = .right
+        view.addGestureRecognizer(swipeRight)
+    }
+    
+    @objc private func handleTap() {
+        HapticHelper.softTap()
+        onTap?()
+    }
+    
+    @objc private func handleSwipeLeft() {
+        HapticHelper.success()
+        onSwipeLeft?()
+    }
+    
+    @objc private func handleSwipeRight() {
+        HapticHelper.softTap()
+        onSwipeRight?()
     }
 }

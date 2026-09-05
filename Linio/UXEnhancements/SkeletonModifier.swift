@@ -78,17 +78,17 @@ struct SkeletonShape: View {
     @State private var phase: CGFloat = 0
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     
-    init(width: CGFloat? = nil, height: CGFloat = 16, cornerRadius: CGFloat = 6) {
+    init(width: CGFloat? = nil, height: CGFloat = 16, cornerRadius: CGFloat = DesignTokens.CornerRadius.small) {
         self.width = width
         self.height = height
         self.cornerRadius = cornerRadius
     }
     
     var body: some View {
-        RoundedRectangle(cornerRadius: cornerRadius)
-            .fill(AppTheme.surfaceStrong)
+        RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
+            .fill(SemanticColor.tertiarySystemFill)
             .frame(width: width, height: height)
-            .clipShape(RoundedRectangle(cornerRadius: cornerRadius))
+            .clipShape(RoundedRectangle(cornerRadius: cornerRadius, style: .continuous))
             .modifier(ShimmerEffect())
     }
 }
@@ -104,7 +104,7 @@ struct SkeletonCircle: View {
     
     var body: some View {
         Circle()
-            .fill(AppTheme.surfaceStrong)
+            .fill(SemanticColor.tertiarySystemFill)
             .frame(width: size, height: size)
             .clipShape(Circle())
             .modifier(ShimmerEffect())
@@ -407,14 +407,14 @@ struct LegSkeleton: View {
 // MARK: - View Extensions
 
 extension View {
-    /// Zeigt einen Skeleton-Ladeeffekt wenn isLoading true ist
-    func skeleton(when isLoading: Bool, cornerRadius: CGFloat = 8) -> some View {
+    /// Zeigt einen Skeleton-Ladeeffekt wenn isLoading true ist (HIG)
+    func skeleton(when isLoading: Bool, cornerRadius: CGFloat = DesignTokens.CornerRadius.small) -> some View {
         Group {
             if isLoading {
                 self.hidden()
                     .overlay(
-                        RoundedRectangle(cornerRadius: cornerRadius)
-                            .fill(AppTheme.surfaceStrong)
+                        RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
+                            .fill(SemanticColor.tertiarySystemFill)
                             .modifier(ShimmerEffect())
                     )
                     .accessibilityLabel("Wird geladen")

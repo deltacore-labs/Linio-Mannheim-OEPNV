@@ -157,10 +157,10 @@ private struct ConnectionResultRow: View {
 
             HStack(spacing: 3) {
                 Text(WatchDateHelper.formatTime(trip.startTime))
-                    .font(.system(.callout, design: .monospaced).bold())
+                    .font(.callout.bold().monospacedDigit())
                 Image(systemName: "arrow.right").font(.caption2).foregroundColor(.secondary)
                 Text(WatchDateHelper.formatTime(trip.endTime))
-                    .font(.system(.callout, design: .monospaced)).foregroundColor(.secondary)
+                    .font(.callout.monospacedDigit()).foregroundColor(.secondary)
                 Spacer()
                 Text(WatchDateHelper.durationString(start: trip.startTime, end: trip.endTime))
                     .font(.caption2).foregroundColor(.secondary)
@@ -189,12 +189,12 @@ struct WatchTripDetailView: View {
                     }
                     HStack(spacing: 6) {
                         Text(WatchDateHelper.formatTime(leg.departureTime ?? ""))
-                            .font(.system(.footnote, design: .monospaced).bold())
+                            .font(.footnote.bold().monospacedDigit())
                         Text(leg.boardStopName ?? "").font(.footnote).lineLimit(1)
                     }
                     HStack(spacing: 6) {
                         Text(WatchDateHelper.formatTime(leg.arrivalTime ?? ""))
-                            .font(.system(.footnote, design: .monospaced))
+                            .font(.footnote.monospacedDigit())
                             .foregroundColor(.secondary)
                         Text(leg.alightStopName ?? "").font(.footnote).foregroundColor(.secondary).lineLimit(1)
                     }

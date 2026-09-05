@@ -145,7 +145,7 @@ private struct LogEntryRow: View {
             HStack {
                 Text(entry.level.rawValue)
                 Text(entry.message)
-                    .font(.system(.body, design: .monospaced))
+                    .font(.body.monospaced())
                     .fontWeight(.medium)
                 Spacer()
                 Text(timeString)
@@ -155,7 +155,7 @@ private struct LogEntryRow: View {
             
             if let details = entry.details {
                 Text(details)
-                    .font(.system(.caption, design: .monospaced))
+                    .font(.caption.monospaced())
                     .foregroundStyle(.secondary)
                     .lineLimit(5)
             }

@@ -64,10 +64,7 @@ struct TimedLegCard: View {
             .padding(.leading, 12)
         }
         .background(
-            RoundedRectangle(cornerRadius: 16)
-                .fill(AppTheme.surfaceCard)
-                .shadow(color: AppTheme.shadowColor(), radius: 6, y: 3)
-                .overlay(RoundedRectangle(cornerRadius: 16).stroke(AppTheme.hairline, lineWidth: 1))
+            LiquidGlassBackground(cornerRadius: 16, intensity: .standard)
         )
     }
 

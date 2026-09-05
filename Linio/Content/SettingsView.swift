@@ -252,13 +252,13 @@ struct SettingsView: View {
                     .padding(.vertical, 10)
                     
                     if favorite.id != favoritesManager.favorites.last?.id {
-                        RowDivider(color: AppTheme.hairline)
+                        RowDivider()
                     }
                 }
             }
             
             if !favoritesManager.favorites.isEmpty {
-                RowDivider(color: AppTheme.hairline)
+                RowDivider()
                 
                 HStack(spacing: 12) {
                     IconBadge(icon: "info.circle", color: AppTheme.muted)
@@ -288,7 +288,7 @@ struct SettingsView: View {
             .padding(.horizontal, 16)
             .padding(.vertical, 12)
 
-            RowDivider(color: AppTheme.hairline)
+            RowDivider()
 
             VStack(spacing: 8) {
                 HStack(spacing: 12) {
@@ -319,9 +319,9 @@ struct SettingsView: View {
     private var transportSection: some View {
         SettingsCard(title: "Verkehrsmittel", icon: "tram.fill", iconColor: .red, cardBg: AppTheme.surfaceCard, dividerColor: AppTheme.hairline) {
             ToggleRow(title: "Straßenbahn", icon: "tram.fill", iconColor: .red, binding: $enableTram)
-            RowDivider(color: AppTheme.hairline)
+            RowDivider()
             ToggleRow(title: "Bus", icon: "bus.fill", iconColor: .blue, binding: $enableBus)
-            RowDivider(color: AppTheme.hairline)
+            RowDivider()
             ToggleRow(title: "S-Bahn", icon: "train.side.front.car", iconColor: .green, binding: $enableSBahn)
         }
     }
@@ -337,7 +337,7 @@ struct SettingsView: View {
                 iconColor: AppTheme.primaryColor,
                 binding: $autoStartLiveActivity
             )
-            RowDivider(color: AppTheme.hairline)
+            RowDivider()
             VStack(spacing: 0) {
                 ToggleRow(
                     title: "Push-Benachrichtigungen",
@@ -346,7 +346,7 @@ struct SettingsView: View {
                     iconColor: .orange,
                     binding: $notificationsEnabled
                 )
-                RowDivider(color: AppTheme.hairline)
+                RowDivider()
                 HStack(spacing: 12) {
                     IconBadge(icon: "timer", color: .orange)
                     Text("Erinnerung")
@@ -365,7 +365,7 @@ struct SettingsView: View {
                 .padding(.vertical, 12)
             }
             .disabled(notificationsDenied)
-            RowDivider(color: AppTheme.hairline)
+            RowDivider()
             ActionRow(
                 title: notificationsDenied
                     ? "Benachrichtigungen in Einstellungen erlauben"
@@ -412,7 +412,7 @@ struct SettingsView: View {
             .padding(.vertical, 12)
 
             if locationManager.authorizationStatus == .denied || locationManager.authorizationStatus == .restricted {
-                RowDivider(color: AppTheme.hairline)
+                RowDivider()
                 ActionRow(
                     title: "Standortzugriff in Einstellungen erlauben",
                     icon: "arrow.up.right.square",
@@ -468,7 +468,7 @@ struct SettingsView: View {
                 clearCache()
                 showingCacheSuccess = true
             }
-            RowDivider(color: AppTheme.hairline)
+            RowDivider()
             ActionRow(
                 title: "Alle Live Activities beenden",
                 icon: "xmark.circle.fill",
@@ -478,7 +478,7 @@ struct SettingsView: View {
             ) {
                 showingResetAlert = true
             }
-            RowDivider(color: AppTheme.hairline)
+            RowDivider()
             ActionRow(
                 title: "Datenschutzerklärung",
                 icon: "lock.shield.fill",
@@ -502,7 +502,7 @@ struct SettingsView: View {
             ) {
                 showWalletDebugLogs = true
             }
-            RowDivider(color: AppTheme.hairline)
+            RowDivider()
             ActionRow(
                 title: "Logs teilen",
                 icon: "square.and.arrow.up",
@@ -512,7 +512,7 @@ struct SettingsView: View {
             ) {
                 shareWalletLogs()
             }
-            RowDivider(color: AppTheme.hairline)
+            RowDivider()
             ActionRow(
                 title: "Logs löschen",
                 icon: "trash",
@@ -548,19 +548,19 @@ struct SettingsView: View {
                 binding: $developerMode
             )
             if developerMode {
-                RowDivider(color: AppTheme.hairline)
+                RowDivider()
                 ActionRow(title: "Mannheim Hbf (Test)", icon: "mappin.circle.fill", iconColor: .orange, inkColor: AppTheme.ink, showChevron: false) {
                     locationManager.location = CLLocationCoordinate2D(latitude: 49.483076, longitude: 8.468409)
                 }
-                RowDivider(color: AppTheme.hairline)
+                RowDivider()
                 ActionRow(title: "Heidelberg Hbf (Test)", icon: "mappin.circle.fill", iconColor: .purple, inkColor: AppTheme.ink, showChevron: false) {
                     locationManager.location = CLLocationCoordinate2D(latitude: 49.4044, longitude: 8.6765)
                 }
-                RowDivider(color: AppTheme.hairline)
+                RowDivider()
                 ActionRow(title: "Debug: State ausgeben", icon: "ant.fill", iconColor: AppTheme.semanticError, inkColor: AppTheme.ink, showChevron: false) {
                     LiveActivityState.shared.debugPrintState()
                 }
-                RowDivider(color: AppTheme.hairline)
+                RowDivider()
                 ActionRow(title: "Onboarding zurücksetzen", icon: "arrow.counterclockwise", iconColor: .blue, inkColor: AppTheme.ink, showChevron: false) {
                     UserDefaults.standard.set(false, forKey: "hasSeenOnboarding")
                 }
@@ -728,15 +728,7 @@ private struct IconBadge: View {
     let color: Color
 
     var body: some View {
-        ZStack {
-            RoundedRectangle(cornerRadius: 8)
-                .fill(color.opacity(0.14))
-                .frame(width: 32, height: 32)
-            Image(systemName: icon)
-                .font(.system(size: 14, weight: .semibold))
-                .foregroundColor(color)
-        }
-        .accessibilityHidden(true)
+        HIGIconBadge(systemName: icon, color: color, size: 32)
     }
 }
 
@@ -747,34 +739,37 @@ private struct CounterControl: View {
     var label: String = "Wert"
 
     var body: some View {
-        HStack(spacing: 10) {
+        HStack(spacing: DesignTokens.Spacing.xs) {
             Button {
+                HapticHelper.softTap()
                 if value > range.lowerBound { value -= 1 }
             } label: {
                 Image(systemName: "minus")
                     .font(.system(size: 11, weight: .bold))
-                    .foregroundColor(value > range.lowerBound ? tint : AppTheme.mutedSoft)
-                    .frame(width: 28, height: 28)
-                    .background((value > range.lowerBound ? tint : AppTheme.mutedSoft).opacity(0.12))
+                    .foregroundStyle(value > range.lowerBound ? tint : SemanticColor.tertiaryLabel)
+                    .frame(width: 32, height: 32)
+                    .background((value > range.lowerBound ? tint : SemanticColor.tertiaryLabel).opacity(0.12))
                     .clipShape(Circle())
             }
             .disabled(value <= range.lowerBound)
             .accessibilityLabel("\(label) verringern")
 
             Text("\(value)")
-                .font(.body.weight(.semibold))
+                .font(Typography.body.weight(.semibold))
                 .monospacedDigit()
-                .frame(minWidth: 20, alignment: .center)
+                .foregroundStyle(SemanticColor.label)
+                .frame(minWidth: 24, alignment: .center)
                 .accessibilityHidden(true)
 
             Button {
+                HapticHelper.softTap()
                 if value < range.upperBound { value += 1 }
             } label: {
                 Image(systemName: "plus")
                     .font(.system(size: 11, weight: .bold))
-                    .foregroundColor(value < range.upperBound ? tint : AppTheme.mutedSoft)
-                    .frame(width: 28, height: 28)
-                    .background((value < range.upperBound ? tint : AppTheme.mutedSoft).opacity(0.12))
+                    .foregroundStyle(value < range.upperBound ? tint : SemanticColor.tertiaryLabel)
+                    .frame(width: 32, height: 32)
+                    .background((value < range.upperBound ? tint : SemanticColor.tertiaryLabel).opacity(0.12))
                     .clipShape(Circle())
             }
             .disabled(value >= range.upperBound)
@@ -786,9 +781,8 @@ private struct CounterControl: View {
 }
 
 private struct RowDivider: View {
-    let color: Color
     var body: some View {
-        color
+        SemanticColor.separator
             .frame(height: 0.5)
             .padding(.leading, 60)
     }

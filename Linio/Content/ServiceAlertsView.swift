@@ -136,8 +136,10 @@ private struct AlertCard: View {
             }
         }
         .padding()
-        .background(RoundedRectangle(cornerRadius: 16).fill(AppTheme.surfaceCard).shadow(color: .black.opacity(0.05), radius: 8, y: 2))
-        .overlay(RoundedRectangle(cornerRadius: 16).stroke(alert.severity.color.opacity(0.3), lineWidth: 1))
+        .background(
+            LiquidGlassBackground(cornerRadius: 16, intensity: .standard)
+        )
+        .overlay(RoundedRectangle(cornerRadius: 16, style: .continuous).stroke(alert.severity.color.opacity(0.3), lineWidth: 1))
         .contentShape(Rectangle())
         .onTapGesture(perform: onTap)
     }

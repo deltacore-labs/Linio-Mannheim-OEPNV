@@ -40,8 +40,8 @@
 		C711471A5C4F81491F9F7149 /* SavedTripsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A8C1D454BD4A661DC5B81DDE /* SavedTripsView.swift */; };
 		CC000003000000000000000C /* LinioWatch.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = F50FC19EC7F5F96CA4125341 /* LinioWatch.app */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		CC11DD22EE33FF4400112233 /* WatchStationPickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD22EE33FF440011223344CC /* WatchStationPickerView.swift */; };
-		CE03CE03CE03CE03CE03CE03 /* Zertifikat D-Ticket.p12 in Resources */ = {isa = PBXBuildFile; fileRef = CE01CE01CE01CE01CE01CE01 /* Zertifikat D-Ticket.p12 */; };
-		CE04CE04CE04CE04CE04CE04 /* AppleWWDRCAG4.cer in Resources */ = {isa = PBXBuildFile; fileRef = CE02CE02CE02CE02CE02CE02 /* AppleWWDRCAG4.cer */; };
+		CE03CE03CE03CE03CE03CE03 /* Linio/Zertifikat D-Ticket.p12 in Resources */ = {isa = PBXBuildFile; fileRef = CE01CE01CE01CE01CE01CE01 /* Linio/Zertifikat D-Ticket.p12 */; };
+		CE04CE04CE04CE04CE04CE04 /* Linio/AppleWWDRCAG4.cer in Resources */ = {isa = PBXBuildFile; fileRef = CE02CE02CE02CE02CE02CE02 /* Linio/AppleWWDRCAG4.cer */; };
 		CE12401FD74B04024EB720F4 /* StationModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 153C7AF3B945547850E68153 /* StationModelTests.swift */; };
 		DD1A2B3C4E5F6A7B8C9D0E1F /* WatchDemoData.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE1A2B3C4E5F6A7B8C9D0E1F /* WatchDemoData.swift */; };
 		EB6ECBF6F126D688D341BBD0 /* NetworkErrorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E86FE4060FBF12E47269984 /* NetworkErrorTests.swift */; };
@@ -165,8 +165,8 @@
 		9ED490D419C9DBE03FAA21B4 /* WatchDataManager.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = WatchDataManager.swift; sourceTree = "<group>"; };
 		A8C1D454BD4A661DC5B81DDE /* SavedTripsView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SavedTripsView.swift; sourceTree = "<group>"; };
 		C2F833CF806B9CB3374EC3D0 /* ActiveTripView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ActiveTripView.swift; sourceTree = "<group>"; };
-		CE01CE01CE01CE01CE01CE01 /* Zertifikat D-Ticket.p12 */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Linio/Zertifikat D-Ticket.p12"; sourceTree = "<group>"; };
-		CE02CE02CE02CE02CE02CE02 /* AppleWWDRCAG4.cer */ = {isa = PBXFileReference; lastKnownFileType = file; path = Linio/AppleWWDRCAG4.cer; sourceTree = "<group>"; };
+		CE01CE01CE01CE01CE01CE01 /* Linio/Zertifikat D-Ticket.p12 */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Linio/Zertifikat D-Ticket.p12"; sourceTree = "<group>"; };
+		CE02CE02CE02CE02CE02CE02 /* Linio/AppleWWDRCAG4.cer */ = {isa = PBXFileReference; lastKnownFileType = file; path = Linio/AppleWWDRCAG4.cer; sourceTree = "<group>"; };
 		DD22EE33FF440011223344CC /* WatchStationPickerView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = WatchStationPickerView.swift; sourceTree = "<group>"; };
 		DF3FF46771BC4230A08B904E /* ContentView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		EB2E3B8CE9C8A7DE3579EC1F /* AccessibilityHelpersTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AccessibilityHelpersTests.swift; sourceTree = "<group>"; };
@@ -318,7 +318,6 @@
 				5F05AA19AD5432323E909098 /* OccupancyLevelTests.swift */,
 				37F37F761E0166D3BBE8F9C6 /* Info.plist */,
 			);
-			name = LinioTests;
 			path = LinioTests;
 			sourceTree = "<group>";
 		};
@@ -335,8 +334,8 @@
 				39111F9D2F1C6A1E002FB482 /* Secrets.xcconfig */,
 				39111FA12F1C7046002FB482 /* Release.xcconfig */,
 				A641D2E1C1550EA591808145 /* LinioWatch */,
-				CE01CE01CE01CE01CE01CE01 /* Zertifikat D-Ticket.p12 */,
-				CE02CE02CE02CE02CE02CE02 /* AppleWWDRCAG4.cer */,
+				CE01CE01CE01CE01CE01CE01 /* Linio/Zertifikat D-Ticket.p12 */,
+				CE02CE02CE02CE02CE02CE02 /* Linio/AppleWWDRCAG4.cer */,
 				390E5FFDFB4B801A1A9FFCCE /* LinioTests */,
 				81DC686BB9FCAB9F2AF9F0D7 /* LinioWatchTests */,
 			);
@@ -383,7 +382,6 @@
 				1A7D7990F8CE501A0F41C325 /* WatchModelsTests.swift */,
 				49D41475C595961EFCBABD28 /* Info.plist */,
 			);
-			name = LinioWatchTests;
 			path = LinioWatchTests;
 			sourceTree = "<group>";
 		};
@@ -553,7 +551,7 @@
 			mainGroup = 395F1FCC2F11B2B000BC7030;
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
-				395F1FE82F11B3F700BC7030 /* XCLocalSwiftPackageReference "apollo-ios" */,
+				395F1FE82F11B3F700BC7030 /* XCLocalSwiftPackageReference "LocalPackages/apollo-ios" */,
 				BFAA0001BFAA0001BFAA0001 /* XCRemoteSwiftPackageReference "zxing-cpp" */,
 			);
 			preferredProjectObjectVersion = 77;
@@ -583,8 +581,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				39111F902F1C61A0002FB482 /* .gitignore in Resources */,
-				CE03CE03CE03CE03CE03CE03 /* Zertifikat D-Ticket.p12 in Resources */,
-				CE04CE04CE04CE04CE04CE04 /* AppleWWDRCAG4.cer in Resources */,
+				CE03CE03CE03CE03CE03CE03 /* Linio/Zertifikat D-Ticket.p12 in Resources */,
+				CE04CE04CE04CE04CE04CE04 /* Linio/AppleWWDRCAG4.cer in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -712,10 +710,11 @@
 				DEVELOPMENT_TEAM = A4HCRKN53K;
 				INFOPLIST_FILE = LinioWatchTests/Info.plist;
 				PRODUCT_BUNDLE_IDENTIFIER = "Stefan.Mannheim-Transportation.LinioWatchTests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = watchos;
 				SWIFT_VERSION = 5.9;
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/LinioWatch.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/LinioWatch";
-				WATCHOS_DEPLOYMENT_TARGET = 7.0;
+				WATCHOS_DEPLOYMENT_TARGET = 10.0;
 			};
 			name = Debug;
 		};
@@ -1090,8 +1089,9 @@
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = A4HCRKN53K;
 				INFOPLIST_FILE = LinioTests/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.6;
 				PRODUCT_BUNDLE_IDENTIFIER = "Stefan.Mannheim-Transportation.LinioTests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
 				SWIFT_VERSION = 5.9;
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Linio.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Linio";
@@ -1106,8 +1106,9 @@
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = A4HCRKN53K;
 				INFOPLIST_FILE = LinioTests/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.6;
 				PRODUCT_BUNDLE_IDENTIFIER = "Stefan.Mannheim-Transportation.LinioTests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
 				SWIFT_VERSION = 5.9;
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Linio.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Linio";
@@ -1123,11 +1124,12 @@
 				DEVELOPMENT_TEAM = A4HCRKN53K;
 				INFOPLIST_FILE = LinioWatchTests/Info.plist;
 				PRODUCT_BUNDLE_IDENTIFIER = "Stefan.Mannheim-Transportation.LinioWatchTests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = watchos;
 				SWIFT_VERSION = 5.9;
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/LinioWatch.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/LinioWatch";
 				VALIDATE_PRODUCT = YES;
-				WATCHOS_DEPLOYMENT_TARGET = 7.0;
+				WATCHOS_DEPLOYMENT_TARGET = 10.0;
 			};
 			name = Release;
 		};
@@ -1191,7 +1193,7 @@
 /* End XCConfigurationList section */
 
 /* Begin XCLocalSwiftPackageReference section */
-		395F1FE82F11B3F700BC7030 /* XCLocalSwiftPackageReference "apollo-ios" */ = {
+		395F1FE82F11B3F700BC7030 /* XCLocalSwiftPackageReference "LocalPackages/apollo-ios" */ = {
 			isa = XCLocalSwiftPackageReference;
 			relativePath = "LocalPackages/apollo-ios";
 		};
@@ -1211,12 +1213,12 @@
 /* Begin XCSwiftPackageProductDependency section */
 		395F1FE92F11B3F700BC7030 /* Apollo */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 395F1FE82F11B3F700BC7030 /* XCLocalSwiftPackageReference "apollo-ios" */;
+			package = 395F1FE82F11B3F700BC7030 /* XCLocalSwiftPackageReference "LocalPackages/apollo-ios" */;
 			productName = Apollo;
 		};
 		395F1FEB2F11B3F700BC7030 /* ApolloAPI */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 395F1FE82F11B3F700BC7030 /* XCLocalSwiftPackageReference "apollo-ios" */;
+			package = 395F1FE82F11B3F700BC7030 /* XCLocalSwiftPackageReference "LocalPackages/apollo-ios" */;
 			productName = ApolloAPI;
 		};
 		BFAA0002BFAA0002BFAA0002 /* ZXingCpp */ = {

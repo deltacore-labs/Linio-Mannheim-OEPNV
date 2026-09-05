@@ -258,7 +258,7 @@ private struct ArchivedTripRow: View {
             // Times + route
             HStack(spacing: 8) {
                 Text(formatter.formatTime(trip.startTime))
-                    .font(.system(size: 20, weight: .bold, design: .monospaced))
+                    .font(.system(size: 20, weight: .bold).monospacedDigit())
                     .foregroundStyle(AppTheme.ink)
 
                 Image(systemName: "arrow.right")
@@ -266,7 +266,7 @@ private struct ArchivedTripRow: View {
                     .foregroundStyle(AppTheme.mutedSoft)
 
                 Text(formatter.formatTime(trip.endTime))
-                    .font(.system(size: 20, weight: .bold, design: .monospaced))
+                    .font(.system(size: 20, weight: .bold).monospacedDigit())
                     .foregroundStyle(AppTheme.ink)
 
                 Spacer()
@@ -310,10 +310,7 @@ private struct ArchivedTripRow: View {
         }
         .padding(14)
         .background(
-            RoundedRectangle(cornerRadius: 14)
-                .fill(AppTheme.surfaceCard)
-                .shadow(color: AppTheme.shadowColor(isPast: true), radius: 4, y: 2)
-                .overlay(RoundedRectangle(cornerRadius: 14).stroke(AppTheme.hairline, lineWidth: 1))
+            LiquidGlassBackground(cornerRadius: 14, intensity: .subtle)
         )
         .accessibilityElement(children: .combine)
         .accessibilityLabel(accessibilityDescription)

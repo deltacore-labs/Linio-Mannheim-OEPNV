@@ -186,7 +186,7 @@ struct WatchRectangularView: View {
             // Row 2: Times
             HStack(spacing: 3) {
                 Text(WidgetDataProvider.formatTime(trip.startTime))
-                    .font(.system(size: 12, weight: .bold, design: .monospaced))
+                    .font(.system(size: 12, weight: .bold).monospacedDigit())
                     .foregroundColor(.primary)
 
                 Image(systemName: "arrow.right")
@@ -194,7 +194,7 @@ struct WatchRectangularView: View {
                     .foregroundColor(.secondary)
 
                 Text(WidgetDataProvider.formatTime(trip.endTime))
-                    .font(.system(size: 12, weight: .bold, design: .monospaced))
+                    .font(.system(size: 12, weight: .bold).monospacedDigit())
                     .foregroundColor(.secondary)
 
                 Spacer(minLength: 2)
@@ -328,7 +328,7 @@ struct WatchCircularView: View {
 
                     // Show arrival time
                     Text(WidgetDataProvider.formatTime(trip.endTime))
-                        .font(.system(size: 12, weight: .heavy, design: .monospaced))
+                        .font(.system(size: 12, weight: .heavy).monospacedDigit())
                         .foregroundColor(.primary)
 
                     Text("Ank.")

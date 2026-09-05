@@ -41,7 +41,7 @@ struct TripDetailView: View {
                         .padding(.bottom, 30)
                 }
             }
-            .background(AppTheme.canvas.ignoresSafeArea())
+            .background(SemanticColor.systemGroupedBackground.ignoresSafeArea())
             .navigationTitle("Verbindungsdetails")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -49,12 +49,12 @@ struct TripDetailView: View {
                     HStack(spacing: 12) {
                         Button(action: { showShareSheet = true }) {
                             Image(systemName: "square.and.arrow.up")
-                                .foregroundColor(AppTheme.primaryColor)
+                                .foregroundStyle(Color.accentColor)
                         }
                         .accessibilityLabel("Verbindung teilen")
                         Button(action: { dismiss() }) {
                             Image(systemName: "xmark.circle.fill")
-                                .foregroundColor(AppTheme.mutedSoft)
+                                .foregroundStyle(SemanticColor.tertiaryLabel)
                                 .font(.title3)
                         }
                         .accessibilityLabel("Schließen")
@@ -96,8 +96,8 @@ struct TripDetailView: View {
                     Text(destination)
                         .lineLimit(1)
                 }
-                .font(.system(size: 11, weight: .semibold))
-                .foregroundColor(AppTheme.muted)
+                .font(Typography.caption2.weight(.semibold))
+                .foregroundStyle(SemanticColor.secondaryLabel)
                 .tracking(0.4)
                 .textCase(.uppercase)
             }
@@ -111,7 +111,7 @@ struct TripDetailView: View {
                 )
                 Image(systemName: "arrow.right")
                     .font(.system(size: 16, weight: .light))
-                    .foregroundColor(AppTheme.mutedSoft)
+                    .foregroundStyle(SemanticColor.tertiaryLabel)
                     .alignmentGuide(.lastTextBaseline) { d in d[VerticalAlignment.center] + 12 }
                 timeDisplay(
                     scheduled: trip.endTime,
@@ -146,13 +146,13 @@ struct TripDetailView: View {
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(20)
         .background(
-            RoundedRectangle(cornerRadius: 20)
-                .fill(AppTheme.surfaceCard)
-                .shadow(color: AppTheme.shadowColor(), radius: 8, y: 4)
-                .overlay(RoundedRectangle(cornerRadius: 20).stroke(AppTheme.hairline, lineWidth: 1))
+            LiquidGlassBackground(
+                cornerRadius: DesignTokens.CornerRadius.large,
+                intensity: .standard
+            )
         )
-        .padding(.horizontal)
-        .padding(.top, 20)
+        .padding(.horizontal, DesignTokens.Spacing.md)
+        .padding(.top, DesignTokens.Spacing.lg)
         .accessibilityElement(children: .combine)
         .accessibilityLabel({
             var desc = ""
@@ -171,12 +171,12 @@ struct TripDetailView: View {
         if let delay, delay > 0, let est = estimated {
             VStack(alignment: .leading, spacing: 1) {
                 Text(formatter.formatTime(scheduled))
-                    .font(.system(size: 13))
-                    .foregroundColor(AppTheme.mutedSoft)
-                    .strikethrough(true, color: AppTheme.mutedSoft)
+                    .font(Typography.footnote)
+                    .foregroundStyle(SemanticColor.tertiaryLabel)
+                    .strikethrough(true, color: SemanticColor.tertiaryLabel)
                 Text(formatter.formatTime(est))
-                    .font(AppTheme.displayFont(size: 36))
-                    .foregroundColor(.red)
+                    .font(Typography.largeTitle.weight(.light))
+                    .foregroundStyle(SemanticColor.systemRed)
             }
         } else {
             Text(formatter.formatTime(scheduled))

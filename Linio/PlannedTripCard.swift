@@ -88,10 +88,10 @@ struct PlannedTripCard: View {
         }
         .padding(16)
         .background(
-            RoundedRectangle(cornerRadius: 16)
-                .fill(AppTheme.surfaceCard)
-                .shadow(color: AppTheme.shadowColor(), radius: 8, y: 4)
-                .overlay(RoundedRectangle(cornerRadius: 16).stroke(AppTheme.hairline, lineWidth: 1))
+            LiquidGlassBackground(
+                cornerRadius: 16,
+                intensity: .standard
+            )
         )
         .onAppear {
             loadTripData()

@@ -35,7 +35,7 @@ struct StationPickerView: View {
     var body: some View {
         NavigationView {
             ZStack {
-                AppTheme.canvas
+                SemanticColor.systemGroupedBackground
                     .ignoresSafeArea()
 
                 VStack(spacing: 0) {
@@ -73,7 +73,7 @@ struct StationPickerView: View {
                     Button("Abbrechen") {
                         dismiss()
                     }
-                    .foregroundStyle(AppTheme.primaryColor)
+                    .foregroundStyle(Color.accentColor)
                 }
             }
         }

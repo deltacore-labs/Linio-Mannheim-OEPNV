@@ -41,7 +41,7 @@ struct DebugView: View {
                     } else {
                         ForEach(Array(connectivity.debugLog.enumerated()), id: \.offset) { _, entry in
                             Text(entry)
-                                .font(.system(size: 9, design: .monospaced))
+                                .font(.system(size: 9).monospaced())
                                 .foregroundColor(.secondary)
                                 .listRowInsets(EdgeInsets(top: 2, leading: 4, bottom: 2, trailing: 4))
                         }

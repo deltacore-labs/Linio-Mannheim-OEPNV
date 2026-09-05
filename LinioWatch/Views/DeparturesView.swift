@@ -164,7 +164,7 @@ private struct DepartureRow: View {
 
                 HStack(spacing: 4) {
                     Text(WatchDateHelper.formatTime(displayTime))
-                        .font(.system(.caption2, design: .monospaced).bold())
+                        .font(.caption2.bold().monospacedDigit())
 
                     if let delay = departure.delayMinutes, delay > 0 {
                         Text("+\(delay)")

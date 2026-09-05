@@ -53,14 +53,14 @@ private struct SavedTripRow: View {
             // Abfahrtszeit
             HStack(spacing: 3) {
                 Text(WatchDateHelper.formatTime(trip.startTime))
-                    .font(.system(.callout, design: .monospaced).bold())
+                    .font(.callout.bold().monospacedDigit())
 
                 Image(systemName: "arrow.right")
                     .font(.caption2)
                     .foregroundColor(.secondary)
 
                 Text(WatchDateHelper.formatTime(trip.endTime))
-                    .font(.system(.callout, design: .monospaced))
+                    .font(.callout.monospacedDigit())
                     .foregroundColor(.secondary)
             }
 
@@ -146,7 +146,7 @@ private struct LegRow: View {
             VStack(alignment: .leading, spacing: 6) {
                 HStack(alignment: .top, spacing: 6) {
                     Text(WatchDateHelper.formatTime(leg.departureTime ?? ""))
-                        .font(.system(.footnote, design: .monospaced).bold())
+                        .font(.footnote.bold().monospacedDigit())
                         .frame(width: 45, alignment: .leading)
                     
                     Text(leg.boardStopName ?? "")
@@ -174,7 +174,7 @@ private struct LegRow: View {
 
                 HStack(alignment: .top, spacing: 6) {
                     Text(WatchDateHelper.formatTime(leg.arrivalTime ?? ""))
-                        .font(.system(.footnote, design: .monospaced))
+                        .font(.footnote.monospacedDigit())
                         .foregroundColor(.secondary)
                         .frame(width: 45, alignment: .leading)
                     Text(leg.alightStopName ?? "")

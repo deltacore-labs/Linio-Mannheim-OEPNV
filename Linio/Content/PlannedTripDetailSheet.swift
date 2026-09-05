@@ -240,10 +240,7 @@ struct PlannedTripDetailSheet: View {
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(20)
         .background(
-            RoundedRectangle(cornerRadius: 20)
-                .fill(AppTheme.surfaceCard)
-                .shadow(color: AppTheme.shadowColor(), radius: 8, y: 4)
-                .overlay(RoundedRectangle(cornerRadius: 20).stroke(AppTheme.hairline, lineWidth: 1))
+            LiquidGlassBackground(cornerRadius: 20, intensity: .standard)
         )
         .accessibilityElement(children: .combine)
         .accessibilityLabel(overviewLabel)
@@ -309,10 +306,7 @@ struct PlannedTripDetailSheet: View {
         .padding(20)
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(
-            RoundedRectangle(cornerRadius: 20)
-                .fill(AppTheme.surfaceCard)
-                .shadow(color: AppTheme.shadowColor(), radius: 8, y: 4)
-                .overlay(RoundedRectangle(cornerRadius: 20).stroke(AppTheme.hairline, lineWidth: 1))
+            LiquidGlassBackground(cornerRadius: 20, intensity: .standard)
         )
     }
 
@@ -334,7 +328,7 @@ struct PlannedTripDetailSheet: View {
                         .foregroundStyle(AppTheme.ink)
                     if let dep = leg.departureTime {
                         Text(formatter.formatTime(dep))
-                            .font(.system(size: 12, weight: .bold, design: .monospaced))
+                            .font(.system(size: 12, weight: .bold).monospacedDigit())
                             .foregroundStyle(AppTheme.muted)
                     }
                 }
@@ -378,7 +372,7 @@ struct PlannedTripDetailSheet: View {
                         .foregroundStyle(isLast ? AppTheme.ink : AppTheme.muted)
                     if let arr = leg.arrivalTime {
                         Text(formatter.formatTime(arr))
-                            .font(.system(size: 12, weight: .bold, design: .monospaced))
+                            .font(.system(size: 12, weight: .bold).monospacedDigit())
                             .foregroundStyle(AppTheme.muted)
                     }
                 }

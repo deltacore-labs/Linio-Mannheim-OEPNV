@@ -3,6 +3,7 @@
 //  Linio
 //
 //  Wiederverwendbare Empty State Komponente mit Call-to-Actions
+//  Apple HIG-konform: ContentUnavailableView-Stil
 //
 
 import SwiftUI
@@ -38,57 +39,53 @@ struct EmptyStateView: View {
     }
     
     var body: some View {
-        VStack(spacing: 24) {
-            // Icon mit Hintergrund
+        VStack(spacing: DesignTokens.Spacing.xl) {
+            // Icon mit Hintergrund (Apple HIG Style)
             ZStack {
                 Circle()
-                    .fill(AppTheme.surfaceStrong)
+                    .fill(SemanticColor.tertiarySystemFill)
                     .frame(width: 88, height: 88)
                 
                 Image(systemName: icon)
-                    .font(.system(size: 36))
-                    .foregroundStyle(AppTheme.mutedSoft)
+                    .font(.system(size: 36, weight: .medium))
+                    .foregroundStyle(SemanticColor.secondaryLabel)
                     .symbolRenderingMode(.hierarchical)
             }
             .accessibilityHidden(true)
             
-            // Text-Inhalt
-            VStack(spacing: 8) {
+            // Text-Inhalt (HIG Typography)
+            VStack(spacing: DesignTokens.Spacing.xs) {
                 Text(title)
-                    .font(.system(size: 20, weight: .semibold))
-                    .foregroundStyle(AppTheme.ink)
+                    .font(Typography.title3.weight(.semibold))
+                    .foregroundStyle(SemanticColor.label)
                     .multilineTextAlignment(.center)
                 
                 Text(message)
-                    .font(.subheadline)
-                    .foregroundStyle(AppTheme.muted)
+                    .font(Typography.subheadline)
+                    .foregroundStyle(SemanticColor.secondaryLabel)
                     .multilineTextAlignment(.center)
                     .lineSpacing(2)
             }
-            .padding(.horizontal, 24)
+            .padding(.horizontal, DesignTokens.Spacing.xl)
             
-            // CTA Buttons
+            // CTA Buttons (HIG Button Styles)
             if let ctaTitle, let ctaAction {
-                VStack(spacing: 12) {
+                VStack(spacing: DesignTokens.Spacing.sm) {
                     Button {
                         HapticHelper.impact(.medium)
                         ctaAction()
                     } label: {
-                        HStack(spacing: 8) {
+                        HStack(spacing: DesignTokens.Spacing.xs) {
                             if let ctaIcon {
                                 Image(systemName: ctaIcon)
-                                    .font(.system(size: 14, weight: .semibold))
+                                    .font(.body.weight(.semibold))
                             }
                             Text(ctaTitle)
-                                .font(.system(size: 16, weight: .semibold))
+                                .font(.body.weight(.semibold))
                         }
-                        .foregroundStyle(AppTheme.onPrimary)
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 14)
-                        .background(AppTheme.primaryColor)
-                        .clipShape(RoundedRectangle(cornerRadius: 14))
                     }
-                    .accessibilityHint("Tippen zum Ausführen")
+                    .buttonStyle(.higPrimary)
+                    .accessibleButton(label: ctaTitle, hint: "Tippen zum Ausführen")
                     
                     if let secondaryTitle, let secondaryAction {
                         Button {
@@ -96,17 +93,18 @@ struct EmptyStateView: View {
                             secondaryAction()
                         } label: {
                             Text(secondaryTitle)
-                                .font(.subheadline)
-                                .foregroundStyle(AppTheme.primaryColor)
+                                .font(Typography.subheadline)
                         }
+                        .foregroundStyle(Color.accentColor)
                     }
                 }
-                .padding(.horizontal, 32)
-                .padding(.top, 8)
+                .padding(.horizontal, DesignTokens.Spacing.xxl)
+                .padding(.top, DesignTokens.Spacing.xs)
             }
         }
         .frame(maxWidth: .infinity)
-        .padding(.vertical, 48)
+        .padding(.vertical, DesignTokens.Spacing.xxxl)
+        .accessibilityElement(children: .contain)
     }
 }
 

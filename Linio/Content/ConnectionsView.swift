@@ -132,7 +132,7 @@ struct ConnectionsView: View {
                 }
             }
             .background(
-                AppTheme.canvas
+                SemanticColor.systemGroupedBackground
                     .ignoresSafeArea()
             )
             .navigationBarHidden(true)
@@ -211,17 +211,17 @@ struct ConnectionsView: View {
 
     private var headerBackground: some View {
         ZStack {
-            AppTheme.canvas
+            SemanticColor.systemGroupedBackground
             RadialGradient(
-                colors: [AppTheme.gradientMint.opacity(0.55), .clear],
+                colors: [SemanticColor.systemTeal.opacity(0.2), .clear],
                 center: .topLeading, startRadius: 0, endRadius: 200
             )
             RadialGradient(
-                colors: [AppTheme.gradientPeach.opacity(0.40), .clear],
+                colors: [SemanticColor.systemOrange.opacity(0.12), .clear],
                 center: .topTrailing, startRadius: 0, endRadius: 160
             )
             RadialGradient(
-                colors: [AppTheme.gradientLavender.opacity(0.25), .clear],
+                colors: [SemanticColor.systemIndigo.opacity(0.1), .clear],
                 center: .init(x: 0.5, y: 1.2), startRadius: 0, endRadius: 140
             )
         }
@@ -235,12 +235,12 @@ struct ConnectionsView: View {
             HStack(alignment: .center) {
                 VStack(alignment: .leading, spacing: 3) {
                     Text(Self.greetingText)
-                        .font(.system(size: 10, weight: .semibold))
-                        .foregroundColor(AppTheme.muted)
+                        .font(Typography.caption2.weight(.semibold))
+                        .foregroundStyle(SemanticColor.secondaryLabel)
                         .tracking(1.4)
                         .textCase(.uppercase)
                     Text("Verbindungen")
-                        .font(AppTheme.displayFont(size: 24))
+                        .font(Typography.title2.weight(.light))
                         .foregroundColor(AppTheme.ink)
                 }
 
@@ -279,10 +279,10 @@ struct ConnectionsView: View {
                 }
 
                 HStack(spacing: 0) {
-                    AppTheme.hairline.frame(height: 1)
+                    SemanticColor.separator.frame(height: 0.5)
                     Button {
                         HapticHelper.impact(.light)
-                        withAnimation(.spring(response: 0.35, dampingFraction: 0.7)) {
+                        withAnimation(DesignTokens.Animation.spring) {
                             swap(&selectedStartStation, &selectedEndStation)
                         }
                     } label: {
@@ -293,16 +293,16 @@ struct ConnectionsView: View {
                         } else {
                             Image(systemName: "arrow.up.arrow.down")
                                 .font(.system(size: 11, weight: .bold))
-                                .foregroundColor(AppTheme.muted)
+                                .foregroundStyle(SemanticColor.secondaryLabel)
                                 .frame(width: 28, height: 28)
-                                .background(Circle().fill(AppTheme.surfaceStrong))
+                                .background(Circle().fill(SemanticColor.tertiarySystemFill))
                         }
                     }
                     .disabled(selectedStartStation == nil && selectedEndStation == nil || isLoadingNearbyStation)
                     .accessibilityLabel("Start und Ziel tauschen")
-                    AppTheme.hairline.frame(height: 1)
+                    SemanticColor.separator.frame(height: 0.5)
                 }
-                .padding(.horizontal, 14)
+                .padding(.horizontal, DesignTokens.Spacing.sm)
 
                 headerStationRow(
                     icon: "mappin.circle.fill",
@@ -315,13 +315,10 @@ struct ConnectionsView: View {
                 }
             }
             .background(
-                RoundedRectangle(cornerRadius: 14)
-                    .fill(AppTheme.surfaceCard)
-                    .shadow(color: .black.opacity(0.04), radius: 8, y: 3)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 14)
-                            .stroke(AppTheme.hairline, lineWidth: 1)
-                    )
+                LiquidGlassBackground(
+                    cornerRadius: DesignTokens.CornerRadius.medium,
+                    intensity: .standard
+                )
             )
             
             // Filter-Indikator (nur anzeigen wenn Filter aktiv)
@@ -338,8 +335,8 @@ struct ConnectionsView: View {
                         SettingsView(locationManager: locationManager, navigateToTrips: .constant(false))
                     } label: {
                         Text("Ändern")
-                            .font(.system(size: 11, weight: .semibold))
-                            .foregroundColor(AppTheme.primaryColor)
+                            .font(Typography.caption2.weight(.semibold))
+                            .foregroundStyle(Color.accentColor)
                     }
                 }
                 .padding(.horizontal, 12)

@@ -107,7 +107,7 @@ struct DelayIndicator: View {
                     .font(.system(size: 9))
             }
             Text(minutes > 0 ? "+\(minutes)" : "±0")
-                .font(.system(size: 11, weight: .bold, design: .monospaced))
+                .font(.system(size: 11, weight: .bold).monospacedDigit())
         }
         .foregroundStyle(color)
         .padding(.horizontal, 6)

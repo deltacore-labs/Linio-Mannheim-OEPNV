@@ -320,16 +320,16 @@ private struct DepartureRow: View {
         if let delay = dep.delayMinutes, delay > 0 {
             HStack(spacing: 3) {
                 Text(WidgetDataProvider.formatTime(dep.plannedTimeISO))
-                    .font(.system(size: 10, weight: .medium, design: .monospaced))
+                    .font(.system(size: 10, weight: .medium).monospacedDigit())
                     .strikethrough()
                     .foregroundColor(.secondary)
                 Text(WidgetDataProvider.formatTime(dep.effectiveTimeISO))
-                    .font(.system(size: 10, weight: .bold, design: .monospaced))
+                    .font(.system(size: 10, weight: .bold).monospacedDigit())
                     .foregroundColor(.orange)
             }
         } else {
             Text("\(minutesUntil)'")
-                .font(.system(size: 13, weight: .heavy, design: .rounded))
+                .font(.system(size: 13, weight: .heavy).monospacedDigit())
                 .foregroundColor(WidgetTheme.primaryColor)
                 .frame(minWidth: 28, alignment: .trailing)
         }
@@ -354,7 +354,7 @@ private struct StationHeader: View {
             }
             Spacer()
             Text(WidgetDataProvider.timeFormatter.string(from: currentDate))
-                .font(.system(size: 10, weight: .medium, design: .monospaced))
+                .font(.system(size: 10, weight: .medium).monospacedDigit())
                 .foregroundStyle(.tertiary)
         }
     }
@@ -407,17 +407,17 @@ struct StationDepartureSmallView: View {
                 if let delay = dep.delayMinutes, delay > 0 {
                     VStack(alignment: .leading, spacing: 1) {
                         Text(WidgetDataProvider.formatTime(dep.plannedTimeISO))
-                            .font(.system(size: 11, weight: .medium, design: .monospaced))
+                            .font(.system(size: 11, weight: .medium).monospacedDigit())
                             .strikethrough()
                             .foregroundStyle(.secondary)
                         Text(WidgetDataProvider.formatTime(dep.effectiveTimeISO))
-                            .font(.system(size: 16, weight: .bold, design: .rounded))
+                            .font(.system(size: 16, weight: .bold).monospacedDigit())
                             .foregroundColor(.orange)
                     }
                 }
                 Spacer()
                 CountdownText(depDate: depDate, referenceDate: entry.date)
-                    .font(.system(size: 18, weight: .heavy, design: .rounded))
+                    .font(.system(size: 18, weight: .heavy).monospacedDigit())
                     .foregroundColor(WidgetTheme.primaryColor)
             }
         }
@@ -574,7 +574,7 @@ struct StationDepartureLargeView: View {
                 }
                 Spacer()
                 Text(WidgetDataProvider.timeFormatter.string(from: entry.date))
-                    .font(.system(size: 10, weight: .medium, design: .monospaced))
+                    .font(.system(size: 10, weight: .medium).monospacedDigit())
                     .foregroundStyle(.tertiary)
             }
             .padding(.bottom, 8)

@@ -37,12 +37,12 @@ struct DepartureBoardView: View {
     var body: some View {
         NavigationView {
             ZStack {
-                AppTheme.canvas.ignoresSafeArea()
+                SemanticColor.systemGroupedBackground.ignoresSafeArea()
 
                 // Gradient pinned to top — bleeds behind navigation bar up to Dynamic Island
                 VStack {
                     RadialGradient(
-                        colors: [AppTheme.gradientLavender.opacity(0.5), .clear],
+                        colors: [SemanticColor.systemIndigo.opacity(0.15), .clear],
                         center: .init(x: 0.5, y: 0.25),
                         startRadius: 0,
                         endRadius: 220
@@ -55,7 +55,7 @@ struct DepartureBoardView: View {
 
                 VStack(spacing: 0) {
                     heroHeader
-                        .background(AppTheme.canvas)
+                        .background(SemanticColor.systemGroupedBackground)
 
                     if !network.isConnected {
                         offlineBanner
@@ -87,12 +87,12 @@ struct DepartureBoardView: View {
                     if isLoadingDepartures {
                         ProgressView()
                             .scaleEffect(0.75)
-                            .tint(AppTheme.muted)
+                            .tint(SemanticColor.secondaryLabel)
                     } else {
                         Button(action: refreshDepartures) {
                             Image(systemName: "arrow.clockwise")
                                 .font(.system(size: 14, weight: .medium))
-                                .foregroundStyle(AppTheme.muted)
+                                .foregroundStyle(SemanticColor.secondaryLabel)
                         }
                         .accessibilityLabel("Aktualisieren")
                     }
@@ -165,44 +165,44 @@ struct DepartureBoardView: View {
 
     private var heroHeader: some View {
         VStack(spacing: 0) {
-            VStack(spacing: 6) {
-                // Section label
+            VStack(spacing: DesignTokens.Spacing.xxs) {
+                // Section label (HIG: uppercase, small caps style)
                 Text("ABFAHRTEN")
-                    .font(.system(size: 11, weight: .semibold))
-                    .foregroundColor(AppTheme.muted)
+                    .font(Typography.caption2.weight(.semibold))
+                    .foregroundStyle(SemanticColor.secondaryLabel)
                     .tracking(1.4)
 
                 // Station name — display serif
                 if let station = selectedStation {
                     Text(station.longName)
-                        .font(AppTheme.displayFont(size: 28))
-                        .foregroundColor(AppTheme.ink)
+                        .font(Typography.title.weight(.light))
+                        .foregroundStyle(SemanticColor.label)
                 } else {
                     Text("Keine Haltestelle")
-                        .font(AppTheme.displayFont(size: 28))
-                        .foregroundColor(AppTheme.muted)
+                        .font(Typography.title.weight(.light))
+                        .foregroundStyle(SemanticColor.tertiaryLabel)
                 }
 
                 // Meta row
-                HStack(spacing: 12) {
+                HStack(spacing: DesignTokens.Spacing.sm) {
                     if let last = lastRefresh {
                         Text("Aktuell um \(formatter.formatTimeFromDate(last)) Uhr")
-                            .font(.caption)
-                            .foregroundColor(AppTheme.muted)
+                            .font(Typography.caption)
+                            .foregroundStyle(SemanticColor.secondaryLabel)
                     }
                     if !Calendar.current.isDateInToday(departureDate) {
                         Text(formatter.formatDateShort(departureDate))
-                            .font(.caption.weight(.medium))
-                            .foregroundColor(AppTheme.primaryColor)
+                            .font(Typography.caption.weight(.medium))
+                            .foregroundStyle(Color.accentColor)
                     }
                     Button(action: { showStationPicker = true }) {
                         HStack(spacing: 3) {
                             Text(lastRefresh == nil ? "Haltestelle wählen" : "Ändern")
-                                .font(.caption.weight(.medium))
+                                .font(Typography.caption.weight(.medium))
                             Image(systemName: "chevron.right")
                                 .font(.system(size: 9, weight: .semibold))
                         }
-                        .foregroundColor(AppTheme.primaryColor)
+                        .foregroundStyle(Color.accentColor)
                     }
                 }
                 .padding(.top, 2)
@@ -222,12 +222,12 @@ struct DepartureBoardView: View {
                     .padding(.top, 8)
                 }
             }
-            .padding(.top, 8)
-            .padding(.bottom, 20)
+            .padding(.top, DesignTokens.Spacing.xs)
+            .padding(.bottom, DesignTokens.Spacing.lg)
 
-            // Hairline separator
-            AppTheme.hairline
-                .frame(height: 1)
+            // Hairline separator (HIG: system separator)
+            SemanticColor.separator
+                .frame(height: 0.5)
         }
         .accessibilityElement(children: .combine)
         .accessibilityLabel(selectedStation.map { "Abfahrten für \($0.longName)" } ?? "Haltestelle auswählen")
@@ -282,53 +282,53 @@ struct DepartureBoardView: View {
                 }
                 .buttonStyle(.plain)
                 if index < visible.count - 1 {
-                    AppTheme.hairline
-                        .frame(height: 1)
-                        .padding(.leading, 20)
+                    SemanticColor.separator
+                        .frame(height: 0.5)
+                        .padding(.leading, DesignTokens.Spacing.lg)
                 }
             }
 
             if hasMore {
-                AppTheme.hairline
-                    .frame(height: 1)
+                SemanticColor.separator
+                    .frame(height: 0.5)
 
                 Button {
                     HapticHelper.impact(.light)
-                    withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
+                    withAnimation(DesignTokens.Animation.spring) {
                         departureDisplayLimit += defaultDepartureDisplayLimit
                     }
                 } label: {
-                    HStack(spacing: 6) {
+                    HStack(spacing: DesignTokens.Spacing.xxs) {
                         Text("\(departures.count - departureDisplayLimit) weitere Abfahrten")
-                            .font(.subheadline.weight(.medium))
+                            .font(Typography.subheadline.weight(.medium))
                         Image(systemName: "chevron.down")
                             .font(.system(size: 11, weight: .semibold))
                     }
-                    .foregroundColor(AppTheme.muted)
+                    .foregroundStyle(SemanticColor.secondaryLabel)
                     .frame(maxWidth: .infinity)
-                    .padding(.vertical, 14)
+                    .frame(minHeight: DesignTokens.TouchTarget.minimum)
                 }
                 .buttonStyle(.plain)
                 .accessibilityLabel("\(departures.count - departureDisplayLimit) weitere Abfahrten anzeigen")
             }
         }
-        .padding(.bottom, 48)
+        .padding(.bottom, DesignTokens.Spacing.xxxl)
     }
 
     // MARK: - Loading
 
     private var loadingView: some View {
-        VStack(spacing: 16) {
+        VStack(spacing: DesignTokens.Spacing.md) {
             // Header mit Animation
-            HStack(spacing: 12) {
+            HStack(spacing: DesignTokens.Spacing.sm) {
                 ProgressView()
-                    .tint(AppTheme.muted)
+                    .tint(SemanticColor.secondaryLabel)
                 Text("Lade Abfahrten …")
-                    .font(.system(size: 13, weight: .medium))
-                    .foregroundColor(AppTheme.muted)
+                    .font(Typography.footnote.weight(.medium))
+                    .foregroundStyle(SemanticColor.secondaryLabel)
             }
-            .padding(.top, 20)
-            .padding(.bottom, 8)
+            .padding(.top, DesignTokens.Spacing.lg)
+            .padding(.bottom, DesignTokens.Spacing.xs)
             
             // Skeleton Loading
             DepartureBoardSkeletonList(count: 6)
@@ -340,30 +340,30 @@ struct DepartureBoardView: View {
     // MARK: - Prompt
 
     private var promptView: some View {
-        VStack(spacing: 32) {
-            Spacer().frame(height: 48)
+        VStack(spacing: DesignTokens.Spacing.xxl) {
+            Spacer().frame(height: DesignTokens.Spacing.xxxl)
 
             ZStack {
                 RadialGradient(
-                    colors: [AppTheme.gradientMint.opacity(0.5), .clear],
+                    colors: [SemanticColor.systemTeal.opacity(0.2), .clear],
                     center: .center, startRadius: 0, endRadius: 100
                 )
                 .frame(width: 220, height: 220)
 
-                VStack(spacing: 12) {
+                VStack(spacing: DesignTokens.Spacing.sm) {
                     Text("Wähle eine\nHaltestelle")
-                        .font(AppTheme.displayFont(size: 30))
-                        .foregroundColor(AppTheme.ink)
+                        .font(Typography.title.weight(.light))
+                        .foregroundStyle(SemanticColor.label)
                         .multilineTextAlignment(.center)
 
                     Text("Um aktuelle Abfahrten\nin deiner Nähe zu sehen.")
-                        .font(.system(size: 14))
-                        .foregroundColor(AppTheme.muted)
+                        .font(Typography.subheadline)
+                        .foregroundStyle(SemanticColor.secondaryLabel)
                         .multilineTextAlignment(.center)
                 }
             }
 
-            VStack(spacing: 12) {
+            VStack(spacing: DesignTokens.Spacing.sm) {
                 // "Jetzt in der Nähe"-Button
                 if locationManager.authorizationStatus == .authorizedWhenInUse ||
                    locationManager.authorizationStatus == .authorizedAlways {
@@ -378,88 +378,82 @@ struct DepartureBoardView: View {
                 
                 Button(action: { showStationPicker = true }) {
                     Text("Haltestelle auswählen")
-                        .font(AppTheme.buttonFont)
-                        .foregroundColor(AppTheme.onPrimary)
-                        .padding(.horizontal, 24)
-                        .padding(.vertical, 12)
-                        .background(AppTheme.primary)
-                        .clipShape(Capsule())
+                        .font(Typography.body.weight(.semibold))
                 }
+                .buttonStyle(.higPrimary)
+                .padding(.horizontal, DesignTokens.Spacing.xxl)
             }
 
             Spacer()
         }
-        .padding(.horizontal, 32)
+        .padding(.horizontal, DesignTokens.Spacing.xxl)
     }
 
     // MARK: - No Departures
 
     private var noDeparturesView: some View {
-        VStack(spacing: 16) {
+        VStack(spacing: DesignTokens.Spacing.md) {
             Spacer().frame(height: 64)
 
             ZStack {
                 RadialGradient(
-                    colors: [AppTheme.gradientPeach.opacity(0.45), .clear],
+                    colors: [SemanticColor.systemOrange.opacity(0.15), .clear],
                     center: .center, startRadius: 0, endRadius: 90
                 )
                 .frame(width: 180, height: 180)
 
                 Text("Keine\nAbfahrten")
-                    .font(AppTheme.displayFont(size: 26))
-                    .foregroundColor(AppTheme.muted)
+                    .font(Typography.title2.weight(.light))
+                    .foregroundStyle(SemanticColor.secondaryLabel)
                     .multilineTextAlignment(.center)
             }
 
             Text("Für diese Haltestelle sind aktuell\nkeine Abfahrten verfügbar.")
-                .font(.system(size: 14))
-                .foregroundColor(AppTheme.muted)
+                .font(Typography.subheadline)
+                .foregroundStyle(SemanticColor.secondaryLabel)
                 .multilineTextAlignment(.center)
 
             Spacer()
         }
-        .padding(.horizontal, 32)
+        .padding(.horizontal, DesignTokens.Spacing.xxl)
     }
 
     // MARK: - Error
 
     private func errorView(_ message: String) -> some View {
-        VStack(spacing: 20) {
+        VStack(spacing: DesignTokens.Spacing.lg) {
             Spacer().frame(height: 64)
 
             ZStack {
                 RadialGradient(
-                    colors: [AppTheme.gradientRose.opacity(0.4), .clear],
+                    colors: [SemanticColor.systemRed.opacity(0.12), .clear],
                     center: .center, startRadius: 0, endRadius: 90
                 )
                 .frame(width: 180, height: 180)
 
-                VStack(spacing: 8) {
+                VStack(spacing: DesignTokens.Spacing.xs) {
                     Text("Nicht\nverfügbar")
-                        .font(AppTheme.displayFont(size: 26))
-                        .foregroundColor(AppTheme.muted)
+                        .font(Typography.title2.weight(.light))
+                        .foregroundStyle(SemanticColor.secondaryLabel)
                         .multilineTextAlignment(.center)
                     Text(message)
-                        .font(.system(size: 12))
-                        .foregroundColor(AppTheme.mutedSoft)
+                        .font(Typography.caption)
+                        .foregroundStyle(SemanticColor.tertiaryLabel)
                         .multilineTextAlignment(.center)
-                        .padding(.horizontal, 16)
+                        .padding(.horizontal, DesignTokens.Spacing.md)
                 }
             }
 
             Button(action: refreshDepartures) {
                 Text("Erneut versuchen")
-                    .font(AppTheme.buttonFont)
-                    .foregroundColor(AppTheme.primaryColor)
-                    .padding(.horizontal, 20)
-                    .padding(.vertical, 11)
-                    .overlay(Capsule().stroke(AppTheme.hairlineStrong, lineWidth: 1))
-                    .clipShape(Capsule())
+                    .font(Typography.body.weight(.medium))
             }
+            .buttonStyle(.higSecondary)
+            .padding(.horizontal, DesignTokens.Spacing.xxxl)
 
             Spacer()
         }
-        .padding(.horizontal, 32)
+        .padding(.horizontal, DesignTokens.Spacing.xxl)
     }
 
     // MARK: - Logic
@@ -537,13 +531,13 @@ struct DepartureRowView: View {
     }
 
     var body: some View {
-        HStack(spacing: 16) {
+        HStack(spacing: DesignTokens.Spacing.md) {
             lineBadge
 
             VStack(alignment: .leading, spacing: 2) {
                 Text(departure.direction)
-                    .font(.subheadline.weight(.medium))
-                    .foregroundColor(AppTheme.ink)
+                    .font(Typography.subheadline.weight(.medium))
+                    .foregroundStyle(SemanticColor.label)
                     .lineLimit(1)
                 
                 // Fußweg-Warnung wenn knapp
@@ -554,7 +548,7 @@ struct DepartureRowView: View {
                         Text("\(Int(ceil(walkTime / 60)))' – Knapp!")
                     }
                     .font(.system(size: 10, weight: .medium))
-                    .foregroundColor(.orange)
+                    .foregroundStyle(SemanticColor.systemOrange)
                 }
             }
 
@@ -566,37 +560,37 @@ struct DepartureRowView: View {
 
             VStack(alignment: .trailing, spacing: 2) {
                 Text(formatter.formatTime(departure.scheduledDeparture))
-                    .font(.callout.weight(.semibold).monospacedDigit())
-                    .foregroundColor(AppTheme.ink)
+                    .font(Typography.callout.weight(.semibold).monospacedDigit())
+                    .foregroundStyle(SemanticColor.label)
 
                 if let delay = departure.delayMinutes, delay > 0 {
                     Text("+\(delay) min")
-                        .font(.caption2.weight(.semibold).monospacedDigit())
-                        .foregroundColor(AppTheme.semanticError)
+                        .font(Typography.caption2.weight(.semibold).monospacedDigit())
+                        .foregroundStyle(SemanticColor.systemRed)
                 } else if departure.delayMinutes == 0 {
                     Text("pünktlich")
-                        .font(.caption2.weight(.medium))
-                        .foregroundColor(AppTheme.semanticSuccess)
+                        .font(Typography.caption2.weight(.medium))
+                        .foregroundStyle(SemanticColor.systemGreen)
                 }
             }
 
             if let quayText = departure.quayText, let tap = onSteigTap {
                 Button(action: tap) {
                     Text(quayText)
-                        .font(.caption2.weight(.bold))
+                        .font(Typography.caption2.weight(.bold))
                         .padding(.horizontal, 7)
                         .padding(.vertical, 4)
-                        .foregroundColor(AppTheme.muted)
+                        .foregroundStyle(SemanticColor.secondaryLabel)
                         .overlay(
-                            RoundedRectangle(cornerRadius: 6)
-                                .stroke(AppTheme.muted.opacity(0.4), lineWidth: 1)
+                            RoundedRectangle(cornerRadius: DesignTokens.CornerRadius.small, style: .continuous)
+                                .stroke(SemanticColor.separator, lineWidth: 1)
                         )
                 }
                 .buttonStyle(.plain)
             }
         }
-        .padding(.horizontal, 20)
-        .padding(.vertical, 14)
+        .padding(.horizontal, DesignTokens.Spacing.lg)
+        .padding(.vertical, DesignTokens.Spacing.sm)
         .accessibilityElement(children: .combine)
         .accessibilityLabel("\(departure.lineName) Richtung \(departure.direction), \(formatter.formatTime(departure.scheduledDeparture))\(departure.delayMinutes.map { $0 > 0 ? ", +\($0) Minuten" : ", pünktlich" } ?? "")\(departure.occupancy.map { $0 != .unknown ? ", Auslastung \($0.displayText)" : "" } ?? "")\(!isReachable ? ", Warnung: Fußweg knapp" : "")")
         .accessibilityHint("Tippen für Details")
@@ -621,7 +615,7 @@ struct DepartureRowView: View {
             Image(systemName: TransportIconHelper.getTransportIcon(for: departure.serviceType, serviceName: departure.lineName))
                 .font(.system(size: 9, weight: .medium))
             Text(TransportIconHelper.getShortLineName(from: departure.lineName))
-                .font(Font.system(.caption, design: .monospaced).weight(.bold))
+                .font(.caption.weight(.bold).monospacedDigit())
         }
         .foregroundColor(.white)
         .frame(minWidth: 38, minHeight: 36)
@@ -895,7 +889,7 @@ struct DepartureTripDetailView: View {
 
     private var lineBadge: some View {
         Text(TransportIconHelper.getShortLineName(from: departure.lineName))
-            .font(.system(size: 18, weight: .bold, design: .monospaced))
+            .font(.system(size: 18, weight: .bold).monospacedDigit())
             .foregroundColor(.white)
             .frame(minWidth: 52, minHeight: 36)
             .padding(.horizontal, 10)

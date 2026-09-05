@@ -1,6 +1,9 @@
 {
   "sourceLanguage" : "de",
   "strings" : {
+    " %@ · " : {
+
+    },
     " %@ → %@ %@" : {
       "localizations" : {
         "de" : {
@@ -13,16 +16,6 @@
     },
     " %@ Angekommen" : {
 
-    },
-    " %@ in %lld' · %@" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : " %1$@ in %2$lld' · %3$@"
-          }
-        }
-      }
     },
     " %@ Jetzt · %@" : {
       "localizations" : {
@@ -59,12 +52,22 @@
         }
       }
     },
-    "%@ → %@ · %lld'" : {
+    "%@ → %@ · " : {
       "localizations" : {
         "de" : {
           "stringUnit" : {
             "state" : "new",
-            "value" : "%1$@ → %2$@ · %3$lld'"
+            "value" : "%1$@ → %2$@ · "
+          }
+        }
+      }
+    },
+    "%@ → %@ · jetzt" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$@ → %2$@ · jetzt"
           }
         }
       }
@@ -287,12 +290,6 @@
         }
       }
     },
-    "in %lld Min" : {
-
-    },
-    "in %lld'" : {
-
-    },
     "Jetzt" : {
       "localizations" : {
         "en" : {
@@ -414,10 +411,8 @@
         }
       }
     },
-    "min" : {
-
-    },
     "Min" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {

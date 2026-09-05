@@ -243,34 +243,34 @@ struct TransportIconHelper {
         let normalized = getShortLineName(from: serviceName).uppercased()
 
         switch normalized {
-        case "1":           return Color(hex: "#f39b9a")
-        case "3":           return Color(hex: "#d6ad00")
-        case "4", "4A":     return Color(hex: "#e30613")
-        case "5", "5A":     return Color(hex: "#00975f")
-        case "6":           return Color(hex: "#956c29")
-        case "7":           return Color(hex: "#fecc00")
-        case "60":          return Color(hex: "#4e2583")
-        case "61":          return Color(hex: "#4a96d1")
+        case "1":           return LineColors.tram1
+        case "3":           return LineColors.tram3
+        case "4", "4A":     return LineColors.tram4
+        case "5", "5A":     return LineColors.tram5
+        case "6":           return LineColors.tram6
+        case "7":           return LineColors.tram7
+        case "60":          return LineColors.bus60
+        case "61":          return LineColors.bus61
         default: break
         }
 
         if isLongDistanceLine(serviceType: serviceType, serviceName: serviceName) {
-            return Color(hex: "#4a96d1")
+            return LineColors.longDistance
         }
         if isSBahnLine(serviceType: serviceType, serviceName: serviceName) {
-            return Color(hex: "#00975f")
+            return LineColors.sBahn
         }
         if isRegionalLine(serviceType: serviceType, serviceName: serviceName) {
-            return Color(hex: "#4e2583")
+            return LineColors.regional
         }
 
         let type = (serviceType ?? "").uppercased()
         if type.contains("STRASSENBAHN") || type.contains("TRAM") {
-            return Color(hex: "#e30613")
+            return LineColors.tramDefault
         } else if type.contains("BUS") {
-            return Color(hex: "#4a96d1")
+            return LineColors.busDefault
         }
-        return Color(hex: "#292524")
+        return LineColors.fallback
     }
 
     static func getTransportIcon(for serviceType: String?, serviceName: String? = nil) -> String {

@@ -437,7 +437,7 @@ struct TicketView: View {
     var body: some View {
         NavigationView {
             ZStack {
-                AppTheme.canvas.ignoresSafeArea()
+                SemanticColor.systemGroupedBackground.ignoresSafeArea()
                 if isScanning {
                     scanningOverlay
                 } else if let ticket {
@@ -550,12 +550,12 @@ struct TicketView: View {
     // MARK: - Scanning Overlay
 
     private var scanningOverlay: some View {
-        VStack(spacing: 20) {
+        VStack(spacing: DesignTokens.Spacing.lg) {
             Spacer()
             ProgressView().scaleEffect(1.4)
             Text("Ticket wird erkannt…")
-                .font(.subheadline)
-                .foregroundStyle(AppTheme.muted)
+                .font(Typography.subheadline)
+                .foregroundStyle(SemanticColor.secondaryLabel)
             Spacer()
         }
         .accessibilityElement(children: .combine)
@@ -565,37 +565,35 @@ struct TicketView: View {
     // MARK: - Empty State
 
     private var emptyState: some View {
-        VStack(spacing: 32) {
+        VStack(spacing: DesignTokens.Spacing.xxl) {
             Spacer()
             ticketIllustration
-            VStack(spacing: 8) {
+            VStack(spacing: DesignTokens.Spacing.xs) {
                 Text("Kein Ticket hinterlegt")
-                    .font(.title3).fontWeight(.semibold)
-                    .foregroundStyle(AppTheme.ink)
+                    .font(Typography.title3).fontWeight(.semibold)
+                    .foregroundStyle(SemanticColor.label)
                 Text("Importiere einen oder zwei Screenshots\ndeines Tickets — die Daten werden\nautomatisch erkannt.")
-                    .font(.subheadline)
-                    .foregroundStyle(AppTheme.muted)
+                    .font(Typography.subheadline)
+                    .foregroundStyle(SemanticColor.secondaryLabel)
                     .multilineTextAlignment(.center)
             }
-            VStack(spacing: 12) {
+            VStack(spacing: DesignTokens.Spacing.sm) {
                 Button { showImportOptions = true } label: {
                     Label("Aus Screenshot importieren", systemImage: "photo.badge.plus")
-                        .font(AppTheme.buttonFont)
-                        .foregroundStyle(AppTheme.onPrimary)
-                        .frame(maxWidth: 280)
-                        .padding(.vertical, 15)
-                        .background(AppTheme.primary)
-                        .clipShape(RoundedRectangle(cornerRadius: 14))
+                        .font(Typography.body.weight(.semibold))
                 }
+                .buttonStyle(.higPrimary)
+                .padding(.horizontal, DesignTokens.Spacing.xxl)
+                
                 Button { showManualSheet = true } label: {
                     Text("Manuell eingeben")
-                        .font(.subheadline)
-                        .foregroundStyle(AppTheme.muted)
+                        .font(Typography.subheadline)
+                        .foregroundStyle(SemanticColor.secondaryLabel)
                 }
             }
             Spacer()
         }
-        .padding(.horizontal, 32)
+        .padding(.horizontal, DesignTokens.Spacing.xxl)
     }
 
     private var ticketIllustration: some View {
@@ -608,7 +606,7 @@ struct TicketView: View {
                 DTicketLogoView(width: 66)
                 Text("D-TICKET")
                     .font(.system(size: 20, weight: .black))
-                    .foregroundStyle(Color(hex: "#1a1a1a"))
+                    .foregroundStyle(SemanticColor.label)
             }
         }
         .accessibilityHidden(true)
@@ -639,7 +637,7 @@ struct TicketView: View {
                         .foregroundStyle(.white)
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 14)
-                        .background(Color(hex: "#1a1a1a"))
+                        .background(SemanticColor.label)
                         .clipShape(RoundedRectangle(cornerRadius: 12))
                     }
                     Button { showManualSheet = true } label: {
@@ -712,7 +710,7 @@ struct TicketView: View {
         .foregroundStyle(.white)
         .padding(.horizontal, 16)
         .padding(.vertical, 10)
-        .background(Color(hex: "#1e7e34").opacity(0.95))
+        .background(TicketStatusColors.valid.opacity(0.95))
         .clipShape(Capsule())
         .shadow(color: .black.opacity(0.2), radius: 6, y: 3)
         .padding(.top, 8)
@@ -1019,7 +1017,7 @@ struct TicketCardView: View {
             VStack(spacing: 3) {
                 Text("D-TICKET")
                     .font(.system(size: 28, weight: .black))
-                    .foregroundStyle(Color(hex: "#1a1a1a"))
+                    .foregroundStyle(SemanticColor.label)
                 if ticket.ticketLabel != "Deutschlandticket" {
                     Text(ticket.ticketLabel.replacingOccurrences(of: "Deutschland Ticket ", with: "").replacingOccurrences(of: "D-Ticket ", with: "").uppercased())
                         .font(.system(size: 11, weight: .semibold))
@@ -1308,9 +1306,9 @@ struct TicketFullscreenView: View {
 
 private var flagStripe: some View {
     HStack(spacing: 0) {
-        Rectangle().fill(Color(hex: "#000000"))
-        Rectangle().fill(Color(hex: "#DD0000"))
-        Rectangle().fill(Color(hex: "#FFCE00"))
+        Rectangle().fill(GermanyFlagColors.black)
+        Rectangle().fill(GermanyFlagColors.red)
+        Rectangle().fill(GermanyFlagColors.gold)
     }
 }
 
@@ -1332,17 +1330,17 @@ private struct DTicketLogoView: View {
 
     private var bars: [BarSpec] { [
         //        relWidth  xOffset  leftGhost  rightGhost  leftGhostOffset  rightGhostOffset
-        BarSpec(id: 0, relWidth: 0.33, left: Color(hex: "#111111"), right: Color(hex: "#111111"), xOffset: 20, leftGhost: 0.5, rightGhost: 0.68, leftGhostOffset:  -16, rightGhostOffset:  50),
-        BarSpec(id: 1, relWidth: 0.91, left: Color(hex: "#111111"), right: Color(hex: "#111111"), xOffset:  9, leftGhost: 0.15, rightGhost: 0.68, leftGhostOffset: -3, rightGhostOffset:  66),
-        BarSpec(id: 2, relWidth: 1,    left: Color(hex: "#111111"), right: Color(hex: "#111111"), xOffset:  7, leftGhost: 0.6, rightGhost: 1, leftGhostOffset: -38, rightGhostOffset:  85),
+        BarSpec(id: 0, relWidth: 0.33, left: DTicketLogoColors.blackBar, right: DTicketLogoColors.blackBar, xOffset: 20, leftGhost: 0.5, rightGhost: 0.68, leftGhostOffset:  -16, rightGhostOffset:  50),
+        BarSpec(id: 1, relWidth: 0.91, left: DTicketLogoColors.blackBar, right: DTicketLogoColors.blackBar, xOffset:  9, leftGhost: 0.15, rightGhost: 0.68, leftGhostOffset: -3, rightGhostOffset:  66),
+        BarSpec(id: 2, relWidth: 1,    left: DTicketLogoColors.blackBar, right: DTicketLogoColors.blackBar, xOffset:  7, leftGhost: 0.6, rightGhost: 1, leftGhostOffset: -38, rightGhostOffset:  85),
         // Red
-        BarSpec(id: 3, relWidth: 1.2,  left: Color(hex: "#5E0000"), right: Color(hex: "#CC1A00"), xOffset:  3, leftGhost: 0.28, rightGhost: 1, leftGhostOffset: -26, rightGhostOffset:  77),
-        BarSpec(id: 4, relWidth: 1.3,  left: Color(hex: "#5E0000"), right: Color(hex: "#CC1A00"), xOffset:  0, leftGhost: 0.8, rightGhost: 0.15, leftGhostOffset: -50, rightGhostOffset:  95),
-        BarSpec(id: 5, relWidth: 0.9,  left: Color(hex: "#5E0000"), right: Color(hex: "#C01800"), xOffset:  3, leftGhost: 0.15, rightGhost: 0.85, leftGhostOffset: -14, rightGhostOffset:  70),
+        BarSpec(id: 3, relWidth: 1.2,  left: DTicketLogoColors.redDark, right: DTicketLogoColors.redLight, xOffset:  3, leftGhost: 0.28, rightGhost: 1, leftGhostOffset: -26, rightGhostOffset:  77),
+        BarSpec(id: 4, relWidth: 1.3,  left: DTicketLogoColors.redDark, right: DTicketLogoColors.redLight, xOffset:  0, leftGhost: 0.8, rightGhost: 0.15, leftGhostOffset: -50, rightGhostOffset:  95),
+        BarSpec(id: 5, relWidth: 0.9,  left: DTicketLogoColors.redDark, right: DTicketLogoColors.redMid, xOffset:  3, leftGhost: 0.15, rightGhost: 0.85, leftGhostOffset: -14, rightGhostOffset:  70),
         // Yellow
-        BarSpec(id: 6, relWidth: 1,    left: Color(hex: "#DE4400"), right: Color(hex: "#F8CC00"), xOffset:  7, leftGhost: 0.5, rightGhost: 0.15, leftGhostOffset: -24, rightGhostOffset:  81),
-        BarSpec(id: 7, relWidth: 0.95, left: Color(hex: "#DE4400"), right: Color(hex: "#F8CC00"), xOffset: 20, leftGhost: 0.28, rightGhost: 0, leftGhostOffset:  -4, rightGhostOffset:  91),
-        BarSpec(id: 8, relWidth: 0.8,  left: Color(hex: "#E04800"), right: Color(hex: "#F8CC00"), xOffset: 16, leftGhost: 0.38, rightGhost: 0.5, leftGhostOffset:  -19, rightGhostOffset:  76),
+        BarSpec(id: 6, relWidth: 1,    left: DTicketLogoColors.yellowDark, right: DTicketLogoColors.yellowLight, xOffset:  7, leftGhost: 0.5, rightGhost: 0.15, leftGhostOffset: -24, rightGhostOffset:  81),
+        BarSpec(id: 7, relWidth: 0.95, left: DTicketLogoColors.yellowDark, right: DTicketLogoColors.yellowLight, xOffset: 20, leftGhost: 0.28, rightGhost: 0, leftGhostOffset:  -4, rightGhostOffset:  91),
+        BarSpec(id: 8, relWidth: 0.8,  left: DTicketLogoColors.yellowMid, right: DTicketLogoColors.yellowLight, xOffset: 16, leftGhost: 0.38, rightGhost: 0.5, leftGhostOffset:  -19, rightGhostOffset:  76),
     ]}
 
     var body: some View {
@@ -1558,10 +1556,10 @@ private struct ExpiryBadgeView: View {
 
     private var badgeColor: Color {
         switch state {
-        case .expired:          return Color(hex: "#CC2200")
-        case .urgent:           return Color(hex: "#E05000")
+        case .expired:          return TicketStatusColors.expired
+        case .urgent:           return TicketStatusColors.urgent
         case .warning(let days):
-            return days <= 1 ? Color(hex: "#E05000") : Color(hex: "#C07800")
+            return days <= 1 ? TicketStatusColors.urgent : TicketStatusColors.warning
         }
     }
 }

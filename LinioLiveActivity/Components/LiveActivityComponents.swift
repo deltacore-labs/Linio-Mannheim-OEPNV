@@ -257,7 +257,7 @@ struct StationTimelineRow: View {
                 // Departure
                 HStack(alignment: .center, spacing: 6) {
                     Text(formattedTime(from: departureTimeISO))
-                        .font(.system(size: 13, weight: .bold, design: .monospaced))
+                        .font(.system(size: 13, weight: .bold).monospacedDigit())
                         .foregroundColor(.primary)
                     DelayChip(delay: delay)
                     Text(fromStation)
@@ -269,7 +269,7 @@ struct StationTimelineRow: View {
                 // Arrival
                 HStack(alignment: .center, spacing: 6) {
                     Text(formattedTime(from: arrivalTimeISO))
-                        .font(.system(size: 13, weight: .bold, design: .monospaced))
+                        .font(.system(size: 13, weight: .bold).monospacedDigit())
                         .foregroundColor(.secondary)
                     if let d = delay, d > 0 {
                         DelayChip(delay: d)
@@ -443,11 +443,11 @@ struct ContentMediumView: View {
                             .fill(accentColor)
                             .frame(width: 7, height: 7)
                         Text(formattedTime(from: context.attributes.departureTimeISO))
-                            .font(.system(size: 13, weight: .bold, design: .monospaced))
+                            .font(.system(size: 13, weight: .bold).monospacedDigit())
                             .foregroundColor(.primary)
                         if hasDelay {
                             Text("+\(context.state.delay ?? 0)'")
-                                .font(.system(size: 10, weight: .heavy, design: .rounded))
+                                .font(.system(size: 10, weight: .heavy).monospacedDigit())
                                 .foregroundColor(.orange)
                         }
                     }
@@ -462,7 +462,7 @@ struct ContentMediumView: View {
                             .strokeBorder(accentColor.opacity(0.5), lineWidth: 1.5)
                             .frame(width: 7, height: 7)
                         Text(formattedTime(from: context.attributes.arrivalTimeISO))
-                            .font(.system(size: 13, weight: .bold, design: .monospaced))
+                            .font(.system(size: 13, weight: .bold).monospacedDigit())
                             .foregroundColor(.secondary)
                     }
                     Text(context.attributes.endStation)
@@ -578,11 +578,11 @@ struct ContentMediumView: View {
             // Departure / arrival time labels below bar
             HStack {
                 Text(formattedTime(from: context.attributes.departureTimeISO))
-                    .font(.system(size: 10, weight: .medium, design: .monospaced))
+                    .font(.system(size: 10, weight: .medium).monospacedDigit())
                     .foregroundColor(.secondary)
                 Spacer()
                 Text(formattedTime(from: context.attributes.arrivalTimeISO))
-                    .font(.system(size: 10, weight: .medium, design: .monospaced))
+                    .font(.system(size: 10, weight: .medium).monospacedDigit())
                     .foregroundColor(.secondary)
             }
             .padding(.horizontal, 18)
@@ -881,11 +881,11 @@ struct DynamicIslandExpandedBottom: View {
                             .font(.system(size: 10, weight: .bold))
                             .foregroundColor(accentColor)
                         Text(formattedTime(from: departureTimeISO))
-                            .font(.system(size: 14, weight: .heavy, design: .monospaced))
+                            .font(.system(size: 14, weight: .heavy).monospacedDigit())
                             .foregroundColor(.white)
                         if hasDelay {
                             Text("+\(delay ?? 0)'")
-                                .font(.system(size: 10, weight: .heavy, design: .rounded))
+                                .font(.system(size: 10, weight: .heavy).monospacedDigit())
                                 .foregroundColor(.orange)
                         }
                     }
@@ -905,13 +905,13 @@ struct DynamicIslandExpandedBottom: View {
                     let range = departureRange()
                     if let range = range {
                         Text(timerInterval: range, countsDown: true)
-                            .font(.system(size: 22, weight: .heavy, design: .rounded))
+                            .font(.system(size: 22, weight: .heavy))
                             .monospacedDigit()
                             .foregroundColor(hasDelay ? .orange : .green)
                             .contentTransition(.numericText(countsDown: true))
                     } else {
                         Text("Jetzt")
-                            .font(.system(size: 18, weight: .heavy, design: .rounded))
+                            .font(.system(size: 18, weight: .heavy))
                             .foregroundColor(.green)
                     }
                 }
@@ -932,7 +932,7 @@ struct DynamicIslandExpandedBottom: View {
                 Spacer()
 
                 Text("Ank. \(formattedTime(from: arrivalTimeISO))")
-                    .font(.system(size: 10, weight: .medium, design: .monospaced))
+                    .font(.system(size: 10, weight: .medium).monospacedDigit())
                     .foregroundColor(.secondary.opacity(0.7))
             }
             .padding(.horizontal, 12)
@@ -950,11 +950,11 @@ struct DynamicIslandExpandedBottom: View {
                 VStack(alignment: .leading, spacing: 1) {
                     HStack(spacing: 3) {
                         Text(formattedTime(from: departureTimeISO))
-                            .font(.system(size: 12, weight: .bold, design: .monospaced))
+                            .font(.system(size: 12, weight: .bold).monospacedDigit())
                             .foregroundColor(.white)
                         if let d = delay, d > 0 {
                             Text("+\(d)'")
-                                .font(.system(size: 9, weight: .heavy, design: .rounded))
+                                .font(.system(size: 9, weight: .heavy).monospacedDigit())
                                 .foregroundColor(.orange)
                         }
                     }
@@ -973,13 +973,13 @@ struct DynamicIslandExpandedBottom: View {
                     let range = arrivalRange()
                     if let range = range {
                         Text(timerInterval: range, countsDown: true)
-                            .font(.system(size: 15, weight: .heavy, design: .rounded))
+                            .font(.system(size: 15, weight: .heavy))
                             .monospacedDigit()
                             .foregroundColor(hasDelay ? .orange : accentColor)
                             .contentTransition(.numericText(countsDown: true))
                     } else {
                         Text("--:--")
-                            .font(.system(size: 13, weight: .heavy, design: .rounded))
+                            .font(.system(size: 13, weight: .heavy))
                             .foregroundColor(.secondary)
                     }
                 }
@@ -989,11 +989,11 @@ struct DynamicIslandExpandedBottom: View {
                     HStack(spacing: 3) {
                         if let d = delay, d > 0 {
                             Text("+\(d)'")
-                                .font(.system(size: 9, weight: .heavy, design: .rounded))
+                                .font(.system(size: 9, weight: .heavy).monospacedDigit())
                                 .foregroundColor(.orange)
                         }
                         Text(formattedTime(from: arrivalTimeISO))
-                            .font(.system(size: 12, weight: .bold, design: .monospaced))
+                            .font(.system(size: 12, weight: .bold).monospacedDigit())
                             .foregroundColor(.white)
                     }
                     Text(endStation)

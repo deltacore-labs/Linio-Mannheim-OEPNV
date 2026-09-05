@@ -18,18 +18,9 @@ struct ContentView: View {
     @State private var navigateToTrips = false
 
     init() {
+        // Apple HIG: Verwende System Tab Bar Appearance für automatische Adaption
         let tabBarAppearance = UITabBarAppearance()
-        tabBarAppearance.configureWithOpaqueBackground()
-        tabBarAppearance.backgroundColor = UIColor { trait in
-            trait.userInterfaceStyle == .dark
-                ? UIColor(red: 0.11, green: 0.10, blue: 0.09, alpha: 1) // #1c1917
-                : UIColor(red: 0.961, green: 0.961, blue: 0.961, alpha: 1) // #f5f5f5
-        }
-        tabBarAppearance.shadowColor = UIColor { trait in
-            trait.userInterfaceStyle == .dark
-                ? UIColor(red: 0.267, green: 0.251, blue: 0.235, alpha: 1) // #44403c
-                : UIColor(red: 0.906, green: 0.898, blue: 0.878, alpha: 1) // #e7e5e4
-        }
+        tabBarAppearance.configureWithDefaultBackground()
         UITabBar.appearance().standardAppearance = tabBarAppearance
         UITabBar.appearance().scrollEdgeAppearance = tabBarAppearance
     }
@@ -72,7 +63,7 @@ struct ContentView: View {
                 }
                 .tag(3)
         }
-        .tint(AppTheme.primaryColor)
+        .tint(Color.accentColor)
         .dynamicTypeSize(.xSmall ... .accessibility2)
         .onOpenURL { url in
             // Dynamic Island / Live Activity deep link → Einstellungen (Fahrten-Abschnitt)
@@ -105,100 +96,68 @@ struct ContentView: View {
     }
 }
 
-// MARK: - App Theme
+// MARK: - App Theme (HIG-konform, verweist auf Design System)
+// DEPRECATED: Bitte direkt SemanticColor, Typography und DesignTokens verwenden.
+// Diese Aliase existieren nur für Rückwärtskompatibilität.
 
 struct AppTheme {
-    // Canvas & Surfaces (adaptive)
-    static let canvas = Color(UIColor { t in
-        t.userInterfaceStyle == .dark ? UIColor(hex: "#1c1917") : UIColor(hex: "#f5f5f5")
-    })
-    static let canvasSoft     = Color(hex: "#fafafa")
-    static let surfaceCard = Color(UIColor { t in
-        t.userInterfaceStyle == .dark ? UIColor(hex: "#292524") : .white
-    })
-    static let surfaceStrong = Color(UIColor { t in
-        t.userInterfaceStyle == .dark ? UIColor(hex: "#3c3836") : UIColor(hex: "#f0efed")
-    })
-    static let hairline = Color(UIColor { t in
-        t.userInterfaceStyle == .dark ? UIColor(hex: "#44403c") : UIColor(hex: "#e7e5e4")
-    })
-    static let hairlineStrong = Color(UIColor { t in
-        t.userInterfaceStyle == .dark ? UIColor(hex: "#57534e") : UIColor(hex: "#d6d3d1")
-    })
+    // Canvas & Surfaces → HIG System Colors
+    static var canvas: Color { SemanticColor.systemGroupedBackground }
+    static var canvasSoft: Color { SemanticColor.systemBackground }
+    static var surfaceCard: Color { SemanticColor.secondarySystemGroupedBackground }
+    static var surfaceStrong: Color { SemanticColor.tertiarySystemFill }
+    static var hairline: Color { SemanticColor.separator }
+    static var hairlineStrong: Color { SemanticColor.opaqueSeparator }
 
-    // Text (adaptive)
-    static let ink = Color(UIColor { t in
-        t.userInterfaceStyle == .dark ? .white : UIColor(hex: "#0c0a09")
-    })
-    static let bodyText = Color(UIColor { t in
-        t.userInterfaceStyle == .dark ? UIColor(hex: "#c8c2bc") : UIColor(hex: "#4e4e4e")
-    })
-    static let muted = Color(UIColor { t in
-        if t.accessibilityContrast == .high {
-            return t.userInterfaceStyle == .dark ? UIColor(hex: "#c8c2bc") : UIColor(hex: "#565049")
-        }
-        return t.userInterfaceStyle == .dark ? UIColor(hex: "#a8a29e") : UIColor(hex: "#777169")
-    })
-    static let mutedSoft = Color(UIColor { t in
-        t.userInterfaceStyle == .dark ? UIColor(hex: "#a8a29e") : UIColor(hex: "#a8a29e")
-    })
+    // Text → HIG Label Colors
+    static var ink: Color { SemanticColor.label }
+    static var bodyText: Color { SemanticColor.secondaryLabel }
+    static var muted: Color { SemanticColor.secondaryLabel }
+    static var mutedSoft: Color { SemanticColor.tertiaryLabel }
 
-    // Actions (adaptive)
-    static let primary = Color(UIColor { t in
-        t.userInterfaceStyle == .dark ? UIColor(hex: "#e7e5e4") : UIColor(hex: "#292524")
-    })
-    static let primaryActive = Color(UIColor { t in
-        t.userInterfaceStyle == .dark ? .white : UIColor(hex: "#0c0a09")
-    })
-    static let primaryColor = Color(UIColor { t in
-        t.userInterfaceStyle == .dark ? UIColor(hex: "#e7e5e4") : UIColor(hex: "#292524")
-    })
-    static let onPrimary = Color(UIColor { t in
-        t.userInterfaceStyle == .dark ? UIColor(hex: "#1c1917") : .white
-    })
+    // Actions → HIG System Colors
+    static var primary: Color { Color.accentColor }
+    static var primaryActive: Color { SemanticColor.label }
+    static var primaryColor: Color { Color.accentColor }
+    static var onPrimary: Color { Color.white }
 
-    // Dark hero surfaces (always dark — not adaptive)
-    static let surfaceDark         = Color(hex: "#0c0a09")
-    static let surfaceDarkElevated = Color(hex: "#1c1917")
-    static let onDark              = Color.white
-    static let onDarkSoft          = Color(hex: "#a8a29e")
+    // Dark hero surfaces (für spezielle Header-Bereiche)
+    static let surfaceDark = Color(UIColor.systemGray6.resolvedColor(with: UITraitCollection(userInterfaceStyle: .dark)))
+    static let surfaceDarkElevated = Color(UIColor.secondarySystemBackground.resolvedColor(with: UITraitCollection(userInterfaceStyle: .dark)))
+    static var onDark: Color { Color.white }
+    static var onDarkSoft: Color { SemanticColor.tertiaryLabel }
 
-    // Atmospheric gradient orbs (decoration — no contrast requirement)
-    static let gradientMint     = Color(hex: "#a7e5d3")
-    static let gradientPeach    = Color(hex: "#f4c5a8")
-    static let gradientLavender = Color(hex: "#c8b8e0")
-    static let gradientSky      = Color(hex: "#a8c8e8")
-    static let gradientRose     = Color(hex: "#e8b8c4")
+    // Atmospheric gradient orbs → HIG System Colors (subtile Varianten)
+    static var gradientMint: Color { SemanticColor.systemTeal }
+    static var gradientPeach: Color { SemanticColor.systemOrange }
+    static var gradientLavender: Color { SemanticColor.systemIndigo }
+    static var gradientSky: Color { SemanticColor.systemCyan }
+    static var gradientRose: Color { SemanticColor.systemPink }
 
-    // Semantic (adaptive — WCAG AA compliant in dark mode; success passes AA for large text in light mode)
-    static let semanticError = Color(UIColor { t in
-        t.userInterfaceStyle == .dark ? UIColor(hex: "#f87171") : UIColor(hex: "#dc2626")
-    })
-    static let semanticSuccess = Color(UIColor { t in
-        t.userInterfaceStyle == .dark ? UIColor(hex: "#4ade80") : UIColor(hex: "#16a34a")
-    })
+    // Semantic → HIG System Colors
+    static var semanticError: Color { SemanticColor.systemRed }
+    static var semanticSuccess: Color { SemanticColor.systemGreen }
 
     // Legacy aliases
-    static let accentGradient   = LinearGradient(colors: [primary, primary], startPoint: .leading, endPoint: .trailing)
-    static let headerBackground = LinearGradient(colors: [surfaceDark, surfaceDarkElevated], startPoint: .topLeading, endPoint: .bottomTrailing)
-    static let cardBackground   = surfaceCard
-    static let subtleBackground = surfaceStrong
-    static let secondaryColor   = primary
+    static var accentGradient: LinearGradient { LinearGradient(colors: [primary, primary], startPoint: .leading, endPoint: .trailing) }
+    static var headerBackground: LinearGradient { LinearGradient(colors: [surfaceDark, surfaceDarkElevated], startPoint: .topLeading, endPoint: .bottomTrailing) }
+    static var cardBackground: Color { surfaceCard }
+    static var subtleBackground: Color { surfaceStrong }
+    static var secondaryColor: Color { primary }
 
-    // Shadow
+    // Shadow → DesignTokens
     static func shadowColor(isPast: Bool = false) -> Color {
-        Color.black.opacity(isPast ? 0.03 : 0.05)
+        isPast ? .clear : DesignTokens.Shadow.small.color
     }
 
-    // Typography
+    // Typography → San Francisco System
     static func displayFont(size: CGFloat) -> Font {
-        .system(size: UIFontMetrics(forTextStyle: .body).scaledValue(for: size), weight: .light, design: .serif)
+        Typography.display(size: size, weight: .light)
     }
-    static let buttonFont = Font.system(size: 15, weight: .medium)
+    static var buttonFont: Font { Typography.body.weight(.semibold) }
     static func monoFont(size: CGFloat, weight: Font.Weight = .bold) -> Font {
-        .system(size: UIFontMetrics(forTextStyle: .body).scaledValue(for: size), weight: weight, design: .monospaced)
+        Typography.mono(size: size, weight: weight)
     }
-
 }
 
 // MARK: - Color(hex:) initializer

@@ -28,7 +28,7 @@ struct TripCard: View {
 
     private var primaryLineColor: Color {
         guard let firstLeg = trip.legs.first(where: { $0.isTimedLeg }) else {
-            return AppTheme.primaryColor
+            return Color.accentColor
         }
         return TransportIconHelper.getLineColor(for: firstLeg.serviceType, serviceName: firstLeg.serviceName)
     }
@@ -53,10 +53,10 @@ struct TripCard: View {
     var body: some View {
         HStack(spacing: 0) {
             Rectangle()
-                .fill(isPast ? AppTheme.hairlineStrong : primaryLineColor)
+                .fill(isPast ? SemanticColor.separator : primaryLineColor)
                 .frame(width: 4)
 
-            VStack(alignment: .leading, spacing: 10) {
+            VStack(alignment: .leading, spacing: DesignTokens.Spacing.sm) {
                 HStack(alignment: .top) {
                     timeRow
                     Spacer()
@@ -66,24 +66,19 @@ struct TripCard: View {
                 metaRow
                 transportLinesRow
             }
-            .padding(.leading, 14)
-            .padding(.trailing, 16)
-            .padding(.vertical, 14)
+            .padding(.leading, DesignTokens.Spacing.sm)
+            .padding(.trailing, DesignTokens.Spacing.md)
+            .padding(.vertical, DesignTokens.Spacing.sm)
         }
         .background(
-            isPast
-                ? AppTheme.surfaceStrong
-                : AppTheme.surfaceCard
-        )
-        .clipShape(RoundedRectangle(cornerRadius: 20))
-        .overlay(RoundedRectangle(cornerRadius: 20).stroke(AppTheme.hairline, lineWidth: 1))
-        .shadow(
-            color: AppTheme.shadowColor(isPast: isPast),
-            radius: isPast ? 4 : 8,
-            y: isPast ? 1 : 4
+            LiquidGlassBackground(
+                cornerRadius: DesignTokens.CornerRadius.large,
+                intensity: isPast ? .subtle : .standard
+            )
+            .opacity(isPast ? 0.6 : 1.0)
         )
         .opacity(isPast ? 0.72 : 1.0)
-        .padding(.horizontal)
+        .padding(.horizontal, DesignTokens.Spacing.md)
         .accessibilityElement(children: .combine)
         .accessibilityLabel(accessibilityDescription)
         .accessibilityAddTraits(.isButton)
@@ -141,13 +136,13 @@ struct TripCard: View {
     private var statusColumn: some View {
         VStack(alignment: .trailing, spacing: 5) {
             if isPast {
-                statusBadge(text: "Abgefahren", icon: "clock.badge.xmark", color: .secondary, bg: AppTheme.surfaceStrong)
+                statusBadge(text: "Abgefahren", icon: "clock.badge.xmark", color: SemanticColor.secondaryLabel, bg: SemanticColor.tertiarySystemFill)
             } else if let mins = minutesUntilDeparture, mins <= 60 {
                 statusBadge(
                     text: mins == 0 ? "Jetzt" : "in \(mins) Min",
                     icon: mins <= 5 ? "figure.run" : "timer",
-                    color: mins <= 5 ? .red : AppTheme.primaryColor,
-                    bg: (mins <= 5 ? Color.red : AppTheme.primaryColor).opacity(0.12)
+                    color: mins <= 5 ? SemanticColor.systemRed : Color.accentColor,
+                    bg: (mins <= 5 ? SemanticColor.systemRed : Color.accentColor).opacity(0.12)
                 )
             }
 

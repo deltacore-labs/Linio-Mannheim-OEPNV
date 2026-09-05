@@ -77,7 +77,7 @@ private struct TripTrackingView: View {
                             .font(.caption2)
                             .foregroundColor(.secondary)
                         Text(WatchDateHelper.formatTime(trip.startTime))
-                            .font(.system(.body, design: .monospaced).bold())
+                            .font(.body.bold().monospacedDigit())
                             .foregroundColor(phase == .beforeDeparture ? .orange : .primary)
                     }
 
@@ -94,7 +94,7 @@ private struct TripTrackingView: View {
                             .font(.caption2)
                             .foregroundColor(.secondary)
                         Text(WatchDateHelper.formatTime(trip.endTime))
-                            .font(.system(.body, design: .monospaced))
+                            .font(.body.monospacedDigit())
                             .foregroundColor(phase == .arrived ? .green : .secondary)
                     }
                 }
@@ -214,7 +214,7 @@ struct LineBadgeView: View {
             Image(systemName: WatchStyleHelper.icon(serviceType: serviceType, serviceName: serviceName))
                 .font(.system(size: 9, weight: .bold))
             Text(WatchStyleHelper.shortName(serviceName))
-                .font(.system(size: 11, weight: .heavy, design: .rounded))
+                .font(.system(size: 11, weight: .heavy).monospacedDigit())
         }
         .foregroundColor(.white)
         .padding(.horizontal, 6)

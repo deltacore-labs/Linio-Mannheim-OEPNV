@@ -382,6 +382,10 @@ class SwipeableHostingController<Content: View>: UIHostingController<Content> {
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .clear
+        
+        // Wichtig: Sizing auf automatisch setzen damit SwiftUI die Größe korrekt berechnet
+        sizingOptions = .intrinsicContentSize
+        
         setupGestures()
     }
     

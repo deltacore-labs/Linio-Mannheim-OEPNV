@@ -152,8 +152,7 @@ struct StationPickerView: View {
                 }
 
                 if graphQLService.isLoading && !searchText.isEmpty {
-                    ProgressView()
-                        .scaleEffect(0.7)
+                    InlineSkeletonLoader(size: 16, tint: AppTheme.muted.opacity(0.6))
                         .transition(.opacity)
                         .accessibilityHidden(true)
                 }
@@ -361,11 +360,8 @@ struct StationPickerView: View {
 
     private var inlineLoadingIndicator: some View {
         HStack(spacing: 8) {
-            ProgressView()
-                .scaleEffect(0.8)
-            Text("Suche...")
-                .font(.caption)
-                .foregroundColor(.secondary)
+            InlineSkeletonLoader(size: 16, tint: AppTheme.muted.opacity(0.6))
+            SkeletonShape(width: 60, height: 12, cornerRadius: 4)
         }
         .frame(maxWidth: .infinity)
         .padding(.vertical, 8)
@@ -375,13 +371,10 @@ struct StationPickerView: View {
 
     private var loadingView: some View {
         VStack(spacing: 16) {
-            // Header mit Spinner
+            // Header mit Skeleton
             HStack(spacing: 10) {
-                ProgressView()
-                    .progressViewStyle(CircularProgressViewStyle(tint: AppTheme.muted))
-                Text("Suche Haltestellen...")
-                    .font(.system(size: 13, weight: .medium))
-                    .foregroundColor(AppTheme.muted)
+                InlineSkeletonLoader(size: 16, tint: AppTheme.muted.opacity(0.5))
+                SkeletonShape(width: 130, height: 14, cornerRadius: 4)
             }
             .padding(.top, 20)
             
@@ -398,20 +391,31 @@ struct StationPickerView: View {
         ScrollView {
             LazyVStack(spacing: 0) {
                 // Ergebnis-Header
-                HStack(spacing: 6) {
-                    Text("\(graphQLService.stations.count)")
-                        .font(.system(size: 12, weight: .bold))
-                        .foregroundColor(AppTheme.ink)
-                    Text("Ergebnis\(graphQLService.stations.count == 1 ? "" : "se")")
+                HStack(spacing: 10) {
+                    Image(systemName: "magnifyingglass")
                         .font(.system(size: 12, weight: .semibold))
-                        .foregroundColor(.secondary)
-                        .textCase(.uppercase)
-                        .tracking(0.3)
+                        .foregroundColor(AppTheme.primary)
+                    
+                    Text("\(graphQLService.stations.count) Ergebnis\(graphQLService.stations.count == 1 ? "" : "se")")
+                        .font(.system(size: 13, weight: .semibold))
+                        .foregroundColor(.primary)
+                    
                     Spacer()
+                    
+                    // Filter-Icon
+                    Image(systemName: "line.3.horizontal.decrease.circle")
+                        .font(.system(size: 14, weight: .medium))
+                        .foregroundColor(.secondary.opacity(0.6))
                 }
                 .padding(.horizontal, 20)
-                .padding(.top, 10)
-                .padding(.bottom, 6)
+                .padding(.vertical, 12)
+                .background(
+                    RoundedRectangle(cornerRadius: 10, style: .continuous)
+                        .fill(AppTheme.primary.opacity(0.06))
+                )
+                .padding(.horizontal, 16)
+                .padding(.top, 0)
+                .padding(.bottom, 8)
 
                 ForEach(Array(graphQLService.stations.enumerated()), id: \.element.id) { index, station in
                     Button {
@@ -464,6 +468,10 @@ struct StationPickerView: View {
         let (city, stopName) = extractCityAndStop(station.longName)
 
         HStack(spacing: 14) {
+            // Spacer links vom Icon für Einrückung
+            Spacer()
+                .frame(width: 20)
+            
             ZStack {
                 Circle()
                     .fill(AppTheme.primary.opacity(0.07))
@@ -634,7 +642,12 @@ struct StationPickerView: View {
 
     private func searchStations(query: String) async {
         guard !query.trimmingCharacters(in: .whitespaces).isEmpty else { return }
-        guard let accessToken = authService.accessToken else {
+        
+        // Sicherstellen, dass ein gültiger Token vorhanden ist (automatische Authentifizierung bei Bedarf)
+        guard let accessToken = await authService.ensureValidToken(), !accessToken.isEmpty else {
+            #if DEBUG
+            print("⚠️ [StationPicker] Kein gültiger Token für Suche verfügbar")
+            #endif
             graphQLService.stations = []
             hasLoadedStations = true
             return
@@ -673,15 +686,19 @@ struct StationPickerView: View {
 
     private func loadNearbyStations() {
         guard let location = locationManager.location else { return }
-        guard let accessToken = authService.accessToken else {
-            hasLoadedStations = true
-            return
-        }
 
         hasLoadedStations = true
         searchText = ""
 
         Task {
+            // Sicherstellen, dass ein gültiger Token vorhanden ist (automatische Authentifizierung bei Bedarf)
+            guard let accessToken = await authService.ensureValidToken(), !accessToken.isEmpty else {
+                #if DEBUG
+                print("⚠️ [StationPicker] Kein gültiger Token für Nahbereich-Suche verfügbar")
+                #endif
+                return
+            }
+            
             await graphQLService.searchStations(
                 lat: location.latitude,
                 lon: location.longitude,
@@ -804,10 +821,8 @@ struct NearbyStationMapSheet: View {
 
             if graphQLService.isLoading {
                 VStack(spacing: 8) {
-                    ProgressView().tint(.white)
-                    Text("Haltestellen laden…")
-                        .font(.system(size: 13, weight: .medium))
-                        .foregroundColor(.white)
+                    InlineSkeletonLoader(size: 20, tint: .white.opacity(0.7))
+                    SkeletonShape(width: 120, height: 14, cornerRadius: 4)
                 }
                 .padding(16)
                 .background(RoundedRectangle(cornerRadius: 12, style: .continuous).fill(.ultraThinMaterial))
@@ -949,12 +964,8 @@ struct NearbyStationMapSheet: View {
         } label: {
             HStack(spacing: 8) {
                 if isLoadingMore {
-                    ProgressView()
-                        .tint(AppTheme.primaryColor)
-                        .scaleEffect(0.85)
-                    Text("Wird geladen…")
-                        .font(.system(size: 14, weight: .semibold))
-                        .foregroundStyle(AppTheme.primaryColor)
+                    InlineSkeletonLoader(size: 16, tint: AppTheme.primaryColor.opacity(0.6))
+                    SkeletonShape(width: 90, height: 14, cornerRadius: 4)
                 } else {
                     Image(systemName: "arrow.clockwise")
                         .font(.system(size: 13, weight: .semibold))
@@ -987,7 +998,9 @@ struct StationRowButtonStyle: ButtonStyle {
     }
 }
 
-#Preview {
+// MARK: - Previews
+
+#Preview("Standard (leer)") {
     StationPickerView(
         authService: AuthService(),
         graphQLService: GraphQLService(),
@@ -995,4 +1008,159 @@ struct StationRowButtonStyle: ButtonStyle {
         selectedStation: .constant(nil),
         selectedDate: .constant(Date())
     )
+}
+
+#Preview("🔍 Suchergebnisse") {
+    StationSearchResultsPreview()
+}
+
+#Preview("⏳ Loading") {
+    StationSearchResultsPreview(isLoading: true)
+}
+
+// MARK: - Preview Helper für Suchergebnisse
+
+/// Preview-View die Mock-Suchergebnisse direkt anzeigt (umgeht die searchText-Logik)
+private struct StationSearchResultsPreview: View {
+    var isLoading = false
+    
+    private let mockStations: [Station] = [
+        Station(hafasID: "1", globalID: "de:08222:2417", longName: "Heidelberg, Bismarckplatz", latitude: 49.4094, longitude: 8.6910),
+        Station(hafasID: "2", globalID: "de:08222:2471", longName: "Heidelberg, Hauptbahnhof", latitude: 49.4034, longitude: 8.6752),
+        Station(hafasID: "3", globalID: "de:08222:2480", longName: "Heidelberg, Universitätsplatz", latitude: 49.4106, longitude: 8.7063),
+        Station(hafasID: "4", globalID: "de:08222:2527", longName: "Mannheim, Paradeplatz", latitude: 49.4875, longitude: 8.4660),
+        Station(hafasID: "5", globalID: "de:08222:2528", longName: "Mannheim, Hauptbahnhof", latitude: 49.4796, longitude: 8.4700),
+    ]
+    
+    var body: some View {
+        NavigationView {
+            ZStack {
+                SemanticColor.systemGroupedBackground.ignoresSafeArea()
+                
+                VStack(spacing: 0) {
+                    // Mock Search Bar
+                    mockSearchBar
+                        .padding(.horizontal, 16)
+                        .padding(.top, 12)
+                        .padding(.bottom, 8)
+                    
+                    // Content
+                    if isLoading {
+                        loadingContent
+                    } else {
+                        searchResultsList
+                    }
+                }
+            }
+            .navigationTitle("Haltestelle")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Button("Abbrechen") { }
+                        .foregroundStyle(Color.accentColor)
+                }
+            }
+        }
+    }
+    
+    private var mockSearchBar: some View {
+        HStack(spacing: 10) {
+            Image(systemName: "magnifyingglass")
+                .font(.system(size: 15, weight: .medium))
+                .foregroundColor(.secondary)
+            Text("Heidelberg")
+                .font(.system(size: 16))
+                .foregroundColor(.primary)
+            Spacer()
+            Image(systemName: "xmark.circle.fill")
+                .font(.system(size: 16))
+                .foregroundColor(.secondary.opacity(0.6))
+        }
+        .padding(.horizontal, 12)
+        .padding(.vertical, 10)
+        .background(
+            RoundedRectangle(cornerRadius: 12, style: .continuous)
+                .fill(AppTheme.surfaceCard)
+                .overlay(RoundedRectangle(cornerRadius: 12, style: .continuous).stroke(AppTheme.hairline, lineWidth: 1))
+        )
+    }
+    
+    private var loadingContent: some View {
+        VStack(spacing: 12) {
+            InlineSkeletonLoader(size: 24, tint: AppTheme.primaryColor.opacity(0.5))
+            SkeletonShape(width: 80, height: 14, cornerRadius: 4)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+    
+    private var searchResultsList: some View {
+        ScrollView {
+            LazyVStack(spacing: 0) {
+                // Header - Ergebnis-Anzeige
+                HStack(spacing: 10) {
+                    Image(systemName: "magnifyingglass")
+                        .font(.system(size: 12, weight: .semibold))
+                        .foregroundColor(AppTheme.primary)
+                    
+                    Text("\(mockStations.count) Ergebnisse")
+                        .font(.system(size: 13, weight: .semibold))
+                        .foregroundColor(.primary)
+                    
+                    Spacer()
+                    
+                    // Optional: Filter-Icon oder Info
+                    Image(systemName: "line.3.horizontal.decrease.circle")
+                        .font(.system(size: 14, weight: .medium))
+                        .foregroundColor(.secondary.opacity(0.6))
+                }
+                .padding(.horizontal, 20)
+                .padding(.vertical, 12)
+                .background(
+                    RoundedRectangle(cornerRadius: 10, style: .continuous)
+                        .fill(AppTheme.primary.opacity(0.06))
+                )
+                .padding(.horizontal, 16)
+                .padding(.top, 0)
+                .padding(.bottom, 8)
+                
+                // Station Rows
+                ForEach(Array(mockStations.enumerated()), id: \.element.id) { index, station in
+                    previewRow(station)
+                    if index < mockStations.count - 1 {
+                        Divider().padding(.leading, 70).padding(.trailing, 16)
+                    }
+                }
+            }
+            .background(
+                RoundedRectangle(cornerRadius: 14, style: .continuous)
+                    .fill(AppTheme.surfaceCard)
+                    .overlay(RoundedRectangle(cornerRadius: 14, style: .continuous).stroke(AppTheme.hairline, lineWidth: 1))
+                    .padding(.horizontal, 16)
+            )
+            .padding(.bottom, 30)
+        }
+    }
+    
+    private func previewRow(_ station: Station) -> some View {
+        let parts = station.longName.components(separatedBy: ", ")
+        let city = parts.count > 1 ? parts[0] : nil
+        let stopName = parts.count > 1 ? parts.dropFirst().joined(separator: ", ") : station.longName
+        
+        return HStack(spacing: 14) {
+            Spacer().frame(width: 20) // Einrückung links
+            
+            ZStack {
+                Circle().fill(AppTheme.primary.opacity(0.07)).frame(width: 38, height: 38)
+                Image(systemName: "tram.fill").font(.system(size: 14, weight: .medium)).foregroundStyle(AppTheme.primary)
+            }
+            VStack(alignment: .leading, spacing: 2) {
+                Text(stopName).font(.system(size: 15, weight: .medium)).foregroundColor(.primary).lineLimit(1)
+                if let city { Text(city).font(.system(size: 12)).foregroundColor(.secondary) }
+            }
+            Spacer()
+            Image(systemName: "chevron.right").font(.system(size: 11, weight: .medium)).foregroundColor(.secondary.opacity(0.25))
+        }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 11)
+    }
 }

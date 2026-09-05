@@ -287,8 +287,7 @@ struct ConnectionsView: View {
                         }
                     } label: {
                         if isLoadingNearbyStation {
-                            ProgressView()
-                                .scaleEffect(0.7)
+                            InlineSkeletonLoader(size: 20, tint: SemanticColor.secondaryLabel.opacity(0.6))
                                 .frame(width: 28, height: 28)
                         } else {
                             Image(systemName: "arrow.up.arrow.down")
@@ -523,21 +522,13 @@ struct ConnectionsView: View {
         return trips.sorted { $0.startTime < $1.startTime }
     }
 
-    // MARK: - Loading View
+    // MARK: - Loading View (Authentifizierung)
 
     private var loadingView: some View {
-        VStack(spacing: 20) {
-            ProgressView()
-                .progressViewStyle(CircularProgressViewStyle(tint: AppTheme.primaryColor))
-                .scaleEffect(1.5)
-            Text("Verbindung wird hergestellt...")
-                .font(.subheadline)
-                .foregroundColor(.secondary)
-        }
-        .frame(maxWidth: .infinity)
-        .padding(.vertical, 60)
-        .accessibilityElement(children: .combine)
-        .accessibilityLabel("Verbindung wird hergestellt")
+        // Skeleton das zum EmptyState passt - wird während Authentifizierung angezeigt
+        ConnectionsEmptyStateSkeleton()
+            .accessibilityElement(children: .combine)
+            .accessibilityLabel("Verbindung wird hergestellt")
     }
 
     // MARK: - Manual Login View
@@ -586,22 +577,20 @@ struct ConnectionsView: View {
                 errorBanner(message: error.errorDescription ?? error.shortDescription)
             }
 
-            if graphQLService.isLoading {
-                if hasSearchedOnce {
-                    // Skeleton Loading für bessere UX bei Folge-Suchen
-                    ConnectionsSkeletonList(count: min(maxConnections, 5))
-                        .transition(.opacity)
-                } else {
-                    // Einfacher Spinner für initiale Suche
-                    ProgressView()
-                        .progressViewStyle(CircularProgressViewStyle(tint: AppTheme.primaryColor))
-                        .scaleEffect(1.3)
-                        .padding(.vertical, 30)
-                }
+            if graphQLService.isLoading && hasSearchedOnce {
+                // Skeleton Loading für Folge-Suchen - passt zu den TripCards
+                ConnectionsSkeletonList(count: min(maxConnections, 5))
+                    .transition(.opacity)
             }
 
             if !hasSearchedOnce && !graphQLService.isLoading {
                 emptyStateView
+            }
+            
+            if !hasSearchedOnce && graphQLService.isLoading {
+                // Skeleton das zum EmptyState passt - initiales Laden
+                ConnectionsEmptyStateSkeleton()
+                    .transition(.opacity)
             }
 
             if hasSearchedOnce && !graphQLService.isLoading {

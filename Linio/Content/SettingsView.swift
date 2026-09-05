@@ -393,7 +393,7 @@ struct SettingsView: View {
                 }
                 Spacer()
                 if locationManager.isLocating {
-                    ProgressView().scaleEffect(0.8)
+                    LocationLoadingSkeleton()
                 } else if locationManager.authorizationStatus == .authorizedWhenInUse || locationManager.authorizationStatus == .authorizedAlways {
                     Button {
                         locationManager.startLocationUpdates()

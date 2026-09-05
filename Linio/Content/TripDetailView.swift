@@ -262,9 +262,7 @@ struct TripDetailView: View {
         VStack(spacing: 0) {
             ZStack {
                 if mapVM.isLoading {
-                    AppTheme.surfaceStrong
-                    ProgressView()
-                        .tint(AppTheme.muted)
+                    MapSkeleton(height: 250)
                 } else {
                     TransitMapViewRepresentable(
                         origin: mapVM.originItem,

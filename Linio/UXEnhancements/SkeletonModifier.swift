@@ -111,6 +111,86 @@ struct SkeletonCircle: View {
     }
 }
 
+// MARK: - Inline Skeleton Loader (Ersatz für kleine ProgressView-Spinner)
+
+/// Kleiner animierter Skeleton-Indikator für Inline-Loading in Buttons, Toolbars etc.
+struct InlineSkeletonLoader: View {
+    let size: CGFloat
+    let tint: Color?
+    
+    @State private var isAnimating = false
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    
+    init(size: CGFloat = 16, tint: Color? = nil) {
+        self.size = size
+        self.tint = tint
+    }
+    
+    var body: some View {
+        HStack(spacing: size * 0.25) {
+            ForEach(0..<3, id: \.self) { index in
+                Circle()
+                    .fill(tint ?? SemanticColor.tertiarySystemFill)
+                    .frame(width: size * 0.3, height: size * 0.3)
+                    .opacity(reduceMotion ? 0.7 : (isAnimating ? 0.3 : 1.0))
+                    .animation(
+                        reduceMotion ? nil : Animation.easeInOut(duration: 0.5)
+                            .repeatForever(autoreverses: true)
+                            .delay(Double(index) * 0.15),
+                        value: isAnimating
+                    )
+            }
+        }
+        .frame(width: size, height: size)
+        .onAppear {
+            guard !reduceMotion else { return }
+            isAnimating = true
+        }
+        .accessibilityLabel("Wird geladen")
+        .accessibilityHidden(true)
+    }
+}
+
+/// Pulsierender Skeleton-Punkt für sehr kompakte Stellen
+struct SkeletonPulse: View {
+    let size: CGFloat
+    let tint: Color?
+    
+    @State private var scale: CGFloat = 0.8
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    
+    init(size: CGFloat = 16, tint: Color? = nil) {
+        self.size = size
+        self.tint = tint
+    }
+    
+    var body: some View {
+        Circle()
+            .fill(tint ?? SemanticColor.tertiarySystemFill)
+            .frame(width: size, height: size)
+            .scaleEffect(reduceMotion ? 1.0 : scale)
+            .opacity(reduceMotion ? 0.7 : (scale < 1.0 ? 0.5 : 1.0))
+            .onAppear {
+                guard !reduceMotion else { return }
+                withAnimation(.easeInOut(duration: 0.6).repeatForever(autoreverses: true)) {
+                    scale = 1.2
+                }
+            }
+            .accessibilityLabel("Wird geladen")
+            .accessibilityHidden(true)
+    }
+}
+
+// MARK: - Toolbar Skeleton Loader
+
+/// Skeleton-Loader für Toolbar-Positionen (ersetzt ProgressView in Navigation Bar)
+struct ToolbarSkeletonLoader: View {
+    var body: some View {
+        InlineSkeletonLoader(size: 18, tint: SemanticColor.secondaryLabel.opacity(0.5))
+            .modifier(ShimmerEffect())
+    }
+}
+
 // MARK: - Text Line Skeleton
 
 struct SkeletonTextLine: View {
@@ -473,14 +553,299 @@ struct SkeletonLoadingContainer<Skeleton: View, Content: View>: View {
 
 // MARK: - Preview
 
+// MARK: - Empty State Skeleton
+
+/// Skeleton das zum EmptyStateView passt - für initiales Laden bevor eine Suche gestartet wurde
+struct EmptyStateSkeleton: View {
+    var body: some View {
+        VStack(spacing: DesignTokens.Spacing.xl) {
+            // Icon-Platzhalter (runder Kreis wie im EmptyStateView)
+            SkeletonCircle(size: 88)
+            
+            // Text-Platzhalter
+            VStack(spacing: DesignTokens.Spacing.xs) {
+                SkeletonShape(width: 200, height: 22, cornerRadius: 6)
+                SkeletonShape(width: 260, height: 16, cornerRadius: 4)
+                SkeletonShape(width: 180, height: 16, cornerRadius: 4)
+            }
+            
+            // Button-Platzhalter
+            SkeletonShape(width: 160, height: 44, cornerRadius: 12)
+                .padding(.top, DesignTokens.Spacing.xs)
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, DesignTokens.Spacing.xxxl)
+        .accessibilityLabel("Inhalt wird geladen")
+        .accessibilityHidden(true)
+    }
+}
+
+/// Skeleton für Verbindungs-EmptyState ("Wohin möchtest du fahren?")
+struct ConnectionsEmptyStateSkeleton: View {
+    var body: some View {
+        VStack(spacing: DesignTokens.Spacing.xl) {
+            // Tram-Icon Platzhalter
+            ZStack {
+                SkeletonCircle(size: 88)
+                Image(systemName: "tram.fill")
+                    .font(.system(size: 36, weight: .medium))
+                    .foregroundStyle(SemanticColor.tertiarySystemFill)
+            }
+            
+            // "Wohin möchtest du fahren?" Platzhalter
+            VStack(spacing: DesignTokens.Spacing.xs) {
+                SkeletonShape(width: 220, height: 22, cornerRadius: 6)
+                SkeletonShape(width: 280, height: 16, cornerRadius: 4)
+                SkeletonShape(width: 200, height: 16, cornerRadius: 4)
+            }
+            
+            // "Haltestelle wählen" Button-Platzhalter
+            HStack(spacing: DesignTokens.Spacing.xs) {
+                SkeletonCircle(size: 18)
+                SkeletonShape(width: 120, height: 18, cornerRadius: 4)
+            }
+            .padding(.horizontal, 24)
+            .padding(.vertical, 14)
+            .background(
+                RoundedRectangle(cornerRadius: 12, style: .continuous)
+                    .fill(SemanticColor.tertiarySystemFill)
+                    .modifier(ShimmerEffect())
+            )
+            .padding(.top, DesignTokens.Spacing.xs)
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, DesignTokens.Spacing.xxxl)
+        .accessibilityLabel("Verbindungssuche wird vorbereitet")
+        .accessibilityHidden(true)
+    }
+}
+
+// MARK: - Map Skeleton
+
+/// Skeleton für Kartenansichten
+struct MapSkeleton: View {
+    let height: CGFloat
+    
+    init(height: CGFloat = 200) {
+        self.height = height
+    }
+    
+    var body: some View {
+        ZStack {
+            RoundedRectangle(cornerRadius: DesignTokens.CornerRadius.medium, style: .continuous)
+                .fill(SemanticColor.tertiarySystemFill)
+                .frame(height: height)
+                .modifier(ShimmerEffect())
+            
+            VStack(spacing: 12) {
+                Image(systemName: "map")
+                    .font(.system(size: 32, weight: .light))
+                    .foregroundStyle(SemanticColor.quaternaryLabel)
+                SkeletonShape(width: 100, height: 12, cornerRadius: 6)
+            }
+        }
+        .accessibilityLabel("Karte wird geladen")
+        .accessibilityHidden(true)
+    }
+}
+
+// MARK: - Service Alerts Skeleton
+
+/// Skeleton für Störungsmeldungen - zeigt zuerst EmptyState-artiges Skeleton,
+/// das dann zu Alert-Cards wechselt wenn Daten da sind
+struct ServiceAlertsSkeleton: View {
+    let count: Int
+    
+    init(count: Int = 3) {
+        self.count = count
+    }
+    
+    var body: some View {
+        VStack(spacing: DesignTokens.Spacing.xl) {
+            // Skeleton im Stil des "Alles läuft!" Empty States
+            ZStack {
+                SkeletonCircle(size: 88)
+                Image(systemName: "checkmark.circle.fill")
+                    .font(.system(size: 36, weight: .medium))
+                    .foregroundStyle(SemanticColor.tertiarySystemFill)
+            }
+            
+            VStack(spacing: DesignTokens.Spacing.xs) {
+                SkeletonShape(width: 120, height: 22, cornerRadius: 6)
+                SkeletonShape(width: 280, height: 16, cornerRadius: 4)
+            }
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, DesignTokens.Spacing.xxxl)
+        .accessibilityLabel("Störungsmeldungen werden geladen")
+        .accessibilityHidden(true)
+    }
+}
+
+/// Skeleton für einzelne Alert-Card (wird verwendet wenn bereits Alerts da sind und mehr geladen werden)
+struct ServiceAlertCardSkeleton: View {
+    var body: some View {
+        HStack(alignment: .top, spacing: 12) {
+            SkeletonCircle(size: 32)
+            VStack(alignment: .leading, spacing: 8) {
+                SkeletonShape(width: nil, height: 16, cornerRadius: 4)
+                SkeletonShape(width: 180, height: 12, cornerRadius: 4)
+                SkeletonShape(width: 100, height: 10, cornerRadius: 4)
+            }
+            Spacer()
+        }
+        .padding(16)
+        .background(
+            RoundedRectangle(cornerRadius: DesignTokens.CornerRadius.medium, style: .continuous)
+                .fill(AppTheme.surfaceCard)
+        )
+    }
+}
+
+/// Liste von Alert-Card-Skeletons für Refresh/Folge-Laden
+struct ServiceAlertCardSkeletonList: View {
+    let count: Int
+    
+    init(count: Int = 3) {
+        self.count = count
+    }
+    
+    var body: some View {
+        VStack(spacing: 12) {
+            ForEach(0..<count, id: \.self) { _ in
+                ServiceAlertCardSkeleton()
+            }
+        }
+        .accessibilityHidden(true)
+    }
+}
+
+// MARK: - Ticket Skeleton
+
+/// Skeleton für Ticket-Erkennung
+struct TicketRecognitionSkeleton: View {
+    var body: some View {
+        VStack(spacing: DesignTokens.Spacing.lg) {
+            Spacer()
+            
+            // Animierte Scan-Linien
+            ZStack {
+                RoundedRectangle(cornerRadius: 16, style: .continuous)
+                    .stroke(SemanticColor.tertiarySystemFill, lineWidth: 3)
+                    .frame(width: 120, height: 80)
+                
+                VStack(spacing: 8) {
+                    SkeletonShape(width: 80, height: 10, cornerRadius: 4)
+                    SkeletonShape(width: 60, height: 10, cornerRadius: 4)
+                    SkeletonShape(width: 70, height: 10, cornerRadius: 4)
+                }
+            }
+            
+            VStack(spacing: 8) {
+                SkeletonShape(width: 140, height: 16, cornerRadius: 6)
+                SkeletonShape(width: 100, height: 12, cornerRadius: 4)
+            }
+            
+            Spacer()
+        }
+        .accessibilityLabel("Ticket wird erkannt")
+        .accessibilityHidden(true)
+    }
+}
+
+// MARK: - Location Loading Skeleton
+
+/// Skeleton für Standort-Ladeanzeige in Settings
+struct LocationLoadingSkeleton: View {
+    var body: some View {
+        HStack(spacing: 8) {
+            InlineSkeletonLoader(size: 18, tint: AppTheme.primaryColor.opacity(0.5))
+        }
+    }
+}
+
+// MARK: - Refresh Skeleton
+
+/// Skeleton für Aktualisierungs-Anzeige
+struct RefreshSkeleton: View {
+    var body: some View {
+        HStack(spacing: 6) {
+            InlineSkeletonLoader(size: 14, tint: AppTheme.muted.opacity(0.6))
+            SkeletonShape(width: 80, height: 12, cornerRadius: 4)
+        }
+    }
+}
+
 #Preview("Skeleton Components") {
     ScrollView {
         VStack(spacing: 16) {
+            Text("Trip Cards").font(.headline)
             TripCardSkeleton()
             DepartureRowSkeleton().padding(.horizontal)
             StationCardSkeleton().padding(.horizontal)
+            
+            Divider()
+            
+            Text("Inline Loaders").font(.headline)
+            HStack(spacing: 20) {
+                VStack {
+                    InlineSkeletonLoader(size: 16)
+                    Text("16pt").font(.caption2)
+                }
+                VStack {
+                    InlineSkeletonLoader(size: 20)
+                    Text("20pt").font(.caption2)
+                }
+                VStack {
+                    SkeletonPulse(size: 16)
+                    Text("Pulse").font(.caption2)
+                }
+                VStack {
+                    ToolbarSkeletonLoader()
+                    Text("Toolbar").font(.caption2)
+                }
+            }
+            
+            Divider()
+            
+            Text("Map Skeleton").font(.headline)
+            MapSkeleton(height: 150)
+                .padding(.horizontal)
+            
+            Divider()
+            
+            Text("Service Alert Card").font(.headline)
+            ServiceAlertCardSkeleton()
+                .padding(.horizontal)
+            
+            Divider()
+            
+            Text("Ticket Recognition").font(.headline)
+            TicketRecognitionSkeleton()
+                .frame(height: 200)
         }
         .padding(.vertical)
+    }
+    .background(AppTheme.canvas)
+}
+
+#Preview("Empty State Skeletons") {
+    ScrollView {
+        VStack(spacing: 32) {
+            Text("Connections EmptyState Skeleton").font(.headline)
+            ConnectionsEmptyStateSkeleton()
+            
+            Divider()
+            
+            Text("Service Alerts EmptyState Skeleton").font(.headline)
+            ServiceAlertsSkeleton()
+            
+            Divider()
+            
+            Text("Generic EmptyState Skeleton").font(.headline)
+            EmptyStateSkeleton()
+        }
+        .padding()
     }
     .background(AppTheme.canvas)
 }

@@ -19,11 +19,7 @@ struct RefreshTimestampView: View {
     var body: some View {
         HStack(spacing: 6) {
             if isRefreshing {
-                ProgressView()
-                    .scaleEffect(0.7)
-                Text("Aktualisiere...")
-                    .font(.caption)
-                    .foregroundStyle(AppTheme.muted)
+                RefreshSkeleton()
             } else if let lastRefresh {
                 Image(systemName: "arrow.clockwise")
                     .font(.system(size: 10))

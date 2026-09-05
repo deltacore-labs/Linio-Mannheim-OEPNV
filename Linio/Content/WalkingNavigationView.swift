@@ -120,18 +120,18 @@ struct WalkingNavigationView: View {
                     .padding(12)
                 }
             } else {
-                RoundedRectangle(cornerRadius: 16)
-                    .fill(AppTheme.surfaceCard)
-                    .frame(height: 200)
-                    .overlay {
-                        if isLoading {
-                            ProgressView()
-                        } else {
+                if isLoading {
+                    MapSkeleton(height: 200)
+                } else {
+                    RoundedRectangle(cornerRadius: 16)
+                        .fill(AppTheme.surfaceCard)
+                        .frame(height: 200)
+                        .overlay {
                             Image(systemName: "map")
                                 .font(.largeTitle)
                                 .foregroundColor(AppTheme.muted)
                         }
-                    }
+                }
             }
         }
     }

@@ -194,6 +194,19 @@
     "%lld Datenpunkte" : {
 
     },
+    "%lld Ergebnis%@" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$lld Ergebnis%2$@"
+          }
+        }
+      }
+    },
+    "%lld Ergebnisse" : {
+
+    },
     "%lld Halte" : {
 
     },
@@ -536,9 +549,6 @@
           }
         }
       }
-    },
-    "Aktualisiere..." : {
-
     },
     "Aktualisieren" : {
       "localizations" : {
@@ -1070,6 +1080,7 @@
       }
     },
     "Ergebnis%@" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -1321,6 +1332,7 @@
       }
     },
     "Haltestellen laden…" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -1349,6 +1361,9 @@
           }
         }
       }
+    },
+    "Heidelberg" : {
+
     },
     "Importiere die Barcode-Seite aus deiner Ticket-App." : {
       "localizations" : {
@@ -1448,6 +1463,9 @@
         }
       }
     },
+    "Inhalt wird geladen" : {
+
+    },
     "Ja, neues Ticket scannen" : {
 
     },
@@ -1492,6 +1510,9 @@
 
     },
     "Karte" : {
+
+    },
+    "Karte wird geladen" : {
 
     },
     "Kategorie wählen" : {
@@ -1656,6 +1677,7 @@
       }
     },
     "Lade Abfahrten …" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -1664,9 +1686,6 @@
           }
         }
       }
-    },
-    "Lade Störungsmeldungen..." : {
-
     },
     "Lädt Verbindungen eine Stunde früher" : {
       "localizations" : {
@@ -2172,6 +2191,9 @@
     "Störungen" : {
 
     },
+    "Störungsmeldungen werden geladen" : {
+
+    },
     "Streckenübersicht auf der Karte" : {
       "localizations" : {
         "en" : {
@@ -2209,6 +2231,7 @@
       }
     },
     "Suche Haltestellen..." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -2229,6 +2252,7 @@
       }
     },
     "Suche..." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -2315,6 +2339,7 @@
       }
     },
     "Ticket wird erkannt…" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -2541,6 +2566,7 @@
       }
     },
     "Verbindung wird hergestellt..." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -2584,6 +2610,9 @@
       }
     },
     "Verbindungsdetails werden geladen" : {
+
+    },
+    "Verbindungssuche wird vorbereitet" : {
 
     },
     "Verlängerung öffnen" : {
@@ -2718,9 +2747,6 @@
       }
     },
     "Wird geladen" : {
-
-    },
-    "Wird geladen…" : {
 
     },
     "Wochenübersicht" : {

@@ -18,10 +18,8 @@ struct ServiceAlertsView: View {
             AppTheme.canvas.ignoresSafeArea()
             
             if alertsManager.isLoading && alertsManager.alerts.isEmpty {
-                VStack(spacing: 16) {
-                    ProgressView().scaleEffect(1.2)
-                    Text("Lade Störungsmeldungen...").font(.subheadline).foregroundStyle(.secondary)
-                }
+                // Skeleton das zum "Alles läuft!" EmptyState passt
+                ServiceAlertsSkeleton()
             } else if filteredAlerts.isEmpty {
                 emptyStateView
             } else {

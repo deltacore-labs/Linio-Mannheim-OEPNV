@@ -223,12 +223,11 @@ struct HIGLoadingView: View {
     var message: String = "Laden..."
     var body: some View {
         VStack(spacing: DesignTokens.Spacing.md) {
-            ProgressView().tint(Color.accentColor).scaleEffect(1.2)
-            Text(message)
-                .font(Typography.subheadline)
-                .foregroundStyle(SemanticColor.secondaryLabel)
+            InlineSkeletonLoader(size: 28, tint: Color.accentColor.opacity(0.6))
+            SkeletonShape(width: CGFloat(message.count * 8), height: 16, cornerRadius: 4)
         }
         .frame(maxWidth: .infinity)
         .padding(.vertical, DesignTokens.Spacing.xxl)
+        .accessibilityLabel(message)
     }
 }

@@ -550,16 +550,9 @@ struct TicketView: View {
     // MARK: - Scanning Overlay
 
     private var scanningOverlay: some View {
-        VStack(spacing: DesignTokens.Spacing.lg) {
-            Spacer()
-            ProgressView().scaleEffect(1.4)
-            Text("Ticket wird erkannt…")
-                .font(Typography.subheadline)
-                .foregroundStyle(SemanticColor.secondaryLabel)
-            Spacer()
-        }
-        .accessibilityElement(children: .combine)
-        .accessibilityLabel("Ticket wird erkannt")
+        TicketRecognitionSkeleton()
+            .accessibilityElement(children: .combine)
+            .accessibilityLabel("Ticket wird erkannt")
     }
 
     // MARK: - Empty State

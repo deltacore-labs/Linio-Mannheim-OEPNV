@@ -85,9 +85,7 @@ struct DepartureBoardView: View {
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     if isLoadingDepartures {
-                        ProgressView()
-                            .scaleEffect(0.75)
-                            .tint(SemanticColor.secondaryLabel)
+                        ToolbarSkeletonLoader()
                     } else {
                         Button(action: refreshDepartures) {
                             Image(systemName: "arrow.clockwise")
@@ -319,13 +317,10 @@ struct DepartureBoardView: View {
 
     private var loadingView: some View {
         VStack(spacing: DesignTokens.Spacing.md) {
-            // Header mit Animation
+            // Header mit Skeleton-Animation
             HStack(spacing: DesignTokens.Spacing.sm) {
-                ProgressView()
-                    .tint(SemanticColor.secondaryLabel)
-                Text("Lade Abfahrten …")
-                    .font(Typography.footnote.weight(.medium))
-                    .foregroundStyle(SemanticColor.secondaryLabel)
+                InlineSkeletonLoader(size: 16, tint: SemanticColor.secondaryLabel.opacity(0.5))
+                SkeletonShape(width: 120, height: 14, cornerRadius: 4)
             }
             .padding(.top, DesignTokens.Spacing.lg)
             .padding(.bottom, DesignTokens.Spacing.xs)
@@ -1002,8 +997,7 @@ struct DepartureTripDetailView: View {
                         .foregroundStyle(AppTheme.muted)
                         .tracking(0.5)
                     if isLoadingFullRoute {
-                        ProgressView()
-                            .scaleEffect(0.7)
+                        InlineSkeletonLoader(size: 14, tint: AppTheme.muted.opacity(0.5))
                             .padding(.leading, 4)
                     }
                     Spacer()

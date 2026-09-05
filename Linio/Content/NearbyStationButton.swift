@@ -45,9 +45,7 @@ struct NearbyStationButton: View {
         } label: {
             HStack(spacing: 10) {
                 if isLoading {
-                    ProgressView()
-                        .scaleEffect(0.8)
-                        .tint(.white)
+                    InlineSkeletonLoader(size: 18, tint: .white.opacity(0.7))
                 } else {
                     Image(systemName: "location.fill")
                         .font(.system(size: 14, weight: .semibold))
@@ -119,7 +117,7 @@ struct NearbyStationCompactButton: View {
         } label: {
             HStack(spacing: 6) {
                 if isLoading {
-                    ProgressView().scaleEffect(0.65).tint(AppTheme.primaryColor)
+                    InlineSkeletonLoader(size: 14, tint: AppTheme.primaryColor.opacity(0.6))
                 } else {
                     Image(systemName: "location.fill").font(.system(size: 11, weight: .semibold))
                 }

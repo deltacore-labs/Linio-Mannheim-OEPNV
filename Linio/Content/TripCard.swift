@@ -377,6 +377,7 @@ struct TripCard: View {
 /// - Swipe rechts → Teilen (blau)
 /// - Elegante Glasmorphismus-Buttons mit sanften Übergängen
 /// - Professionelle Animationen passend zum Design-System
+/// - Partikel-Animation zur Dynamic Island bei Live Activity
 struct SwipeableTripCard: View {
     let trip: DetailedTrip
     let onTap: () -> Void
@@ -385,6 +386,9 @@ struct SwipeableTripCard: View {
     
     @State private var offsetX: CGFloat = 0
     @State private var isOpen = false
+    @State private var showParticles = false
+    @State private var cardFrame: CGRect = .zero
+    
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(\.colorScheme) private var colorScheme
     
@@ -446,12 +450,27 @@ struct SwipeableTripCard: View {
                     x: offsetX > 0 ? 4 : (offsetX < 0 ? -4 : 0),
                     y: 0
                 )
+                .background(
+                    GeometryReader { geo in
+                        Color.clear
+                            .preference(key: LiveActivitySourcePreferenceKey.self, value: geo.frame(in: .global))
+                    }
+                )
         }
         .clipShape(RoundedRectangle(cornerRadius: DesignTokens.CornerRadius.large, style: .continuous))
         .simultaneousGesture(dragGesture)
         .onTapGesture { handleTap() }
         .accessibilityAction(named: "Teilen") { onShare() }
         .accessibilityAction(named: "Live Activity") { onLiveActivity() }
+        .onPreferenceChange(LiveActivitySourcePreferenceKey.self) { frame in
+            cardFrame = frame
+        }
+        .overlay(alignment: .center) {
+            // Partikel-Animation zur Dynamic Island
+            if showParticles {
+                LiveActivityParticleEmitter(sourceFrame: cardFrame, isActive: showParticles)
+            }
+        }
     }
     
     // MARK: - Share Action (Refined Glass Style)
@@ -584,6 +603,12 @@ struct SwipeableTripCard: View {
             offsetX = isLeft ? -400 : 400
         }
         HapticHelper.success()
+        
+        // Partikel-Animation bei Live Activity
+        if isLeft {
+            triggerParticleAnimation()
+        }
+        
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) {
             isLeft ? onLiveActivity() : onShare()
             snapClosed()
@@ -603,6 +628,7 @@ struct SwipeableTripCard: View {
     
     private func triggerLive() {
         HapticHelper.success()
+        triggerParticleAnimation()
         snapClosed()
         onLiveActivity()
     }
@@ -611,6 +637,17 @@ struct SwipeableTripCard: View {
         HapticHelper.softTap()
         snapClosed()
         onShare()
+    }
+    
+    // MARK: - Particle Animation
+    
+    private func triggerParticleAnimation() {
+        guard !reduceMotion else { return }
+        showParticles = true
+        // Zurücksetzen nach der Animation
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+            showParticles = false
+        }
     }
 }
 
@@ -674,5 +711,175 @@ private struct RefinedSwipeButtonStyle: ButtonStyle {
             .scaleEffect(configuration.isPressed ? 0.97 : 1.0)
             .brightness(configuration.isPressed ? 0.08 : 0)
             .animation(.easeOut(duration: 0.15), value: configuration.isPressed)
+    }
+}
+
+// MARK: - Live Activity Particle Animation
+
+/// Einzelner Partikel für die Live Activity Animation
+struct LiveActivityParticle: Identifiable {
+    let id = UUID()
+    let startX: CGFloat
+    let startY: CGFloat
+    let controlX: CGFloat  // Bezier-Kurven-Kontrollpunkt
+    let size: CGFloat
+    let delay: Double
+    let duration: Double
+    let initialOpacity: Double
+}
+
+/// View für die Partikel-Animation zur Dynamic Island
+struct LiveActivityParticleView: View {
+    let particle: LiveActivityParticle
+    let screenHeight: CGFloat
+    
+    @State private var progress: CGFloat = 0
+    @Environment(\.colorScheme) private var colorScheme
+    
+    private var isDark: Bool { colorScheme == .dark }
+    
+    // Bezier-Kurve für natürliche Bewegung
+    private var currentX: CGFloat {
+        let t = progress
+        // Quadratische Bezier-Kurve: Start → Control → Ende (Mitte oben)
+        let p0 = particle.startX
+        let p1 = particle.controlX
+        let p2: CGFloat = 0  // Ziel: Mitte des Screens
+        return pow(1-t, 2) * p0 + 2 * (1-t) * t * p1 + pow(t, 2) * p2
+    }
+    
+    private var currentY: CGFloat {
+        let t = progress
+        // Easing für natürlichere Beschleunigung nach oben
+        return particle.startY - (particle.startY + screenHeight * 0.45) * t
+    }
+    
+    var body: some View {
+        ZStack {
+            // Äußerer Glow
+            Circle()
+                .fill(
+                    RadialGradient(
+                        colors: [
+                            SemanticColor.systemGreen.opacity(0.5),
+                            SemanticColor.systemGreen.opacity(0.2),
+                            Color.clear
+                        ],
+                        center: .center,
+                        startRadius: 0,
+                        endRadius: particle.size * 1.5
+                    )
+                )
+                .frame(width: particle.size * 3, height: particle.size * 3)
+            
+            // Innerer Kern mit Glaseffekt
+            Circle()
+                .fill(
+                    RadialGradient(
+                        colors: [
+                            Color.white.opacity(isDark ? 0.9 : 1.0),
+                            SemanticColor.systemGreen.opacity(0.9),
+                            SemanticColor.systemGreen
+                        ],
+                        center: UnitPoint(x: 0.3, y: 0.3),
+                        startRadius: 0,
+                        endRadius: particle.size / 2
+                    )
+                )
+                .frame(width: particle.size, height: particle.size)
+                .overlay(
+                    // Glass-Highlight
+                    Circle()
+                        .fill(
+                            LinearGradient(
+                                colors: [
+                                    Color.white.opacity(0.6),
+                                    Color.clear
+                                ],
+                                startPoint: .topLeading,
+                                endPoint: .center
+                            )
+                        )
+                        .scaleEffect(0.7)
+                        .offset(x: -particle.size * 0.1, y: -particle.size * 0.1)
+                )
+                .shadow(color: SemanticColor.systemGreen.opacity(0.8), radius: 6, x: 0, y: 0)
+        }
+        .opacity(particle.initialOpacity * (1 - progress * 0.7))
+        .scaleEffect(1 - progress * 0.5)
+        .offset(x: currentX, y: currentY)
+        .onAppear {
+            withAnimation(
+                .easeOut(duration: particle.duration)
+                .delay(particle.delay)
+            ) {
+                progress = 1
+            }
+        }
+    }
+}
+
+/// Container für die Partikel-Animation
+struct LiveActivityParticleEmitter: View {
+    let sourceFrame: CGRect
+    let isActive: Bool
+    
+    @State private var particles: [LiveActivityParticle] = []
+    @State private var hasTriggered = false
+    
+    private let particleCount = 12
+    
+    var body: some View {
+        GeometryReader { geo in
+            let screenHeight = geo.size.height
+            
+            ZStack {
+                ForEach(particles) { particle in
+                    LiveActivityParticleView(
+                        particle: particle,
+                        screenHeight: screenHeight
+                    )
+                }
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .onAppear {
+                if isActive && !hasTriggered {
+                    hasTriggered = true
+                    generateParticles()
+                }
+            }
+        }
+        .allowsHitTesting(false)
+    }
+    
+    private func generateParticles() {
+        particles = (0..<particleCount).map { index in
+            // Verteile Partikel in einem Bogen
+            let angle = Double(index) / Double(particleCount) * .pi - .pi / 2
+            let spreadX = CGFloat(cos(angle)) * 40
+            
+            return LiveActivityParticle(
+                startX: spreadX + CGFloat.random(in: -15...15),
+                startY: CGFloat.random(in: -5...5),
+                controlX: spreadX * 0.5 + CGFloat.random(in: -30...30),
+                size: CGFloat.random(in: 8...16),
+                delay: Double(index) * 0.035 + Double.random(in: 0...0.02),
+                duration: Double.random(in: 0.55...0.75),
+                initialOpacity: Double.random(in: 0.8...1.0)
+            )
+        }
+        
+        // Partikel nach Animation entfernen
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.3) {
+            particles = []
+        }
+    }
+}
+
+/// Koordinaten-Präferenz-Key für die Partikel-Startposition
+struct LiveActivitySourcePreferenceKey: PreferenceKey {
+    static var defaultValue: CGRect = .zero
+    static func reduce(value: inout CGRect, nextValue: () -> CGRect) {
+        value = nextValue()
     }
 }

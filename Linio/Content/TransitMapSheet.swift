@@ -641,7 +641,7 @@ struct RouteStopsPanel: View {
     @ViewBuilder
     private func stopRow(_ stop: RouteStopEntry, isFirst: Bool = false, isLast: Bool = false) -> some View {
         let isHighlighted = selectedStopName == stop.name
-        let accentColor = Color(red: 0.25, green: 0.55, blue: 1.0)
+        let accentColor = AppColorPalette.secondary  // #88BDF2 - Mittleres Blau
 
         HStack(alignment: .center, spacing: 0) {
             // Left accent bar for highlighted intermediate stop
@@ -696,7 +696,7 @@ struct RouteStopsPanel: View {
 
     @ViewBuilder
     private func dotView(for stop: RouteStopEntry, highlighted: Bool = false) -> some View {
-        let accentColor = Color(red: 0.25, green: 0.55, blue: 1.0)
+        let accentColor = AppColorPalette.secondary  // #88BDF2 - Mittleres Blau
         switch stop.kind {
         case .origin:
             Circle().fill(Color.green).frame(width: 12, height: 12)

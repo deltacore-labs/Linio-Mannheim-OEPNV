@@ -727,7 +727,6 @@ struct ConnectionsView: View {
     // MARK: - Connections List
 
     private var connectionsList: some View {
-        // Performance: LazyVStack rendert nur sichtbare Views
         LazyVStack(spacing: 12) {
             ForEach(Array(filteredTrips.enumerated()), id: \.element.id) { index, trip in
                 tripCardView(for: trip, isFirst: index == 0)
@@ -737,32 +736,22 @@ struct ConnectionsView: View {
     
     @ViewBuilder
     private func tripCardView(for trip: DetailedTrip, isFirst: Bool) -> some View {
-        let cardContent = Button {
-            guard !trip.legs.isEmpty else { return }
-            HapticHelper.softTap()
-            selectedTrip = trip
-        } label: {
-            TripCard(trip: trip)
-        }
-        .buttonStyle(.plain)
-        .swipeActions(edge: .trailing, allowsFullSwipe: true) {
-            Button {
+        let cardContent = SwipeableTripCard(
+            trip: trip,
+            onTap: {
+                guard !trip.legs.isEmpty else { return }
+                HapticHelper.softTap()
+                selectedTrip = trip
+            },
+            onLiveActivity: {
                 HapticHelper.success()
                 startLiveActivity(for: trip)
-            } label: {
-                Label("Live starten", systemImage: "bolt.fill")
-            }
-            .tint(.green)
-        }
-        .swipeActions(edge: .leading, allowsFullSwipe: false) {
-            Button {
+            },
+            onShare: {
                 HapticHelper.softTap()
                 shareTrip(trip)
-            } label: {
-                Label("Teilen", systemImage: "square.and.arrow.up")
             }
-            .tint(AppTheme.primaryColor)
-        }
+        )
         .contextMenu {
             Button {
                 startLiveActivity(for: trip)
@@ -790,7 +779,7 @@ struct ConnectionsView: View {
             cardContent
                 .firstUseTooltip(
                     key: TooltipKey.swipeForLiveActivity,
-                    text: "Wische nach rechts für Live Activity",
+                    text: "← Wische für Live Activity",
                     edge: .bottom
                 )
         } else {

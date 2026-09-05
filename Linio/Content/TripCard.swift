@@ -52,30 +52,57 @@ struct TripCard: View {
 
     var body: some View {
         HStack(spacing: 0) {
-            Rectangle()
+            // Farbiger Akzent-Streifen links
+            RoundedRectangle(cornerRadius: 2)
                 .fill(isPast ? SemanticColor.separator : primaryLineColor)
                 .frame(width: 4)
+                .padding(.vertical, 8)
 
             VStack(alignment: .leading, spacing: DesignTokens.Spacing.sm) {
-                HStack(alignment: .top) {
+                // Obere Zeile: Zeit + Status
+                HStack(alignment: .top, spacing: 12) {
                     timeRow
                     Spacer()
                     statusColumn
                 }
 
+                // Meta-Informationen
                 metaRow
+                
+                // Transport-Linien
                 transportLinesRow
             }
             .padding(.leading, DesignTokens.Spacing.sm)
             .padding(.trailing, DesignTokens.Spacing.md)
-            .padding(.vertical, DesignTokens.Spacing.sm)
+            .padding(.vertical, DesignTokens.Spacing.sm + 2)
         }
         .background(
-            LiquidGlassBackground(
-                cornerRadius: DesignTokens.CornerRadius.large,
-                intensity: isPast ? .subtle : .standard
-            )
+            ZStack {
+                // Base Card Background
+                LiquidGlassBackground(
+                    cornerRadius: DesignTokens.CornerRadius.large,
+                    intensity: isPast ? .subtle : .standard
+                )
+                
+                // Subtle Gradient Overlay für Tiefe
+                if !isPast {
+                    LinearGradient(
+                        colors: [primaryLineColor.opacity(0.03), .clear],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    )
+                    .clipShape(RoundedRectangle(cornerRadius: DesignTokens.CornerRadius.large))
+                }
+            }
             .opacity(isPast ? 0.6 : 1.0)
+        )
+        .overlay(
+            // Subtiler Border für bessere Definition
+            RoundedRectangle(cornerRadius: DesignTokens.CornerRadius.large)
+                .stroke(
+                    isPast ? SemanticColor.separator.opacity(0.3) : primaryLineColor.opacity(0.15),
+                    lineWidth: 0.5
+                )
         )
         .opacity(isPast ? 0.72 : 1.0)
         .padding(.horizontal, DesignTokens.Spacing.md)
@@ -100,33 +127,40 @@ struct TripCard: View {
     // MARK: - Time Row
 
     private var timeRow: some View {
-        HStack(spacing: 8) {
-            timeView(scheduled: getFirstLegScheduledDeparture() ?? trip.startTime, estimated: getFirstLegEstimatedDeparture(), delay: departureDelay)
+        HStack(spacing: 10) {
+            timeView(scheduled: getFirstLegScheduledDeparture() ?? trip.startTime, estimated: getFirstLegEstimatedDeparture(), delay: departureDelay, isArrival: false)
 
-            Image(systemName: "arrow.right")
-                .font(.system(size: 11, weight: .semibold))
-                .foregroundColor(.secondary.opacity(0.5))
+            // Moderner Pfeil mit Animation-Potential
+            Image(systemName: "chevron.right")
+                .font(.system(size: 12, weight: .medium))
+                .foregroundStyle(
+                    LinearGradient(
+                        colors: [.secondary.opacity(0.4), .secondary.opacity(0.6)],
+                        startPoint: .leading,
+                        endPoint: .trailing
+                    )
+                )
 
-            timeView(scheduled: getLastLegScheduledArrival() ?? trip.endTime, estimated: getLastLegEstimatedArrival(), delay: arrivalDelay)
+            timeView(scheduled: getLastLegScheduledArrival() ?? trip.endTime, estimated: getLastLegEstimatedArrival(), delay: arrivalDelay, isArrival: true)
         }
     }
 
     @ViewBuilder
-    private func timeView(scheduled: String, estimated: String?, delay: Int?) -> some View {
+    private func timeView(scheduled: String, estimated: String?, delay: Int?, isArrival: Bool) -> some View {
         if let delay = delay, delay > 0, let est = estimated {
-            VStack(alignment: .leading, spacing: 1) {
+            VStack(alignment: isArrival ? .trailing : .leading, spacing: 2) {
                 Text(formatter.formatTime(scheduled))
-                    .font(.caption2)
-                    .foregroundColor(.secondary)
-                    .strikethrough(true, color: .red.opacity(0.5))
+                    .font(.system(size: 12, weight: .medium))
+                    .foregroundColor(.secondary.opacity(0.6))
+                    .strikethrough(true, color: .red.opacity(0.4))
                 Text(formatter.formatTime(est))
-                    .font(.system(size: smallTimeSize, weight: .bold))
+                    .font(.system(size: smallTimeSize, weight: .bold, design: .rounded))
                     .foregroundColor(.red)
             }
         } else {
             Text(formatter.formatTime(scheduled))
-                .font(.system(size: largeTimeSize, weight: .bold))
-                .foregroundColor(.primary)
+                .font(.system(size: largeTimeSize, weight: .bold, design: .rounded))
+                .foregroundColor(isPast ? .secondary : .primary)
         }
     }
 
@@ -171,14 +205,23 @@ struct TripCard: View {
 
     @ViewBuilder
     private func statusBadge(text: String, icon: String, color: Color, bg: Color) -> some View {
-        HStack(spacing: 3) {
-            Image(systemName: icon).font(.system(size: 9))
-            Text(text).font(.caption2).fontWeight(.semibold)
+        HStack(spacing: 4) {
+            Image(systemName: icon)
+                .font(.system(size: 10, weight: .medium))
+            Text(text)
+                .font(.system(size: 11, weight: .semibold, design: .rounded))
         }
         .foregroundColor(color)
-        .padding(.horizontal, 8)
-        .padding(.vertical, 4)
-        .background(Capsule().fill(bg))
+        .padding(.horizontal, 9)
+        .padding(.vertical, 5)
+        .background(
+            Capsule()
+                .fill(bg)
+                .overlay(
+                    Capsule()
+                        .stroke(color.opacity(0.2), lineWidth: 0.5)
+                )
+        )
     }
 
     // MARK: - Meta Row
@@ -305,5 +348,106 @@ struct TripCard: View {
     private func getLegDelay(_ leg: TripLeg) -> Int? {
         guard let scheduled = leg.departureTime, let estimated = leg.estimatedDepartureTime else { return nil }
         return formatter.calculateDelay(timetabled: scheduled, estimated: estimated)
+    }
+}
+
+// MARK: - Swipeable Trip Card
+
+/// Eine TripCard mit Swipe-Gesten für Live Activity und Teilen
+struct SwipeableTripCard: View {
+    let trip: DetailedTrip
+    let onTap: () -> Void
+    let onLiveActivity: () -> Void
+    let onShare: () -> Void
+    
+    @State private var offset: CGFloat = 0
+    @State private var isSwiping = false
+    
+    private let actionThreshold: CGFloat = 70
+    private let maxOffset: CGFloat = 90
+    
+    var body: some View {
+        ZStack(alignment: .leading) {
+            // Hintergrund-Aktionen
+            HStack(spacing: 0) {
+                // Linke Aktion (Teilen)
+                actionButton(icon: "square.and.arrow.up", text: "Teilen", 
+                           color: AppTheme.primaryColor, isActive: offset > actionThreshold)
+                    .frame(width: max(offset, 0))
+                    .clipped()
+                
+                Spacer()
+                
+                // Rechte Aktion (Live Activity)
+                actionButton(icon: "bolt.fill", text: "Live",
+                           color: .green, isActive: offset < -actionThreshold)
+                    .frame(width: max(-offset, 0))
+                    .clipped()
+            }
+            
+            // Die eigentliche TripCard
+            Button(action: {
+                if !isSwiping { onTap() }
+            }) {
+                TripCard(trip: trip)
+            }
+            .buttonStyle(.plain)
+            .offset(x: offset)
+            .gesture(
+                DragGesture(minimumDistance: 15)
+                    .onChanged { value in
+                        isSwiping = true
+                        let translation = value.translation.width
+                        // Nur horizontale Swipes verarbeiten
+                        guard abs(translation) > abs(value.translation.height) else { return }
+                        // Elastischer Widerstand
+                        withAnimation(.interactiveSpring(response: 0.15, dampingFraction: 0.86)) {
+                            if translation > 0 {
+                                offset = min(translation * 0.7, maxOffset)
+                            } else {
+                                offset = max(translation * 0.7, -maxOffset)
+                            }
+                        }
+                    }
+                    .onEnded { value in
+                        let velocity = value.predictedEndTranslation.width - value.translation.width
+                        withAnimation(.spring(response: 0.32, dampingFraction: 0.72)) {
+                            if offset > actionThreshold || (offset > 25 && velocity > 80) {
+                                offset = 0
+                                onShare()
+                            } else if offset < -actionThreshold || (offset < -25 && velocity < -80) {
+                                offset = 0
+                                onLiveActivity()
+                            } else {
+                                offset = 0
+                            }
+                        }
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.12) { isSwiping = false }
+                    }
+            )
+        }
+    }
+    
+    @ViewBuilder
+    private func actionButton(icon: String, text: String, color: Color, isActive: Bool) -> some View {
+        VStack(spacing: 5) {
+            ZStack {
+                Circle()
+                    .fill(Color.white.opacity(isActive ? 0.25 : 0.15))
+                    .frame(width: isActive ? 44 : 36)
+                Image(systemName: icon)
+                    .font(.system(size: isActive ? 20 : 16, weight: .semibold))
+                    .foregroundColor(.white)
+            }
+            Text(text)
+                .font(.system(size: 10, weight: .semibold, design: .rounded))
+                .foregroundColor(.white.opacity(0.95))
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(
+            LinearGradient(colors: [color.opacity(isActive ? 1 : 0.85), color.opacity(isActive ? 0.9 : 0.75)],
+                          startPoint: .topLeading, endPoint: .bottomTrailing)
+        )
+        .animation(.spring(response: 0.2), value: isActive)
     }
 }

@@ -114,8 +114,11 @@ struct WidgetTripLegData: Codable {
 // MARK: - Widget Theme
 
 struct WidgetTheme {
-    static let primaryColor = Color(red: 0.0, green: 0.55, blue: 0.65)
-    static let secondaryColor = Color(red: 0.30, green: 0.25, blue: 0.65)
+    // Neue Farbpalette: #6A89A7, #BDDDFC, #88BDF2, #384959
+    static let primaryColor = Color(hex: "#6A89A7")      // Mittleres Blaugrau
+    static let secondaryColor = Color(hex: "#88BDF2")    // Mittleres Blau
+    static let lightAccent = Color(hex: "#BDDDFC")       // Helles Blau
+    static let darkSurface = Color(hex: "#384959")       // Dunkles Blaugrau
     static let accentGradient = LinearGradient(
         colors: [primaryColor, secondaryColor],
         startPoint: .topLeading,
@@ -865,12 +868,12 @@ struct ActiveTripRow: View {
 
                 HStack(spacing: 4) {
                     Text(WidgetDataProvider.formatTime(trip.startTime))
-                        .font(.system(size: 10, weight: .bold, design: .monospaced))
+                        .font(.system(size: 10, weight: .bold).monospacedDigit())
                     Image(systemName: "arrow.right")
                         .font(.system(size: 7, weight: .bold))
                         .foregroundColor(.secondary)
                     Text(WidgetDataProvider.formatTime(trip.endTime))
-                        .font(.system(size: 10, weight: .bold, design: .monospaced))
+                        .font(.system(size: 10, weight: .bold).monospacedDigit())
                         .foregroundColor(.secondary)
                 }
             }
@@ -1194,7 +1197,7 @@ struct QuickSearchWidgetView: View {
                 }
             } else {
                 Text(currentTimeString())
-                    .font(.system(size: 10, weight: .medium, design: .monospaced))
+                    .font(.system(size: 10, weight: .medium).monospacedDigit())
                     .foregroundStyle(.tertiary)
             }
 
@@ -1312,4 +1315,21 @@ enum WidgetPreviewData {
     NextDepartureWidget()
 } timeline: {
     NextDepartureEntry(date: .now, trip: WidgetPreviewData.sampleTrip, isPlaceholder: false)
+}
+
+// MARK: - Color(hex:) Extension for Widgets
+
+extension Color {
+    init(hex: String) {
+        let hex = hex.trimmingCharacters(in: CharacterSet.alphanumerics.inverted)
+        var int: UInt64 = 0
+        Scanner(string: hex).scanHexInt64(&int)
+        let a, r, g, b: UInt64
+        switch hex.count {
+        case 6: (a, r, g, b) = (255, (int >> 16) & 0xFF, (int >> 8) & 0xFF, int & 0xFF)
+        case 8: (a, r, g, b) = ((int >> 24) & 0xFF, (int >> 16) & 0xFF, (int >> 8) & 0xFF, int & 0xFF)
+        default: (a, r, g, b) = (255, 0, 0, 0)
+        }
+        self.init(.sRGB, red: Double(r) / 255, green: Double(g) / 255, blue: Double(b) / 255, opacity: Double(a) / 255)
+    }
 }

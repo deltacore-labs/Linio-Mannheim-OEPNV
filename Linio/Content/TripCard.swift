@@ -736,7 +736,7 @@ struct LiveActivityParticle: Identifiable {
 /// View für die Partikel-Animation zur Dynamic Island
 struct LiveActivityParticleView: View {
     let particle: LiveActivityParticle
-    let startY: CGFloat  // Globale Y-Position der Karte
+    let distanceToNotch: CGFloat  // Wie weit muss der Partikel nach oben fliegen
     
     @State private var progress: CGFloat = 0
     @Environment(\.colorScheme) private var colorScheme
@@ -752,12 +752,14 @@ struct LiveActivityParticleView: View {
         return pow(1-t, 2) * p0 + 2 * (1-t) * t * p1 + pow(t, 2) * p2
     }
     
-    // Fliegt von Kartenposition zur Dynamic Island (ca. 60pt vom oberen Rand)
+    // Fliegt nach oben zur Dynamic Island
+    // Start: particle.startY (kleine Streuung um 0)
+    // Ziel: -(distanceToNotch) (negativ = nach oben)
     private var currentY: CGFloat {
         let t = progress
-        // Ziel: Von startY zur Dynamic Island (negative Werte = nach oben)
-        let targetY = -startY + 60  // 60pt vom oberen Bildschirmrand
-        return particle.startY + (targetY - particle.startY) * t
+        let startPos = particle.startY
+        let endPos = -distanceToNotch
+        return startPos + (endPos - startPos) * t
     }
     
     var body: some View {
@@ -808,7 +810,7 @@ struct LiveActivityParticleView: View {
 
 /// Container für die Partikel-Animation
 struct LiveActivityParticleEmitter: View {
-    let sourceFrame: CGRect
+    let sourceFrame: CGRect  // Globale Position der Karte
     let isActive: Bool
     
     @State private var particles: [LiveActivityParticle] = []
@@ -816,12 +818,17 @@ struct LiveActivityParticleEmitter: View {
     
     private let particleCount = 10
     
+    // Distanz von Kartenmitte zur Dynamic Island (60pt vom oberen Rand)
+    private var distanceToNotch: CGFloat {
+        sourceFrame.midY - 60
+    }
+    
     var body: some View {
         ZStack {
             ForEach(particles) { particle in
                 LiveActivityParticleView(
                     particle: particle,
-                    startY: sourceFrame.midY
+                    distanceToNotch: distanceToNotch
                 )
             }
         }

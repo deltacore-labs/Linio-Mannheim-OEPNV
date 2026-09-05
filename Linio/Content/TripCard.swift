@@ -351,58 +351,82 @@ struct TripCard: View {
     }
 }
 
+
 // MARK: - Swipeable Trip Card (UIKit-basiert)
 
 /// Eine TripCard mit UIKit SwipeGestureRecognizer für zuverlässige Swipe-Erkennung
-struct SwipeableTripCard: UIViewControllerRepresentable {
+/// Verwendet einen Overlay-Ansatz der besser mit SwiftUI's Layout-System funktioniert
+struct SwipeableTripCard: View {
     let trip: DetailedTrip
     let onTap: () -> Void
     let onLiveActivity: () -> Void
     let onShare: () -> Void
     
-    func makeUIViewController(context: Context) -> SwipeableHostingController<TripCard> {
-        let hostingController = SwipeableHostingController(rootView: TripCard(trip: trip))
-        hostingController.onTap = onTap
-        hostingController.onSwipeLeft = onLiveActivity
-        hostingController.onSwipeRight = onShare
-        return hostingController
-    }
-    
-    func updateUIViewController(_ uiViewController: SwipeableHostingController<TripCard>, context: Context) {
-        uiViewController.rootView = TripCard(trip: trip)
+    var body: some View {
+        TripCard(trip: trip)
+            .overlay {
+                SwipeGestureOverlay(
+                    onTap: onTap,
+                    onSwipeLeft: onLiveActivity,
+                    onSwipeRight: onShare
+                )
+            }
     }
 }
 
-/// UIHostingController mit Swipe-Gesten-Unterstützung
-class SwipeableHostingController<Content: View>: UIHostingController<Content> {
+/// Transparenter UIView Overlay der UIKit Swipe-Gesten über SwiftUI Views legt
+/// Dies ermöglicht zuverlässige Swipe-Erkennung ohne Layout-Probleme
+struct SwipeGestureOverlay: UIViewRepresentable {
+    let onTap: () -> Void
+    let onSwipeLeft: () -> Void
+    let onSwipeRight: () -> Void
+    
+    func makeUIView(context: Context) -> SwipeGestureView {
+        let view = SwipeGestureView()
+        view.backgroundColor = .clear
+        view.onTap = onTap
+        view.onSwipeLeft = onSwipeLeft
+        view.onSwipeRight = onSwipeRight
+        return view
+    }
+    
+    func updateUIView(_ uiView: SwipeGestureView, context: Context) {
+        uiView.onTap = onTap
+        uiView.onSwipeLeft = onSwipeLeft
+        uiView.onSwipeRight = onSwipeRight
+    }
+}
+
+/// UIView mit konfigurierten Swipe- und Tap-Gesten
+class SwipeGestureView: UIView {
     var onTap: (() -> Void)?
     var onSwipeLeft: (() -> Void)?
     var onSwipeRight: (() -> Void)?
     
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        view.backgroundColor = .clear
-        
-        // Wichtig: Sizing auf automatisch setzen damit SwiftUI die Größe korrekt berechnet
-        sizingOptions = .intrinsicContentSize
-        
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        setupGestures()
+    }
+    
+    required init?(coder: NSCoder) {
+        super.init(coder: coder)
         setupGestures()
     }
     
     private func setupGestures() {
         // Tap-Geste
         let tap = UITapGestureRecognizer(target: self, action: #selector(handleTap))
-        view.addGestureRecognizer(tap)
+        addGestureRecognizer(tap)
         
-        // Swipe nach links → Live Activity
+        // Swipe nach links -> Live Activity
         let swipeLeft = UISwipeGestureRecognizer(target: self, action: #selector(handleSwipeLeft))
         swipeLeft.direction = .left
-        view.addGestureRecognizer(swipeLeft)
+        addGestureRecognizer(swipeLeft)
         
-        // Swipe nach rechts → Teilen
+        // Swipe nach rechts -> Teilen
         let swipeRight = UISwipeGestureRecognizer(target: self, action: #selector(handleSwipeRight))
         swipeRight.direction = .right
-        view.addGestureRecognizer(swipeRight)
+        addGestureRecognizer(swipeRight)
     }
     
     @objc private func handleTap() {

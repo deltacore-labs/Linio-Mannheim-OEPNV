@@ -1,5 +1,5 @@
 ## 🌐 Website
-**[https://deltacore-labs.github.io/Linio-Mannheim-OEPNV/](https://deltacore-labs.github.io/Linio-Mannheim-OEPNV/)**
+**[linio.deltacorelabs.de](linio.deltacorelabs.de)**
 
 ---
 
@@ -179,7 +179,7 @@ Dieses Projekt ist unter der **MIT-Lizenz** lizenziert – siehe [LICENSE](LICEN
 # <a name="linio-english-"></a>Linio (English) 🚌💨
 
 ## 🌐 Website
-**[https://deltacore-labs.github.io/Linio-Mannheim-OEPNV/](https://deltacore-labs.github.io/Linio-Mannheim-OEPNV/)**
+**[linio.deltacorelabs.de](linio.deltacorelabs.de)**
 
 **Your real-time transit companion for the Mannheim public transport network**
 
